@@ -1,1 +1,137 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <title>Pilihan Darjah - RX-78-2 Style</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap');
 
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Orbitron', sans-serif;
+      background: linear-gradient(to bottom, #1a1a1a, #2e2e2e);
+      color: white;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    /* Intro screen */
+    #intro {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: black;
+      color: lime;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2em;
+      z-index: 999;
+      animation: fadeOut 1s ease 2.5s forwards;
+    }
+
+    @keyframes fadeOut {
+      to {
+        opacity: 0;
+        visibility: hidden;
+      }
+    }
+
+    h1 {
+      padding: 40px 0 20px;
+      color: #ffcc00;
+      text-shadow: 0 0 10px red;
+    }
+
+    .menu-container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+      max-width: 300px;
+      margin: 0 auto;
+      padding: 20px;
+      opacity: 0;
+      animation: showMenu 1s ease 3s forwards;
+    }
+
+    @keyframes showMenu {
+      to {
+        opacity: 1;
+      }
+    }
+
+    .menu-button {
+      padding: 15px;
+      font-size: 20px;
+      background-color: #0044cc;
+      border: 2px solid #ff0000;
+      color: white;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s ease;
+      box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+    }
+
+    .menu-button:hover {
+      background-color: #cc0000;
+      border-color: #ffd700;
+      box-shadow: 0 0 15px #ffd700;
+    }
+
+    footer {
+      margin-top: 50px;
+      font-size: 12px;
+      color: #999;
+      opacity: 0;
+      animation: showMenu 1s ease 3.5s forwards;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- INTRO overlay -->
+  <div id="intro">BOOTING GUNDAM SYSTEM...</div>
+
+  <h1>⚙ PILIH DARJAH ⚙</h1>
+
+  <div class="menu-container">
+    <button class="menu-button" onclick="playClick('darjah1.html')">Darjah 1</button>
+    <button class="menu-button" onclick="playClick('darjah2.html')">Darjah 2</button>
+    <button class="menu-button" onclick="playClick('darjah3.html')">Darjah 3</button>
+    <button class="menu-button" onclick="playClick('darjah4.html')">Darjah 4</button>
+    <button class="menu-button" onclick="playClick('darjah5.html')">Darjah 5</button>
+    <button class="menu-button" onclick="playClick('darjah6.html')">Darjah 6</button>
+  </div>
+
+  <footer>Design inspired by RX-78-2 Gundam 🦾</footer>
+
+  <!-- AUDIO FILES -->
+  <audio id="introSound" src="boot.mp3"></audio>
+  <audio id="clickSound" src="click.mp3"></audio>
+
+  <script>
+    // Main booting sound
+    window.addEventListener("load", function() {
+      const intro = document.getElementById("introSound");
+      intro.volume = 0.6;
+      intro.play();
+    });
+
+    // Function to play click sound and go to page
+    function playClick(link) {
+      const click = document.getElementById("clickSound");
+      click.volume = 0.7;
+      click.play();
+      setTimeout(() => {
+        window.location.href = link;
+      }, 200); // bagi masa sikit bunyi main dulu
+    }
+  </script>
+</body>
+</html>
