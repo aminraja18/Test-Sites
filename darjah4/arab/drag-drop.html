@@ -83,35 +83,63 @@
     <div class="droppable" data-answer="5">٥. كَيْفَ تَذْهَبُ إِلَى هُنَاكَ؟</div>
   </div>
 
-  <!-- Jawapan -->
+  <!-- Jawapan (kosong, akan diisi oleh JS) -->
   <div class="box">
     <h3>Jawapan</h3>
-    <div class="draggable" draggable="true" data-id="1">اِسْتَيْقَظْتُ فِي السَّاعَةِ الْخَامِسَةِ صَبَاحًا.</div>
-    <div class="draggable" draggable="true" data-id="2">غَسَلْتُ بَدَنِي، وَتَوَضَّأْتُ، وَصَلَّيْتُ صَلَاةَ الصُّبْحِ.</div>
-    <div class="draggable" draggable="true" data-id="3">شَاهَدْتُ الْفِيلَ، وَالْأَسَدَ، وَالدُّبَّ، وَغَيْرَ ذَلِكَ.</div>
-    <div class="draggable" draggable="true" data-id="4">ذَهَبْتُ مَعَ أَصْدِقَائِي وَمُعَلِّمِي.</div>
-    <div class="draggable" draggable="true" data-id="5">ذَهَبْتُ بِالْـحَافِلَةِ الْـمَدْرَسِيَّةِ الْكَبِيرَةِ.</div>
+    <div id="answers"></div>
   </div>
 </div>
 
 <script>
-  const draggables = document.querySelectorAll('.draggable');
+  const answers = [
+    { id: "1", text: "اِسْتَيْقَظْتُ فِي السَّاعَةِ الْخَامِسَةِ صَبَاحًا." },
+    { id: "2", text: "غَسَلْتُ بَدَنِي، وَتَوَضَّأْتُ، وَصَلَّيْتُ صَلَاةَ الصُّبْحِ." },
+    { id: "3", text: "شَاهَدْتُ الْفِيلَ، وَالْأَسَدَ، وَالدُّبَّ، وَغَيْرَ ذَلِكَ." },
+    { id: "4", text: "ذَهَبْتُ مَعَ أَصْدِقَائِي وَمُعَلِّمِي." },
+    { id: "5", text: "ذَهَبْتُ بِالْـحَافِلَةِ الْـمَدْرَسِيَّةِ الْكَبِيرَةِ." }
+  ];
+
+  // Fisher-Yates Shuffle
+  function shuffle(array) {
+    let currentIndex = array.length, randomIndex;
+    while (currentIndex !== 0) {
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+      [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+    }
+    return array;
+  }
+
+  const shuffledAnswers = shuffle([...answers]);
+  const answersContainer = document.getElementById("answers");
+
+  shuffledAnswers.forEach(answer => {
+    const div = document.createElement("div");
+    div.className = "draggable";
+    div.draggable = true;
+    div.dataset.id = answer.id;
+    div.textContent = answer.text;
+    answersContainer.appendChild(div);
+  });
+
+  // Drag-and-drop events
+  const draggables = document.getElementsByClassName('draggable');
   const droppables = document.querySelectorAll('.droppable');
 
-  draggables.forEach(draggable => {
-    draggable.addEventListener('dragstart', () => {
-      draggable.classList.add('dragging');
-    });
+  document.addEventListener("dragstart", e => {
+    if (e.target.classList.contains("draggable")) {
+      e.target.classList.add("dragging");
+    }
+  });
 
-    draggable.addEventListener('dragend', () => {
-      draggable.classList.remove('dragging');
-    });
+  document.addEventListener("dragend", e => {
+    if (e.target.classList.contains("draggable")) {
+      e.target.classList.remove("dragging");
+    }
   });
 
   droppables.forEach(drop => {
-    drop.addEventListener('dragover', e => {
-      e.preventDefault();
-    });
+    drop.addEventListener('dragover', e => e.preventDefault());
 
     drop.addEventListener('drop', e => {
       const dragging = document.querySelector('.dragging');
