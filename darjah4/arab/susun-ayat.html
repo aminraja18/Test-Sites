@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>Susun Kad - Bahasa Arab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f9fafb;
+      padding: 2rem;
+      color: #1e293b;
+    }
+
+    h2 {
+      font-size: 1.4rem;
+      margin-bottom: 1.5rem;
+      border-left: 4px solid #0ea5e9;
+      padding-left: 0.5rem;
+    }
+
+    .sentence-box {
+      margin-bottom: 3rem;
+      background: #fff;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+
+    .instruction {
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      color: #475569;
+    }
+
+    .drop-zone {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 1rem;
+      min-height: 60px;
+      background: #f1f5f9;
+      border: 2px dashed #cbd5e1;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+
+    .card {
+      background: #e2e8f0;
+      padding: 8px 12px;
+      border-radius: 8px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      cursor: grab;
+      font-size: 1.1rem;
+    }
+
+    .drag-source {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      background: #f0f9ff;
+      padding: 1rem;
+      border-radius: 8px;
+    }
+
+    .check-btn {
+      background: #0ea5e9;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .check-btn:hover {
+      background: #0284c7;
+    }
+
+    .result {
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<h2>🪟 Bahagian 3: Susun Kad Perkataan Mengikut Susunan Betul</h2>
+
+<!-- SOALAN 1 -->
+<div class="sentence-box" id="question1">
+  <p class="instruction">Soalan 1: Susun ayat “Saya pergi ke zoo dengan kawan-kawan.”</p>
+  <div class="drop-zone" id="drop1"></div>
+  <div class="drag-source" id="drag1">
+    <div class="card" draggable="true">إِلَى</div>
+    <div class="card" draggable="true">ذَهَبْتُ</div>
+    <div class="card" draggable="true">مَعَ</div>
+    <div class="card" draggable="true">الْـحَيَوَانَاتِ</div>
+    <div class="card" draggable="true">أَصْدِقَائِي</div>
+    <div class="card" draggable="true">حَدِيقَةِ</div>
+  </div>
+  <button class="check-btn" onclick="checkOrder('drop1', ['ذَهَبْتُ','إِلَى','حَدِيقَةِ','الْـحَيَوَانَاتِ','مَعَ','أَصْدِقَائِي'])">Semak Jawapan</button>
+  <div class="result" id="result1"></div>
+</div>
+
+<!-- SOALAN 2 -->
+<div class="sentence-box" id="question2">
+  <p class="instruction">Soalan 2: Susun ayat “Saya melihat gajah, singa dan beruang.”</p>
+  <div class="drop-zone" id="drop2"></div>
+  <div class="drag-source" id="drag2">
+    <div class="card" draggable="true">شَاهَدْتُ</div>
+    <div class="card" draggable="true">الدُّبَّ</div>
+    <div class="card" draggable="true">الْفِيلَ</div>
+    <div class="card" draggable="true">وَ</div>
+    <div class="card" draggable="true">وَالْأَسَدَ</div>
+  </div>
+  <button class="check-btn" onclick="checkOrder('drop2', ['شَاهَدْتُ','الْفِيلَ','وَالْأَسَدَ','وَ','الدُّبَّ'])">Semak Jawapan</button>
+  <div class="result" id="result2"></div>
+</div>
+
+<!-- SOALAN 3 -->
+<div class="sentence-box" id="question3">
+  <p class="instruction">Soalan 3: Susun ayat “Saya mandi, berwuduk dan solat Subuh.”</p>
+  <div class="drop-zone" id="drop3"></div>
+  <div class="drag-source" id="drag3">
+    <div class="card" draggable="true">وَ</div>
+    <div class="card" draggable="true">صَلَّيْتُ</div>
+    <div class="card" draggable="true">غَسَلْتُ</div>
+    <div class="card" draggable="true">بَدَنِي</div>
+    <div class="card" draggable="true">صَلَاةَ</div>
+    <div class="card" draggable="true">الصُّبْحِ</div>
+    <div class="card" draggable="true">وَتَوَضَّأْتُ</div>
+  </div>
+  <button class="check-btn" onclick="checkOrder('drop3', ['غَسَلْتُ','بَدَنِي','وَتَوَضَّأْتُ','وَ','صَلَّيْتُ','صَلَاةَ','الصُّبْحِ'])">Semak Jawapan</button>
+  <div class="result" id="result3"></div>
+</div>
+
+<script>
+  const allCards = document.querySelectorAll('.card');
+  const dropZones = document.querySelectorAll('.drop-zone');
+
+  allCards.forEach(card => {
+    card.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text/plain', card.textContent);
+    });
+  });
+
+  dropZones.forEach(zone => {
+    zone.addEventListener('dragover', e => e.preventDefault());
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      const data = e.dataTransfer.getData('text/plain');
+      const newCard = document.createElement('div');
+      newCard.className = 'card';
+      newCard.draggable = true;
+      newCard.textContent = data;
+      newCard.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('text/plain', newCard.textContent);
+      });
+      zone.appendChild(newCard);
+      const dragged = [...document.querySelectorAll('.drag-source .card')].find(c => c.textContent === data);
+      if (dragged) dragged.remove();
+    });
+  });
+
+  function checkOrder(dropId, correctOrder) {
+    const dropZone = document.getElementById(dropId);
+    const cards = dropZone.querySelectorAll('.card');
+    const result = document.getElementById('result' + dropId.replace('drop', ''));
+    const userOrder = Array.from(cards).map(card => card.textContent.trim());
+    if (JSON.stringify(userOrder) === JSON.stringify(correctOrder)) {
+      result.textContent = '✅ Betul!';
+      result.style.color = 'green';
+    } else {
+      result.textContent = '❌ Susunan salah. Cuba lagi.';
+      result.style.color = 'red';
+    }
+  }
+</script>
+
+</body>
+</html>
