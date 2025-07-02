@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Selamat Datang Tahun 4</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f4f4;
+      color: #333;
+      margin: 0;
+      padding: 40px 20px;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+    h2 {
+      color: #666;
+      margin-bottom: 40px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      max-width: 1000px;
+      margin: auto;
+    }
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 30px 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      text-align: center;
+      transition: transform 0.2s ease;
+    }
+    .card:hover {
+      transform: translateY(-6px);
+    }
+    .card h3 {
+      margin-top: 0;
+      color: #2c3e50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .card a {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 10px 20px;
+      background-color: #2e4057;
+      color: #fff;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .card a:hover {
+      background-color: #3c5671;
+    }
+    .emoji {
+      font-size: 1.4em;
+    }
+  </style>
+</head>
+<body>
+  <h1>👋 Selamat Datang Tahun 4</h1>
+  <h2>Daripada Muallim Raja</h2>
+
+  <div class="grid">
+    <div class="card">
+      <h3><span class="emoji">🧠</span> Hafazan Karangan</h3>
+      <a href="hafazan.html">Mulakan</a>
+    </div>
+
+    <div class="card">
+      <h3><span class="emoji">🧩</span> Drag and Drop: Nama Malaikat</h3>
+      <a href="drag-drop.html">Main</a>
+    </div>
+
+    <div class="card">
+      <h3><span class="emoji">📚</span> Susun Ayat Ikut Turutan</h3>
+      <a href="susun-ayat.html">Cuba Sekarang</a>
+    </div>
+  </div>
+</body>
+</html>
