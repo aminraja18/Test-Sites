@@ -1,142 +1,297 @@
-<!DOCTYPE html>
-<html lang="ar">
+<!DOCTYPE html><html lang="ar">
 <head>
-  <meta charset="UTF-8">
-  <title>Bahagian 1 - Hafalan Soalan & Jawapan</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #f9fafb;
-      padding: 2rem;
-      color: #1e293b;
-      line-height: 1.7;
-    }
-
-    section {
-      max-width: 800px;
-      margin: auto;
-      background: #ffffff;
-      border-radius: 12px;
-      padding: 2rem;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.04);
-    }
-
-    h2 {
-      font-size: 1.5rem;
-      border-left: 4px solid #0ea5e9;
-      padding-left: 1rem;
-      margin-bottom: 2rem;
-      color: #0f172a;
-    }
-
-    .qa-pair {
-      margin-bottom: 2rem;
-      padding: 1rem;
-      border-left: 4px solid #cbd5e1;
-      background-color: #f8fafc;
-      border-radius: 8px;
-      transition: all 0.3s ease;
-    }
-
-    .qa-pair:hover {
-      background-color: #f1f5f9;
-      border-left-color: #0ea5e9;
-    }
-
-    .question {
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-      color: #0f172a;
-    }
-
-    .question small {
-      display: block;
-      font-weight: normal;
-      font-size: 0.95rem;
-      color: #64748b;
-    }
-
-    .answer {
-      background: #e2e8f0;
-      padding: 0.75rem 1rem;
-      border-radius: 6px;
-      margin: 0.5rem 0;
-      color: #1e293b;
-    }
-
-    .translation {
-      font-style: italic;
-      color: #475569;
-      padding-left: 0.5rem;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الحفظ والأسئلة</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
+        
+        body { 
+            font-family: 'Tajawal', sans-serif; 
+            text-align: center; 
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            direction: rtl;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+        
+        .section { 
+            display: none; 
+            margin-top: 20px;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        button { 
+            padding: 12px 25px; 
+            margin: 15px 5px; 
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .option-btn { 
+            display: block; 
+            margin: 12px auto; 
+            width: 90%; 
+            max-width: 400px;
+            text-align: right;
+            position: relative;
+            padding-right: 20px;
+            font-size: 16px;
+            transition: all 0.2s ease;
+        }
+        
+        .option-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .option-btn.correct {
+            background-color: #2ecc71;
+        }
+        
+        .option-btn.incorrect {
+            background-color: #e74c3c;
+        }
+        
+        ul {
+            list-style-position: inside;
+            padding-right: 0;
+            text-align: right;
+            max-width: 400px;
+            margin: 20px auto;
+            background-color: rgba(255,255,255,0.7);
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        
+        li {
+            margin: 15px 0;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+        
+        #question {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #2c3e50;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        #progress {
+            margin: 20px auto;
+            width: 80%;
+            height: 10px;
+            background-color: #ecf0f1;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        #progress-bar {
+            height: 100%;
+            background-color: #3498db;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .score-highlight {
+            font-size: 24px;
+            font-weight: bold;
+            color: #3498db;
+        }
+        
+        #feedback ul {
+            text-align: right;
+        }
+        
+        #feedback li {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        #feedback li:last-child {
+            border-bottom: none;
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <h1>لعبة الحفظ والأسئلة</h1>
+        
+        <div id="hafazan" class="section" style="display: block;">
+            <p>احفظ هذه الأسئلة مع أجوبتها:</p>
+            <ul>
+                <li>ما اسمك؟ — اسمي محمد.</li>
+                <li>كم عمرك؟ — عمري عشر سنوات.</li>
+                <li>أين تسكن؟ — أسكن في كوالالمبور.</li>
+                <li>ما اسم أبيك؟ — اسم أبي عبد الله.</li>
+                <li>ما اسم أمك؟ — اسم أمي فاطمة.</li>
+            </ul>
+            <button onclick="startQuiz()">أنا مستعد! ابدأ الاختبار</button>
+        </div>
+        
+        <div id="quiz" class="section">
+            <div id="progress">
+                <div id="progress-bar"></div>
+            </div>
+            <p id="question"></p>
+            <div id="answers"></div>
+        </div>
 
-<section>
-  <h2>🪟 Bahagian 1: Hafalan Soalan & Jawapan</h2>
+        <div id="result" class="section">
+            <h2>انتهيت!</h2>
+            <p id="score"></p>
+            <div id="feedback"></div>
+            <button onclick="location.reload()">أعد اللعب</button>
+        </div>
+    </div>
 
-  <div class="qa-pair">
-    <div class="question">١. مَتَى تَسْتَيْقِظُ مِنَ النَّوْمِ؟<small>Bila kamu bangun dari tidur?</small></div>
-    <div class="answer">اِسْتَيْقَظْتُ فِي السَّاعَةِ الْخَامِسَةِ صَبَاحًا.</div>
-    <div class="translation">Saya bangun pada pukul 5 pagi.</div>
-  </div>
+    <script>
+        const quizData = [
+            { question: "ما اسمك؟", options: { A: "اسمي محمد.", B: "عمري عشر سنوات.", C: "أسكن في كوالالمبور.", D: "اسم أبي عبد الله." }, answer: "A" },
+            { question: "كم عمرك؟", options: { A: "اسمي محمد.", B: "عمري عشر سنوات.", C: "أسكن في كوالالمبور.", D: "اسم أمي فاطمة." }, answer: "B" },
+            { question: "أين تسكن؟", options: { A: "اسم أبي عبد الله.", B: "اسم أمي فاطمة.", C: "أسكن في كوالالمبور.", D: "عمري عشر سنوات." }, answer: "C" },
+            { question: "ما اسم أبيك؟", options: { A: "اسم أبي عبد الله.", B: "اسم أمي فاطمة.", C: "أسكن في كوالالمبور.", D: "اسمي محمد." }, answer: "A" },
+            { question: "ما اسم أمك؟", options: { A: "اسم أمي فاطمة.", B: "اسم أبي عبد الله.", C: "أسكن في كوالالمبور.", D: "عمري عشر سنوات." }, answer: "A" }
+        ];
 
-  <div class="qa-pair">
-    <div class="question">٢. مَاذَا تَفْعَلُ بَعْدَ ذَلِكَ؟<small>Apa yang kamu buat selepas itu?</small></div>
-    <div class="answer">غَسَلْتُ بَدَنِي، وَتَوَضَّأْتُ، وَصَلَّيْتُ صَلَاةَ الصُّبْحِ.</div>
-    <div class="translation">Saya mandi, berwuduk dan solat Subuh.</div>
-  </div>
+        let current = 0;
+        let score = 0;
+        let userAnswers = [];
 
-  <div class="qa-pair">
-    <div class="question">٣. إِلَى أَيْنَ تَرْجِعُ؟<small>Ke mana kamu pulang?</small></div>
-    <div class="answer">أَرْجِعُ إِلَى بَيْتِي فِي السَّاعَةِ الثَّانِيَةِ بَعْدَ الظُّهْرِ.</div>
-    <div class="translation">Saya pulang ke rumah pada pukul 2 petang.</div>
-  </div>
+        function startQuiz() {
+            document.getElementById('hafazan').style.display = 'none';
+            document.getElementById('quiz').style.display = 'block';
+            updateProgressBar();
+            showQuestion();
+        }
+        
+        function updateProgressBar() {
+            const progressPercentage = (current / quizData.length) * 100;
+            document.getElementById('progress-bar').style.width = progressPercentage + '%';
+        }
 
-  <div class="qa-pair">
-    <div class="question">٤. مَتَى تَذْهَبُ إِلَى رِحْلَةٍ مَدْرَسِيَّةٍ؟<small>Bila kamu pergi ke lawatan sekolah?</small></div>
-    <div class="answer">ذَهَبْتُ فِي السَّاعَةِ الثَّامِنَةِ صَبَاحًا.</div>
-    <div class="translation">Saya pergi pada pukul 8 pagi.</div>
-  </div>
+        function showQuestion() {
+            const q = quizData[current];
+            document.getElementById('question').innerText = q.question;
+            const answersDiv = document.getElementById('answers');
+            answersDiv.innerHTML = '';
+            
+            for (const [key, value] of Object.entries(q.options)) {
+                const btn = document.createElement('button');
+                btn.textContent = key + ". " + value;
+                btn.className = "option-btn";
+                btn.onclick = () => checkAnswer(key);
+                answersDiv.appendChild(btn);
+            }
+        }
 
-  <div class="qa-pair">
-    <div class="question">٥. كَيْفَ تَذْهَبُ إِلَى هُنَاكَ؟<small>Bagaimana kamu pergi ke sana?</small></div>
-    <div class="answer">ذَهَبْتُ بِالْـحَافِلَةِ الْـمَدْرَسِيَّةِ الْكَبِيرَةِ مَعَ أَصْدِقَائِي.</div>
-    <div class="translation">Saya pergi dengan bas sekolah yang besar bersama kawan-kawan saya.</div>
-  </div>
+        function checkAnswer(selected) {
+            const isCorrect = selected === quizData[current].answer;
+            
+            // Store user's answer
+            userAnswers.push({
+                question: quizData[current].question,
+                userAnswer: selected,
+                correctAnswer: quizData[current].answer,
+                isCorrect: isCorrect
+            });
+            
+            if (isCorrect) score++;
+            
+            // Visual feedback
+            const buttons = document.querySelectorAll('.option-btn');
+            buttons.forEach(btn => {
+                const btnOption = btn.textContent.charAt(0);
+                if (btnOption === quizData[current].answer) {
+                    btn.classList.add('correct');
+                } else if (btnOption === selected && !isCorrect) {
+                    btn.classList.add('incorrect');
+                }
+                btn.disabled = true;
+            });
+            
+            // Wait a moment before moving to next question
+            setTimeout(() => {
+                current++;
+                if (current < quizData.length) {
+                    updateProgressBar();
+                    showQuestion();
+                } else {
+                    showResults();
+                }
+            }, 1000);
+        }
 
-  <div class="qa-pair">
-    <div class="question">٦. مَعَ مَنْ تَذْهَبُ إِلَى الرِّحْلَةِ؟<small>Dengan siapa kamu pergi ke lawatan?</small></div>
-    <div class="answer">ذَهَبْتُ مَعَ أَصْدِقَائِي وَمُعَلِّمِي.</div>
-    <div class="translation">Saya pergi bersama rakan-rakan dan guru saya.</div>
-  </div>
-
-  <div class="qa-pair">
-    <div class="question">٧. مَاذَا تُشَاهِدُ فِي حَدِيقَةِ الْـحَيَوَانَاتِ؟<small>Apa yang kamu lihat di zoo?</small></div>
-    <div class="answer">شَاهَدْتُ الْفِيلَ، وَالْأَسَدَ، وَالدُّبَّ، وَغَيْرَ ذَلِكَ.</div>
-    <div class="translation">Saya melihat gajah, singa, beruang dan lain-lain.</div>
-  </div>
-
-  <div class="qa-pair">
-    <div class="question">٨. مَتَى تَرْجِعُ إِلَى الْـبَيْتِ؟<small>Bila kamu pulang ke rumah?</small></div>
-    <div class="answer">رَجَعْتُ فِي السَّاعَةِ الثَّانِيَةِ بَعْدَ الظُّهْرِ.</div>
-    <div class="translation">Saya pulang pada pukul 2 petang.</div>
-  </div>
-
-  <div class="qa-pair">
-    <div class="question">٩. مَاذَا تَشْعُرُ فِي الرِّحْلَةِ؟<small>Apa yang kamu rasa semasa lawatan?</small></div>
-    <div class="answer">شَعَرْتُ بِالسَّعَادَةِ وَالْمُتْعَةِ.</div>
-    <div class="translation">Saya rasa gembira dan seronok.</div>
-  </div>
-
-  <div class="qa-pair">
-    <div class="question">١٠. هَلْ تُحِبُّ أَنْ تَذْهَبَ إِلَى حَدِيقَةِ الْـحَيَوَانَاتِ؟ وَلِمَاذَا؟<small>Adakah kamu suka pergi ke zoo? Dan kenapa?</small></div>
-    <div class="answer">نَعَمْ، أُحِبُّ ذَلِكَ لِأَنَّهَا مُمْتِعَةٌ وَتُعَلِّمُنِي أَشْيَاءَ جَدِيدَةً.</div>
-    <div class="translation">Ya, saya suka kerana ia menyeronokkan dan mengajar saya perkara baru.</div>
-  </div>
-</section>
-
-</body>
+        function showResults() {
+            document.getElementById('quiz').style.display = 'none';
+            document.getElementById('result').style.display = 'block';
+            
+            // Show score
+            const scoreText = `حصلت على <span class="score-highlight">${score}</span> من <span class="score-highlight">${quizData.length}</span>`;
+            document.getElementById('score').innerHTML = scoreText;
+            
+            // Show feedback
+            const feedbackDiv = document.getElementById('feedback');
+            feedbackDiv.innerHTML = '';
+            
+            if (score === quizData.length) {
+                feedbackDiv.innerHTML = '<p>ممتاز! لقد أجبت على جميع الأسئلة بشكل صحيح!</p>';
+            } else {
+                feedbackDiv.innerHTML = '<p>إليك الإجابات الصحيحة للأسئلة التي أخطأت فيها:</p>';
+                const ul = document.createElement('ul');
+                
+                userAnswers.forEach((answer, index) => {
+                    if (!answer.isCorrect) {
+                        const li = document.createElement('li');
+                        li.innerHTML = `<strong>${answer.question}</strong><br>
+                                       إجابتك: ${quizData[index].options[answer.userAnswer]}<br>
+                                       الإجابة الصحيحة: ${quizData[index].options[answer.correctAnswer]}`;
+                        ul.appendChild(li);
+                    }
+                });
+                
+                feedbackDiv.appendChild(ul);
+            }
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'95e1bbbf314f9fdf',t:'MTc1MjMzNTgxNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
