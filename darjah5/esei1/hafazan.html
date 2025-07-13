@@ -45,11 +45,7 @@
     <button id="game-button" class="mt-6 px-6 py-3 rounded-xl text-lg bg-green-500 hover:bg-green-600 text-white hidden">
         الانتقال إلى اللعبة التالية
     </button>
-    
-    <button id="menu-button" class="mt-2 px-6 py-3 rounded-xl text-lg bg-neutral-500 hover:bg-neutral-600 text-white hidden">
-        العودة إلى القائمة الرئيسية
-    </button>
-    
+
     <script>
         const data = [
             { q: "ما اسمك؟", a: "اسمي ____________." },
@@ -69,15 +65,6 @@
         const answerEl = document.getElementById('answer');
         const nextButton = document.getElementById('next-button');
         const gameButton = document.getElementById('game-button');
-        const menuButton = document.getElementById('menu-button');
-
-            gameButton.addEventListener('click', () => {
-            window.location.href = 'game-seterusnya.html'; // Contoh fail game
-            });
-
-            menuButton.addEventListener('click', () => {
-            window.location.href = 'index.html'; // Contoh fail menu utama
-            });
         const cardContainer = document.getElementById('card-container');
 
         function updateCard() {
@@ -96,14 +83,14 @@
             }
         }
 
-        if (current < data.length - 1) {
-    current++;
-    updateCard();
-} else {
-    nextButton.classList.add('hidden');
-    gameButton.classList.remove('hidden');
-    menuButton.classList.remove('hidden');
-}
+        nextButton.addEventListener('click', () => {
+            if (current < data.length - 1) {
+                current++;
+                updateCard();
+            } else {
+                nextButton.classList.add('hidden');
+                gameButton.classList.remove('hidden');
+            }
         });
 
         gameButton.addEventListener('click', () => {
