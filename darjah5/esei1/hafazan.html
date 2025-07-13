@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arabic Flashcards</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Noto Sans Arabic', sans-serif;
+        }
+        .card-container {
+            transition: all 0.3s ease;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center bg-neutral-100 p-4">
+    <div id="card-container" class="w-full max-w-xl card-container fade-in">
+        <div class="rounded-2xl shadow-md p-4 bg-white text-center">
+            <div class="p-6">
+                <h1 id="question" class="text-2xl font-semibold mb-4"></h1>
+                <p id="answer" class="text-lg text-neutral-600"></p>
+            </div>
+        </div>
+    </div>
+    
+    <button id="next-button" class="mt-6 px-6 py-3 rounded-xl text-lg bg-blue-500 hover:bg-blue-600 text-white">
+        التالي
+    </button>
+    
+    <button id="game-button" class="mt-6 px-6 py-3 rounded-xl text-lg bg-green-500 hover:bg-green-600 text-white hidden">
+        الانتقال إلى اللعبة التالية
+    </button>
+
+    <script>
+        const data = [
+            { q: "ما اسمك؟", a: "اسمي ____________." },
+            { q: "كم عمرك؟", a: "عمري عشر سنوات." },
+            { q: "أين تسكن؟", a: "أسكن في ____________." },
+            { q: "كم أفراد أسرتك؟", a: "أفراد أسرتي خمسة، وهم: أبي، وأمي، وأخي، وأختي، وأنا." },
+            { q: "كم ترتيبك في الأسرة؟", a: "ترتيبي ____________ في الأسرة." },
+            { q: "ما اسم أبيك؟ وكم عمره؟", a: "اسم أبي ____________، عمره ____________." },
+            { q: "ماذا يعمل؟ وأين؟", a: "يعمل ____________ في ____________." },
+            { q: "ما اسم أمك؟ وكم عمرها؟", a: "اسم أمي ____________، عمرها ____________." },
+            { q: "ماذا تعمل؟ وأين؟", a: "تعمل ____________ في ____________." },
+            { q: "هل تحب أسرتك؟ لماذا؟", a: "نعم، أحب أسرتي لأنها ترعاني وتحبني وتساعدني في دراستي." },
+        ];
+
+        let current = 0;
+        const questionEl = document.getElementById('question');
+        const answerEl = document.getElementById('answer');
+        const nextButton = document.getElementById('next-button');
+        const gameButton = document.getElementById('game-button');
+        const cardContainer = document.getElementById('card-container');
+
+        function updateCard() {
+            cardContainer.classList.remove('fade-in');
+            // Trigger reflow to restart animation
+            void cardContainer.offsetWidth;
+            cardContainer.classList.add('fade-in');
+            
+            questionEl.textContent = data[current].q;
+            answerEl.textContent = data[current].a;
+            
+            if (current === data.length - 1) {
+                nextButton.textContent = "تمت";
+            } else {
+                nextButton.textContent = "التالي";
+            }
+        }
+
+        nextButton.addEventListener('click', () => {
+            if (current < data.length - 1) {
+                current++;
+                updateCard();
+            } else {
+                nextButton.classList.add('hidden');
+                gameButton.classList.remove('hidden');
+            }
+        });
+
+        gameButton.addEventListener('click', () => {
+            // In a real app, this would navigate to the next game
+            alert('سيتم الانتقال إلى اللعبة التالية');
+        });
+
+        // Initialize the first card
+        updateCard();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'95e68bfd22edf892',t:'MTc1MjM4NjI4OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
