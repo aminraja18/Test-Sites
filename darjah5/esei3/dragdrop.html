@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة أسئلة المدرسة - سحب وإفلات</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { 
+            font-family: 'Noto Sans Arabic', sans-serif; 
+            background-color: #f9fafb;
+            color: #1f2937;
+        }
+        .dropzone { 
+            min-height: 3rem; 
+            border: 2px dashed #ccc; 
+            padding: 0.5rem; 
+            background-color: #ffffff;
+            transition: background 0.3s, border 0.3s;
+        }
+        .correct { 
+            background-color: #d1fae5; 
+            border: 2px solid #10b981; 
+        }
+        .incorrect { 
+            background-color: #fee2e2; 
+            border: 2px solid #ef4444; 
+        }
+        .drag-item {
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+        .drag-item:hover {
+            transform: scale(1.05);
+            background: #dbeafe;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 p-6">
+    <div class="max-w-4xl mx-auto bg-white p-6 rounded-2xl shadow-lg space-y-6">
+        <h1 class="text-3xl font-bold text-center">📚 لعبة سحب وإفلات - أسئلة المدرسة</h1>
+        <div id="game" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-4">
+                <div class="p-4 bg-gray-50 rounded-2xl border">
+                    ☀️ ١. السَّلَامُ عَلَيْكُمْ، كَيْفَ حَالُكَ؟
+                    <div class="dropzone mt-2" data-answer="أَنَا بِخَيْرٍ، الْـحَمْدُ لِلَّهِ."></div>
+                </div>
+                <div class="p-4 bg-gray-50 rounded-2xl border">
+                    🏫 ٢. مَا اسْمُ مَدْرَسَتِكَ؟
+                    <div class="dropzone mt-2" data-answer="اسْمِي مَدْرَسَتِي هُوَ مَدْرَسَةُ ابْتِدَائِيَّةٍ إِسْلَامِيَّةٍ هِدَايَةِ دِيسَارُو."></div>
+                </div>
+                <div class="p-4 bg-gray-50 rounded-2xl border">
+                    🗺️ ٣. أَيْنَ تَقَعُ مَدْرَسَتُكَ؟
+                    <div class="dropzone mt-2" data-answer="تَقَعُ مَدْرَسَتِي فِي بَنْدَرِ بَنَاوَرْ، دِيسَارُو."></div>
+                </div>
+                <div class="p-4 bg-gray-50 rounded-2xl border">
+                    🚗 ٤. مَتَى تَذْهَبُ إِلَى الْمَدْرَسَةِ؟
+                    <div class="dropzone mt-2" data-answer="أَذْهَبُ إِلَى الْمَدْرَسَةِ فِي السَّاعَةِ السَّابِعَةِ صَبَاحًا."></div>
+                </div>
+                <div class="p-4 bg-gray-50 rounded-2xl border">
+                    🔢 ٥. كَمْ فَصْلًا فِي مَدْرَسَتِكَ؟
+                    <div class="dropzone mt-2" data-answer="مَدْرَسَتِي خَمْسَةُ فُصُولٍ."></div>
+                </div>
+            </div>
+            <div id="answers" class="space-y-2">
+                <div draggable="true" class="p-2 bg-blue-100 rounded-2xl cursor-move drag-item">أَنَا بِخَيْرٍ، الْـحَمْدُ لِلَّهِ.</div>
+                <div draggable="true" class="p-2 bg-blue-100 rounded-2xl cursor-move drag-item">اسْمِي مَدْرَسَتِي هُوَ مَدْرَسَةُ ابْتِدَائِيَّةٍ إِسْلَامِيَّةٍ هِدَايَةِ دِيسَارُو.</div>
+                <div draggable="true" class="p-2 bg-blue-100 rounded-2xl cursor-move drag-item">تَقَعُ مَدْرَسَتِي فِي بَنْدَرِ بَنَاوَرْ، دِيسَارُو.</div>
+                <div draggable="true" class="p-2 bg-blue-100 rounded-2xl cursor-move drag-item">أَذْهَبُ إِلَى الْمَدْرَسَةِ فِي السَّاعَةِ السَّابِعَةِ صَبَاحًا.</div>
+                <div draggable="true" class="p-2 bg-blue-100 rounded-2xl cursor-move drag-item">مَدْرَسَتِي خَمْسَةُ فُصُولٍ.</div>
+            </div>
+        </div>
+        <button onclick="checkAnswers()" class="mt-6 block w-full py-2 bg-green-500 hover:bg-green-600 text-white rounded-2xl">✅ تحقق من الإجابات</button>
+        <p id="result" class="text-center font-bold mt-4"></p>
+        <button onclick="resetGame()" class="mt-4 block w-full py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-2xl">🔄 إعادة اللعبة</button>
+    </div>
+    <script>
+        const draggables = document.querySelectorAll('[draggable="true"]');
+        const dropzones = document.querySelectorAll('.dropzone');
+        let draggedItem = null;
+        draggables.forEach(item => {
+            item.addEventListener('dragstart', e => {
+                draggedItem = item;
+                e.dataTransfer.setData('text/plain', item.textContent.trim());
+            });
+        });
+        dropzones.forEach(zone => {
+            zone.addEventListener('dragover', e => {
+                e.preventDefault();
+                zone.classList.add('bg-blue-50');
+            });
+            zone.addEventListener('dragleave', e => {
+                zone.classList.remove('bg-blue-50');
+            });
+            zone.addEventListener('drop', e => {
+                e.preventDefault();
+                zone.classList.remove('bg-blue-50');
+                zone.textContent = e.dataTransfer.getData('text/plain');
+                zone.classList.remove('correct', 'incorrect');
+                if (draggedItem) {
+                    draggedItem.style.display = 'none';
+                }
+            });
+        });
+        function checkAnswers() {
+            let correct = 0;
+            dropzones.forEach(zone => {
+                zone.classList.remove('correct', 'incorrect');
+                if (zone.textContent.trim() === zone.getAttribute('data-answer')) {
+                    correct++;
+                    zone.classList.add('correct');
+                } else if (zone.textContent.trim() !== '') {
+                    zone.classList.add('incorrect');
+                }
+            });
+            document.getElementById('result').textContent = `لقد أجبت على ${correct} من أصل ${dropzones.length} بشكل صحيح!`;
+        }
+        function resetGame() {
+            dropzones.forEach(zone => {
+                zone.textContent = '';
+                zone.classList.remove('correct', 'incorrect');
+            });
+            draggables.forEach(item => {
+                item.style.display = 'block';
+            });
+            document.getElementById('result').textContent = '';
+        }
+    </script>
+</body>
+</html>
