@@ -3,134 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة أسئلة المدرسة - سحب وإفلات واختيارات</title>
+    <title>لعبة اختيار متعدد - أسئلة المدرسة</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { font-family: 'Noto Sans Arabic', sans-serif; background-color: #f9fafb; color: #1f2937; }
-        .dropzone { min-height: 3rem; border: 2px dashed #ccc; padding: 0.5rem; background-color: #ffffff; transition: background 0.3s, border 0.3s; }
-        .correct { background-color: #d1fae5; border: 2px solid #10b981; }
-        .incorrect { background-color: #fee2e2; border: 2px solid #ef4444; }
-        .drag-item { transition: transform 0.2s ease, background 0.2s ease; }
-        .drag-item:hover { transform: scale(1.05); background: #dbeafe; }
+        .option-box { border: 2px solid #ccc; padding: 1rem; margin-bottom: 0.5rem; border-radius: 0.75rem; cursor: pointer; }
+        .option-box input { display: none; }
+        .option-box.active { border-color: #10b981; background-color: #d1fae5; }
     </style>
 </head>
 <body class="bg-gray-50 p-6">
-    <div class="max-w-4xl mx-auto bg-white p-6 rounded-2xl shadow-lg space-y-6">
-        <h1 class="text-3xl font-bold text-center">📚 لعبة سحب وإفلات واختيارات - أسئلة المدرسة</h1>
-        <div id="game" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="space-y-4">
-                <div class="p-4 bg-gray-50 rounded-2xl border">☀️ ١. السَّلَامُ عَلَيْكُمْ، كَيْفَ حَالُكَ؟<div class="dropzone mt-2" data-answer="أَنَا بِخَيْرٍ، الْـحَمْدُ لِلَّهِ."></div></div>
-                <div class="p-4 bg-gray-50 rounded-2xl border">🏫 ٢. مَا اسْمُ مَدْرَسَتِكَ؟<div class="dropzone mt-2" data-answer="اسْمِي مَدْرَسَتِي هُوَ مَدْرَسَةُ ابْتِدَائِيَّةٍ إِسْلَامِيَّةٍ هِدَايَةِ دِيسَارُو."></div></div>
-                <div class="p-4 bg-gray-50 rounded-2xl border">🗺️ ٣. أَيْنَ تَقَعُ مَدْرَسَتُكَ؟<div class="dropzone mt-2" data-answer="تَقَعُ مَدْرَسَتِي فِي بَنْدَرِ بَنَاوَرْ، دِيسَارُو."></div></div>
-                <div class="p-4 bg-gray-50 rounded-2xl border">🚗 ٤. مَتَى تَذْهَبُ إِلَى الْمَدْرَسَةِ؟<div class="dropzone mt-2" data-answer="أَذْهَبُ إِلَى الْمَدْرَسَةِ فِي السَّاعَةِ السَّابِعَةِ صَبَاحًا."></div></div>
-                <div class="p-4 bg-gray-50 rounded-2xl border">🔢 ٥. كَمْ فَصْلًا فِي مَدْرَسَتِكَ؟<div class="dropzone mt-2" data-answer="مَدْرَسَتِي خَمْسَةُ فُصُولٍ."></div></div>
-            </div>
-            <div id="answers" class="space-y-2"></div>
-        </div>
-
-        <button onclick="checkAnswers()" class="mt-6 block w-full py-2 bg-green-500 hover:bg-green-600 text-white rounded-2xl">✅ تحقق من الإجابات</button>
-        <p id="result" class="text-center font-bold mt-4"></p>
-        <button onclick="resetGame()" class="mt-4 block w-full py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-2xl">🔄 إعادة اللعبة</button>
-
-        <div class="space-y-4 mt-10">
+    <div class="max-w-3xl mx-auto bg-white p-6 rounded-2xl shadow-lg space-y-6">
+        <h1 class="text-3xl font-bold text-center">📚 لعبة اختيار متعدد - أسئلة المدرسة</h1>
+        <form id="quizForm" class="space-y-4">
             <div class="p-4 bg-gray-50 rounded-2xl border">
-                🚗 ٦. كَيْفَ تَذْهَبُ إِلَى الْمَدْرَسَةِ؟
-                <div>
-                    <label><input type="radio" name="q6"> أَذْهَبُ إِلَى الْمَدْرَسَةِ بِالدَّرَّاجَةِ.</label><br>
-                    <label><input type="radio" name="q6"> أَذْهَبُ إِلَى الْمَدْرَسَةِ بِالْحَافِلَةِ.</label><br>
-                    <label><input type="radio" name="q6"> أَذْهَبُ إِلَى الْمَدْرَسَةِ بِالسَّيَّارَةِ.</label><br>
-                    <label><input type="radio" name="q6"> أَذْهَبُ إِلَى الْمَدْرَسَةِ مَشْيًا.</label>
-                </div>
+                ٦. كَيْفَ تَذْهَبُ إِلَى الْمَدْرَسَةِ؟
+                <div id="q6"></div>
             </div>
             <div class="p-4 bg-gray-50 rounded-2xl border">
-                👨‍👦 ٧. مَعَ مَنْ تَذْهَبُ إِلَى الْمَدْرَسَةِ؟
-                <div>
-                    <label><input type="radio" name="q7"> مَعَ أُمِّي.</label><br>
-                    <label><input type="radio" name="q7"> مَعَ أَخِي.</label><br>
-                    <label><input type="radio" name="q7"> مَعَ صَدِيقِي.</label><br>
-                    <label><input type="radio" name="q7"> مَعَ أَبِي.</label>
-                </div>
+                ٧. مَعَ مَنْ تَذْهَبُ إِلَى الْمَدْرَسَةِ؟
+                <div id="q7"></div>
             </div>
             <div class="p-4 bg-gray-50 rounded-2xl border">
-                📖 ٨. مَاذَا تَدْرُسُ فِي مَدْرَسَتِكَ؟
-                <div>
-                    <label><input type="radio" name="q8"> أَدْرُسُ الْعِلْمَ وَالرِّيَاضَةَ.</label><br>
-                    <label><input type="radio" name="q8"> أَدْرُسُ الْقُرْآنَ، اللُّغَةَ الْعَرَبِيَّةَ، وَالرِّيَاضِيَاتِ.</label><br>
-                    <label><input type="radio" name="q8"> أَدْرُسُ الْحِسَابَ فَقَطْ.</label><br>
-                    <label><input type="radio" name="q8"> أَدْرُسُ اللُّغَةَ الْإِنْجِلِيزِيَّةَ.</label>
-                </div>
+                ٨. مَاذَا تَدْرُسُ فِي مَدْرَسَتِكَ؟
+                <div id="q8"></div>
             </div>
             <div class="p-4 bg-gray-50 rounded-2xl border">
-                📅 ٩. كَمْ يَوْمًا تَدْرُسُ فِي الْأُسْبُوعِ؟
-                <div>
-                    <label><input type="radio" name="q9"> أَرْبَعَةُ أَيَّامٍ.</label><br>
-                    <label><input type="radio" name="q9"> خَمْسَةُ أَيَّامٍ.</label><br>
-                    <label><input type="radio" name="q9"> سِتَّةُ أَيَّامٍ.</label><br>
-                    <label><input type="radio" name="q9"> سَبْعَةُ أَيَّامٍ.</label>
-                </div>
+                ٩. كَمْ يَوْمًا تَدْرُسُ فِي الْأُسْبُوعِ؟
+                <div id="q9"></div>
             </div>
             <div class="p-4 bg-gray-50 rounded-2xl border">
-                ❤️ ١٠. هَلْ تُحِبُّ مَدْرَسَتَكَ؟ وَلِمَاذَا؟
-                <div>
-                    <label><input type="radio" name="q10"> لَا، لِأَنَّهَا قَدِيمَةٌ وَصَغِيرَةٌ.</label><br>
-                    <label><input type="radio" name="q10"> نَعَمْ، أُحِبُّ مَدْرَسَتِي لِأَنَّهَا نَظِيفَةٌ وَجَمِيلَةٌ، وَفِيهَا أُسْتَاذٌ طَيِّبٌ وَأَصْدِقَاءُ كَثِيرُونَ، وَنَتَعَلَّمُ أَشْيَاءَ مُفِيدَةً وَنَلْعَبُ فِي السَّاحَةِ مَعًا بَعْدَ الدِّرَاسَةِ.</label><br>
-                    <label><input type="radio" name="q10"> لَا أَعْرِفُ.</label><br>
-                    <label><input type="radio" name="q10"> نَعَمْ، لِأَنَّ الطَّعَامَ فِيهَا لَذِيذٌ.</label>
-                </div>
+                ١٠. هَلْ تُحِبُّ مَدْرَسَتَكَ؟ وَلِمَاذَا؟
+                <div id="q10"></div>
             </div>
-        </div>
+            <button type="button" onclick="checkQuiz()" class="mt-6 block w-full py-2 bg-green-500 hover:bg-green-600 text-white rounded-2xl">✅ تحقق من الإجابات</button>
+            <p id="quizResult" class="text-center font-bold mt-4"></p>
+        </form>
     </div>
     <script>
-        const answersArray = ["أَنَا بِخَيْرٍ، الْـحَمْدُ لِلَّهِ.","اسْمِي مَدْرَسَتِي هُوَ مَدْرَسَةُ ابْتِدَائِيَّةٍ إِسْلَامِيَّةٍ هِدَايَةِ دِيسَارُو.","تَقَعُ مَدْرَسَتِي فِي بَنْدَرِ بَنَاوَرْ، دِيسَارُو.","أَذْهَبُ إِلَى الْمَدْرَسَةِ فِي السَّاعَةِ السَّابِعَةِ صَبَاحًا.","مَدْرَسَتِي خَمْسَةُ فُصُولٍ."];
-        function shuffle(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } return array; }
-        function renderShuffledAnswers() {
-            const answersContainer = document.getElementById("answers");
-            answersContainer.innerHTML = "";
-            shuffle([...answersArray]).forEach(text => {
-                const div = document.createElement("div");
-                div.draggable = true;
-                div.className = "p-2 bg-blue-100 rounded-2xl cursor-move drag-item";
-                div.textContent = text;
-                answersContainer.appendChild(div);
-            });
-            setDragEvents();
+        const questions = {
+            q6: [
+                "أَذْهَبُ إِلَى الْمَدْرَسَةِ بِالسَّيَّارَةِ.",
+                "أَذْهَبُ إِلَى الْمَدْرَسَةِ فِي الْبَحْرِ.",
+                "أَذْهَبُ إِلَى الْمَدْرَسَةِ فِي الطَّائِرَةِ."
+            ],
+            q7: [
+                "أَذْهَبُ إِلَى الْمَدْرَسَةِ مَعَ أَبِي.",
+                "أَذْهَبُ مَعَ قِطِّي.",
+                "أَذْهَبُ مَعَ تِلْفَازِي."
+            ],
+            q8: [
+                "أَدْرُسُ الْقُرْآنَ، اللُّغَةَ الْعَرَبِيَّةَ، وَالرِّيَاضِيَّاتِ.",
+                "أَدْرُسُ السِّبَاحَةَ وَاللَّعِبَ.",
+                "أَدْرُسُ النَّوْمَ وَالأَكْلَ."
+            ],
+            q9: [
+                "أَدْرُسُ خَمْسَةَ أَيَّامٍ فِي الْأُسْبُوعِ.",
+                "أَدْرُسُ كُلَّ يَوْمٍ بِلَا تَوَقُّفٍ.",
+                "أَدْرُسُ يَوْمَيْنِ فَقَطْ."
+            ],
+            q10: [
+                "نَعَمْ، أُحِبُّ مَدْرَسَتِي لِأَنَّهَا نَظِيفَةٌ وَجَمِيلَةٌ...",
+                "لَا، لَا أُحِبُّهَا.",
+                "لَا أَعْرِفُ مَا هِيَ الْمَدْرَسَةُ." 
+            ]
+        };
+
+        const correctAnswers = {
+            q6: "أَذْهَبُ إِلَى الْمَدْرَسَةِ بِالسَّيَّارَةِ.",
+            q7: "أَذْهَبُ إِلَى الْمَدْرَسَةِ مَعَ أَبِي.",
+            q8: "أَدْرُسُ الْقُرْآنَ، اللُّغَةَ الْعَرَبِيَّةَ، وَالرِّيَاضِيَّاتِ.",
+            q9: "أَدْرُسُ خَمْسَةَ أَيَّامٍ فِي الْأُسْبُوعِ.",
+            q10: "نَعَمْ، أُحِبُّ مَدْرَسَتِي لِأَنَّهَا نَظِيفَةٌ وَجَمِيلَةٌ..."
+        };
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
         }
-        function setDragEvents() {
-            const draggables = document.querySelectorAll('[draggable="true"]');
-            const dropzones = document.querySelectorAll('.dropzone');
-            let draggedItem = null;
-            draggables.forEach(item => {
-                item.addEventListener('dragstart', e => { draggedItem = item; e.dataTransfer.setData('text/plain', item.textContent.trim()); });
-            });
-            dropzones.forEach(zone => {
-                zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('bg-blue-50'); });
-                zone.addEventListener('dragleave', e => { zone.classList.remove('bg-blue-50'); });
-                zone.addEventListener('drop', e => {
-                    e.preventDefault(); zone.classList.remove('bg-blue-50');
-                    zone.textContent = e.dataTransfer.getData('text/plain');
-                    zone.classList.remove('correct', 'incorrect');
-                    if (draggedItem) { draggedItem.style.display = 'none'; }
+
+        function renderQuestions() {
+            Object.keys(questions).forEach(qKey => {
+                const container = document.getElementById(qKey);
+                const shuffledOptions = shuffle([...questions[qKey]]);
+                
+                shuffledOptions.forEach((option, index) => {
+                    const optionBox = document.createElement('label');
+                    optionBox.className = 'option-box block';
+                    optionBox.innerHTML = `
+                        <input type="radio" name="${qKey}" value="${option}">
+                        ${option}
+                    `;
+                    container.appendChild(optionBox);
+                    
+                    optionBox.addEventListener('click', function() {
+                        // Remove active class from all siblings
+                        const siblings = container.querySelectorAll('.option-box');
+                        siblings.forEach(sib => sib.classList.remove('active'));
+                        
+                        // Add active class to clicked option
+                        this.classList.add('active');
+                    });
                 });
             });
         }
-        function checkAnswers() {
-            let correct = 0;
-            document.querySelectorAll('.dropzone').forEach(zone => {
-                zone.classList.remove('correct', 'incorrect');
-                if (zone.textContent.trim() === zone.getAttribute('data-answer')) {
-                    correct++; zone.classList.add('correct');
-                } else if (zone.textContent.trim() !== '') {
-                    zone.classList.add('incorrect');
+        
+        function checkQuiz() {
+            let score = 0;
+            let total = Object.keys(correctAnswers).length;
+            
+            Object.keys(correctAnswers).forEach(qKey => {
+                const selectedOption = document.querySelector(`input[name="${qKey}"]:checked`);
+                if (selectedOption && selectedOption.value === correctAnswers[qKey]) {
+                    score++;
                 }
             });
-            document.getElementById('result').textContent = `لقد أجبت على ${correct} من أصل 5 بشكل صحيح!`;
+            
+            const resultElement = document.getElementById('quizResult');
+            resultElement.textContent = `النتيجة: ${score} من ${total}`;
+            
+            if (score === total) {
+                resultElement.className = 'text-center font-bold mt-4 text-green-600';
+                resultElement.textContent += ' - أحسنت! إجابات صحيحة 100%';
+            } else if (score >= total / 2) {
+                resultElement.className = 'text-center font-bold mt-4 text-yellow-600';
+                resultElement.textContent += ' - جيد! حاول مرة أخرى للحصول على درجة أعلى';
+            } else {
+                resultElement.className = 'text-center font-bold mt-4 text-red-600';
+                resultElement.textContent += ' - حاول مرة أخرى!';
+            }
         }
-        function resetGame() {
-            document.querySelectorAll('.dropzone').forEach(zone => { zone.textContent = ''; zone.classList.remove('correct', 'incorrect'); });
-            document.getElementById('result').textContent = '';
-            renderShuffledAnswers();
-        }
-        window.onload = renderShuffledAnswers;
+        
+        // Initialize the quiz
+        renderQuestions();
     </script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'960869a5e038216a',t:'MTc1Mjc0MTM5Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
