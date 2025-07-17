@@ -1,0 +1,170 @@
+<!DOCTYPE html><html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة ترتيب الكلمات - أسرتي</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Noto Sans Arabic', sans-serif;
+        }
+        .dropzone {
+            min-height: 3rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            border: 1px dashed #ccc;
+            padding: 0.5rem;
+            background-color: #f9f9f9;
+        }
+        .drag.hidden {
+            display: none;
+        }
+        .drag.dragging {
+            opacity: 0.5;
+        }
+        @media (max-width: 640px) {
+            .drag {
+                margin-bottom: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4">
+    <div class="max-w-2xl mx-auto">
+        <h1 class="text-2xl font-bold mb-4 text-center">لعبة ترتيب الكلمات - أسرتي</h1>
+        <div id="game-container" class="space-y-6">
+            <div class="bg-white p-4 rounded-xl shadow">
+                <p class="mb-2 font-semibold">ما اسم أبيك؟ وكم عمره؟</p>
+                <div class="dropzone" data-answer="اسم أبي ____________، عمره ____________."></div>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow">
+                <p class="mb-2 font-semibold">ماذا يعمل؟ وأين؟</p>
+                <div class="dropzone" data-answer="يعمل ____________ في ____________."></div>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow">
+                <p class="mb-2 font-semibold">ما اسم أمك؟ وكم عمرها؟</p>
+                <div class="dropzone" data-answer="اسم أمي ____________، عمرها ____________."></div>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow">
+                <p class="mb-2 font-semibold">ماذا تعمل؟ وأين؟</p>
+                <div class="dropzone" data-answer="تعمل ____________ في ____________."></div>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow">
+                <p class="mb-2 font-semibold">هل تحب أسرتك؟ لماذا؟</p>
+                <div class="dropzone" data-answer="نعم، أحب أسرتي لأنها ترعاني وتحبني وتساعدني في دراستي."></div>
+            </div>
+            <div class="flex flex-wrap gap-2 mt-2 justify-start" id="word-bank"></div>
+        </div>
+        <button onclick="checkAnswer()" class="mt-4 w-full bg-green-500 text-white py-2 rounded-xl hover:bg-green-600 transition">تحقق من الإجابة</button>
+        <p id="result" class="text-center mt-4 font-semibold"></p>
+        <button onclick="resetGame()" class="mt-4 w-full bg-blue-500 text-white py-2 rounded-xl hover:bg-blue-600 transition">إعادة المحاولة</button>
+    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        setupWordBank();
+        setupDragAndDrop();
+    });
+    function setupWordBank() {
+        const wordBank = document.getElementById('word-bank');
+        const words = [
+            'اسم', 'أبي', '____________،', 'عمره', '____________.',
+            'يعمل', 'في', 'اسم', 'أمي', '____________،', 'عمرها', '____________.',
+            'تعمل', 'في', 'نعم،', 'أحب', 'أسرتي', 'لأنها', 'ترعاني', 'وتحبني', 'وتساعدني', 'في', 'دراستي.'
+        ];
+        for (let i = words.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [words[i], words[j]] = [words[j], words[i]];
+        }
+        words.forEach((word, index) => {
+            const button = document.createElement('button');
+            button.id = 'word-' + index;
+            button.className = 'drag bg-blue-200 px-3 py-1 rounded cursor-move';
+            button.innerText = word;
+            wordBank.appendChild(button);
+        });
+    }
+    function setupDragAndDrop() {
+        document.querySelectorAll('.drag').forEach(drag => {
+            drag.draggable = true;
+            drag.addEventListener('dragstart', e => {
+                e.dataTransfer.setData('text/plain', drag.innerText);
+                e.dataTransfer.setData('sourceId', drag.id);
+                drag.classList.add('dragging');
+            });
+            drag.addEventListener('dragend', () => {
+                drag.classList.remove('dragging');
+            });
+            drag.addEventListener('click', () => {
+                if (!drag.classList.contains('in-dropzone')) {
+                    const dropzone = document.querySelector('.dropzone');
+                    addToDropzone(dropzone, drag.innerText, drag.id);
+                    drag.classList.add('hidden');
+                }
+            });
+        });
+        document.querySelectorAll('.dropzone').forEach(zone => {
+            zone.addEventListener('dragover', e => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+            });
+            zone.addEventListener('drop', e => {
+                e.preventDefault();
+                const text = e.dataTransfer.getData('text/plain');
+                const sourceId = e.dataTransfer.getData('sourceId');
+                if (sourceId) {
+                    const sourceElement = document.getElementById(sourceId);
+                    if (sourceElement) sourceElement.classList.add('hidden');
+                }
+                addToDropzone(zone, text, sourceId);
+            });
+        });
+    }
+    function addToDropzone(zone, text, sourceId) {
+        const button = document.createElement('button');
+        button.innerText = text;
+        button.className = 'bg-blue-200 px-3 py-1 rounded cursor-move ml-1 mb-1';
+        button.draggable = true;
+        button.dataset.sourceId = sourceId;
+        button.classList.add('in-dropzone');
+        button.addEventListener('dragstart', e => {
+            e.dataTransfer.setData('text/plain', button.innerText);
+            e.dataTransfer.setData('fromDropzone', 'true');
+            button.classList.add('dragging');
+        });
+        button.addEventListener('dragend', () => button.classList.remove('dragging'));
+        button.addEventListener('click', () => {
+            if (button.dataset.sourceId) {
+                const original = document.getElementById(button.dataset.sourceId);
+                if (original) original.classList.remove('hidden');
+            }
+            button.remove();
+        });
+        zone.appendChild(button);
+    }
+    function checkAnswer() {
+        let correct = true;
+        document.querySelectorAll('.dropzone').forEach(zone => {
+            const expectedPattern = zone.dataset.answer.trim();
+            const actualWords = Array.from(zone.children).map(btn => btn.innerText);
+            const actual = actualWords.join(' ').trim();
+            if (normalizeText(actual) !== normalizeText(expectedPattern)) correct = false;
+        });
+        const resultElement = document.getElementById('result');
+        resultElement.innerText = correct ? 'إجابة صحيحة! أحسنت!' : 'هناك خطأ ما، حاول مرة أخرى.';
+        resultElement.className = 'text-center mt-4 font-semibold ' + (correct ? 'text-green-600' : 'text-red-600');
+    }
+    function normalizeText(text) {
+        return text.replace(/\s+/g, ' ').trim();
+    }
+    function resetGame() {
+        document.querySelectorAll('.dropzone').forEach(zone => zone.innerHTML = '');
+        const wordBank = document.getElementById('word-bank');
+        wordBank.innerHTML = '';
+        setupWordBank();
+        setupDragAndDrop();
+        document.getElementById('result').innerText = '';
+    }
+    </script>
+</body>
+</html>
