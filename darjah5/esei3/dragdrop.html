@@ -61,48 +61,71 @@
                     <div class="dropzone mt-2" data-answer="مَدْرَسَتِي خَمْسَةُ فُصُولٍ."></div>
                 </div>
             </div>
-            <div id="answers" class="space-y-2">
-                <div draggable="true" class="p-2 bg-blue-100 rounded-2xl cursor-move drag-item">أَنَا بِخَيْرٍ، الْـحَمْدُ لِلَّهِ.</div>
-                <div draggable="true" class="p-2 bg-blue-100 rounded-2xl cursor-move drag-item">اسْمِي مَدْرَسَتِي هُوَ مَدْرَسَةُ ابْتِدَائِيَّةٍ إِسْلَامِيَّةٍ هِدَايَةِ دِيسَارُو.</div>
-                <div draggable="true" class="p-2 bg-blue-100 rounded-2xl cursor-move drag-item">تَقَعُ مَدْرَسَتِي فِي بَنْدَرِ بَنَاوَرْ، دِيسَارُو.</div>
-                <div draggable="true" class="p-2 bg-blue-100 rounded-2xl cursor-move drag-item">أَذْهَبُ إِلَى الْمَدْرَسَةِ فِي السَّاعَةِ السَّابِعَةِ صَبَاحًا.</div>
-                <div draggable="true" class="p-2 bg-blue-100 rounded-2xl cursor-move drag-item">مَدْرَسَتِي خَمْسَةُ فُصُولٍ.</div>
-            </div>
+            <div id="answers" class="space-y-2"></div>
         </div>
         <button onclick="checkAnswers()" class="mt-6 block w-full py-2 bg-green-500 hover:bg-green-600 text-white rounded-2xl">✅ تحقق من الإجابات</button>
         <p id="result" class="text-center font-bold mt-4"></p>
         <button onclick="resetGame()" class="mt-4 block w-full py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-2xl">🔄 إعادة اللعبة</button>
     </div>
     <script>
-        const draggables = document.querySelectorAll('[draggable="true"]');
-        const dropzones = document.querySelectorAll('.dropzone');
-        let draggedItem = null;
-        draggables.forEach(item => {
-            item.addEventListener('dragstart', e => {
-                draggedItem = item;
-                e.dataTransfer.setData('text/plain', item.textContent.trim());
+        const answersArray = [
+            "أَنَا بِخَيْرٍ، الْـحَمْدُ لِلَّهِ.",
+            "اسْمِي مَدْرَسَتِي هُوَ مَدْرَسَةُ ابْتِدَائِيَّةٍ إِسْلَامِيَّةٍ هِدَايَةِ دِيسَارُو.",
+            "تَقَعُ مَدْرَسَتِي فِي بَنْدَرِ بَنَاوَرْ، دِيسَارُو.",
+            "أَذْهَبُ إِلَى الْمَدْرَسَةِ فِي السَّاعَةِ السَّابِعَةِ صَبَاحًا.",
+            "مَدْرَسَتِي خَمْسَةُ فُصُولٍ."
+        ];
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        function renderShuffledAnswers() {
+            const answersContainer = document.getElementById("answers");
+            answersContainer.innerHTML = "";
+            shuffle([...answersArray]).forEach(text => {
+                const div = document.createElement("div");
+                div.draggable = true;
+                div.className = "p-2 bg-blue-100 rounded-2xl cursor-move drag-item";
+                div.textContent = text;
+                answersContainer.appendChild(div);
             });
-        });
-        dropzones.forEach(zone => {
-            zone.addEventListener('dragover', e => {
-                e.preventDefault();
-                zone.classList.add('bg-blue-50');
+            setDragEvents();
+        }
+        function setDragEvents() {
+            const draggables = document.querySelectorAll('[draggable="true"]');
+            const dropzones = document.querySelectorAll('.dropzone');
+            let draggedItem = null;
+            draggables.forEach(item => {
+                item.addEventListener('dragstart', e => {
+                    draggedItem = item;
+                    e.dataTransfer.setData('text/plain', item.textContent.trim());
+                });
             });
-            zone.addEventListener('dragleave', e => {
-                zone.classList.remove('bg-blue-50');
+            dropzones.forEach(zone => {
+                zone.addEventListener('dragover', e => {
+                    e.preventDefault();
+                    zone.classList.add('bg-blue-50');
+                });
+                zone.addEventListener('dragleave', e => {
+                    zone.classList.remove('bg-blue-50');
+                });
+                zone.addEventListener('drop', e => {
+                    e.preventDefault();
+                    zone.classList.remove('bg-blue-50');
+                    zone.textContent = e.dataTransfer.getData('text/plain');
+                    zone.classList.remove('correct', 'incorrect');
+                    if (draggedItem) {
+                        draggedItem.style.display = 'none';
+                    }
+                });
             });
-            zone.addEventListener('drop', e => {
-                e.preventDefault();
-                zone.classList.remove('bg-blue-50');
-                zone.textContent = e.dataTransfer.getData('text/plain');
-                zone.classList.remove('correct', 'incorrect');
-                if (draggedItem) {
-                    draggedItem.style.display = 'none';
-                }
-            });
-        });
+        }
         function checkAnswers() {
             let correct = 0;
+            const dropzones = document.querySelectorAll('.dropzone');
             dropzones.forEach(zone => {
                 zone.classList.remove('correct', 'incorrect');
                 if (zone.textContent.trim() === zone.getAttribute('data-answer')) {
@@ -115,15 +138,15 @@
             document.getElementById('result').textContent = `لقد أجبت على ${correct} من أصل ${dropzones.length} بشكل صحيح!`;
         }
         function resetGame() {
+            const dropzones = document.querySelectorAll('.dropzone');
             dropzones.forEach(zone => {
                 zone.textContent = '';
                 zone.classList.remove('correct', 'incorrect');
             });
-            draggables.forEach(item => {
-                item.style.display = 'block';
-            });
             document.getElementById('result').textContent = '';
+            renderShuffledAnswers();
         }
+        window.onload = renderShuffledAnswers;
     </script>
 </body>
 </html>
