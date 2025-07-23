@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>لعبة ترتيب الجواب</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body { 
+      font-family: 'Noto Sans Arabic', sans-serif; 
+      background-color: #f0f4f8;
+    }
+    .draggable {
+      cursor: grab;
+      background-color: #f1f5f9;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      margin: 0.25rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: all 0.2s ease;
+    }
+    .draggable:hover {
+      background-color: #e2e8f0;
+      transform: translateY(-2px);
+    }
+    .draggable:active {
+      cursor: grabbing;
+    }
+    .dropzone {
+      min-height: 5rem;
+      border: 2px dashed #cbd5e1;
+      padding: 0.75rem;
+      border-radius: 0.75rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: flex-end;
+      background-color: #fff;
+      transition: all 0.3s ease;
+    }
+    .dropzone.highlight {
+      border-color: #60a5fa;
+      background-color: #f0f7ff;
+    }
+    .progress-container {
+      width: 100%;
+      height: 8px;
+      background-color: #e2e8f0;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+    }
+    .progress-bar {
+      height: 100%;
+      border-radius: 4px;
+      background-color: #4f46e5;
+      transition: width 0.3s ease;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    .correct-answer {
+      animation: pulse 0.5s ease;
+    }
+    .debug-info {
+      font-family: monospace;
+      font-size: 12px;
+      color: #666;
+      margin-top: 10px;
+      text-align: left;
+      direction: ltr;
+      display: none;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 p-6">
+  <div class="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-lg space-y-6">
+    <div class="flex justify-between items-center">
+      <div class="text-sm text-gray-500" id="progress-text">سؤال ١ من ٥</div>
+      <h1 class="text-2xl font-bold text-indigo-700">لعبة ترتيب الجواب</h1>
+    </div>
+    
+    <div class="progress-container">
+      <div class="progress-bar" id="progress-bar" style="width: 20%"></div>
+    </div>
+    
+    <div class="space-y-4">
+      <h2 class="text-xl font-bold text-right text-gray-700">رتّب الكلمات لتكوين الجواب:</h2>
+      <p id="question" class="text-lg font-medium text-right text-indigo-600 p-3 bg-indigo-50 rounded-lg"></p>
+
+      <div id="dropzone" class="dropzone"></div>
+
+      <div id="words" class="flex flex-wrap justify-end gap-2 mt-4"></div>
+
+      <div id="result" class="text-right font-semibold mt-4 p-3 rounded-lg hidden"></div>
+      
+      <div class="flex justify-between mt-6">
+        <button onclick="prevQuestion()" id="prev-btn" class="bg-gray-300 hover:bg-gray-400 px-5 py-2 rounded-xl transition-colors">السابق</button>
+        <button onclick="checkAnswer()" id="check-btn" class="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-xl transition-colors">تحقّق</button>
+        <button onclick="nextQuestion()" id="next-btn" class="bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded-xl transition-colors">التالي</button>
+      </div>
+      
+      <div class="text-center text-sm text-gray-500 mt-2">
+        اسحب الكلمات وأفلتها في المنطقة المخصصة لترتيب الجواب الصحيح
+      </div>
+      
+      <div class="text-center text-sm text-gray-500 mt-2">
+        <button onclick="toggleHelp()" class="text-indigo-500 hover:underline">مساعدة</button>
+      </div>
+      
+      <div id="help-text" class="bg-blue-50 p-3 rounded-lg text-sm text-blue-700 hidden">
+        <p>في اللغة العربية، نقرأ ونكتب من اليمين إلى اليسار. لذلك، عند ترتيب الجملة، ضع الكلمة الأولى في أقصى اليمين، ثم الكلمة التالية إلى يسارها، وهكذا.</p>
+      </div>
+      
+      <div id="debug-info" class="debug-info"></div>
+    </div>
+  </div>
+
+  <script>
+    const data = [
+      {
+        q: "٣. أَيْنَ تَقَعُ مَدْرَسَتُكَ؟",
+        a: "تَقَعُ مَدْرَسَتِي فِي بَنْدَرِ بَنَاوَرْ، دِيسَارُو."
+      },
+      {
+        q: "٧. مَعَ مَنْ تَذْهَبُ إِلَى الْمَدْرَسَةِ؟",
+        a: "أَذْهَبُ إِلَى الْمَدْرَسَةِ مَعَ أَبِي."
+      },
+      {
+        q: "١. السَّلَامُ عَلَيْكُمْ، كَيْفَ حَالُكَ؟",
+        a: "أَنَا بِخَيْرٍ، الْـحَمْدُ لِلَّهِ."
+      },
+      {
+        q: "٩. كَمْ يَوْمًا تَدْرُسُ فِي الْأُسْبُوعِ؟",
+        a: "أَدْرُسُ خَمْسَةَ أَيَّامٍ فِي الْأُسْبُوعِ."
+      },
+      {
+        q: "٥. كَمْ فَصْلًا فِي مَدْرَسَتِكَ؟",
+        a: "فِي مَدْرَسَتِي خَمْسَةُ فُصُولٍ."
+      }
+    ];
+
+    let current = 0;
+    let correctAnswer = [];
+    let answeredCorrectly = new Array(data.length).fill(false);
+
+    function updateProgressBar() {
+      const progressBar = document.getElementById("progress-bar");
+      const progressText = document.getElementById("progress-text");
+      progressBar.style.width = `${(current + 1) * 100 / data.length}%`;
+      progressText.textContent = `سؤال ${current + 1} من ${data.length}`;
+      
+      // Update button states
+      document.getElementById("prev-btn").disabled = current === 0;
+      document.getElementById("prev-btn").classList.toggle("opacity-50", current === 0);
+      document.getElementById("next-btn").disabled = current === data.length - 1;
+      document.getElementById("next-btn").classList.toggle("opacity-50", current === data.length - 1);
+    }
+
+    function renderQuestion() {
+      document.getElementById("result").classList.add("hidden");
+      document.getElementById("help-text").classList.add("hidden");
+      
+      const item = data[current];
+      document.getElementById("question").textContent = item.q;
+      
+      // Split the answer into words (no need to reverse for RTL)
+      correctAnswer = item.a.trim().split(" ");
+      const shuffled = [...correctAnswer].sort(() => Math.random() - 0.5);
+      
+      const words = document.getElementById("words");
+      const dropzone = document.getElementById("dropzone");
+      words.innerHTML = "";
+      dropzone.innerHTML = "";
+
+      shuffled.forEach(word => {
+        const span = document.createElement("span");
+        span.textContent = word;
+        span.className = "draggable";
+        span.draggable = true;
+        span.ondragstart = (e) => {
+          e.dataTransfer.setData("text/plain", word);
+          e.dataTransfer.setData("source", "words");
+          e.target.classList.add("opacity-50");
+        };
+        span.ondragend = (e) => {
+          e.target.classList.remove("opacity-50");
+        };
+        words.appendChild(span);
+      });
+
+      setupDropzone();
+      updateProgressBar();
+    }
+
+    function setupDropzone() {
+      const dropzone = document.getElementById("dropzone");
+      
+      dropzone.ondragover = (e) => {
+        e.preventDefault();
+        dropzone.classList.add("highlight");
+      };
+      
+      dropzone.ondragleave = () => {
+        dropzone.classList.remove("highlight");
+      };
+      
+      dropzone.ondrop = (e) => {
+        e.preventDefault();
+        dropzone.classList.remove("highlight");
+        const word = e.dataTransfer.getData("text/plain");
+        const source = e.dataTransfer.getData("source");
+        
+        // Create the draggable element in the dropzone
+        const el = document.createElement("span");
+        el.textContent = word;
+        el.className = "draggable";
+        el.draggable = true;
+        
+        // Allow dragging back to words area
+        el.ondragstart = (e) => {
+          e.dataTransfer.setData("text/plain", word);
+          e.dataTransfer.setData("source", "dropzone");
+          e.target.classList.add("opacity-50");
+        };
+        
+        el.ondragend = (e) => {
+          e.target.classList.remove("opacity-50");
+        };
+        
+        // Allow clicking to remove
+        el.onclick = () => {
+          dropzone.removeChild(el);
+          // Add back to words area
+          const wordEl = document.createElement("span");
+          wordEl.textContent = word;
+          wordEl.className = "draggable";
+          wordEl.draggable = true;
+          wordEl.ondragstart = (e) => {
+            e.dataTransfer.setData("text/plain", word);
+            e.dataTransfer.setData("source", "words");
+            e.target.classList.add("opacity-50");
+          };
+          wordEl.ondragend = (e) => {
+            e.target.classList.remove("opacity-50");
+          };
+          document.getElementById("words").appendChild(wordEl);
+        };
+        
+        dropzone.appendChild(el);
+        
+        // If dragged from words area, remove the original
+        if (source === "words") {
+          const wordsDiv = document.getElementById("words");
+          const wordElements = wordsDiv.querySelectorAll(".draggable");
+          for (let i = 0; i < wordElements.length; i++) {
+            if (wordElements[i].textContent === word && wordElements[i].classList.contains("opacity-50")) {
+              wordsDiv.removeChild(wordElements[i]);
+              break;
+            }
+          }
+        }
+      };
+    }
+
+    function checkAnswer() {
+      const userWords = Array.from(document.getElementById("dropzone").children).map(el => el.textContent);
+      const resultDiv = document.getElementById("result");
+      
+      if (userWords.length !== correctAnswer.length) {
+        resultDiv.textContent = "⚠️ يرجى استخدام جميع الكلمات";
+        resultDiv.className = "text-right font-semibold mt-4 p-3 rounded-lg bg-yellow-100 text-yellow-700";
+        resultDiv.classList.remove("hidden");
+        return;
+      }
+      
+      // For debugging
+      const debugInfo = document.getElementById("debug-info");
+      debugInfo.innerHTML = `
+        User answer: ${userWords.join(" ")}<br>
+        Correct answer: ${correctAnswer.join(" ")}
+      `;
+      
+      if (userWords.join(" ") === correctAnswer.join(" ")) {
+        resultDiv.textContent = "✅ أحسنت! الإجابة صحيحة";
+        resultDiv.className = "text-right font-semibold mt-4 p-3 rounded-lg bg-green-100 text-green-700";
+        document.getElementById("dropzone").classList.add("correct-answer");
+        answeredCorrectly[current] = true;
+      } else {
+        resultDiv.textContent = "❌ حاول مرة أخرى";
+        resultDiv.className = "text-right font-semibold mt-4 p-3 rounded-lg bg-red-100 text-red-700";
+      }
+      resultDiv.classList.remove("hidden");
+      
+      setTimeout(() => {
+        document.getElementById("dropzone").classList.remove("correct-answer");
+      }, 500);
+    }
+
+    function nextQuestion() {
+      if (current < data.length - 1) {
+        current++;
+        renderQuestion();
+      }
+    }
+
+    function prevQuestion() {
+      if (current > 0) {
+        current--;
+        renderQuestion();
+      }
+    }
+    
+    function toggleHelp() {
+      const helpText = document.getElementById("help-text");
+      helpText.classList.toggle("hidden");
+    }
+
+    // Initialize the game
+    window.onload = function() {
+      renderQuestion();
+    };
+  </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'963701b567f6e557',t:'MTc1MzIyOTk3MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
