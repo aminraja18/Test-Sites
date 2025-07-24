@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار الأرقام العربية</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
+        
+        body {
+            font-family: 'Tajawal', sans-serif;
+            direction: rtl;
+            background-color: #f0f4f8;
+        }
+        
+        .option-label {
+            transition: all 0.2s ease;
+        }
+        
+        .option-label:hover {
+            background-color: #f0f4ff;
+            transform: translateY(-2px);
+        }
+        
+        .correct-answer {
+            background-color: #d4edda !important;
+            border-color: #c3e6cb !important;
+            color: #155724;
+        }
+        
+        .wrong-answer {
+            background-color: #f8d7da !important;
+            border-color: #f5c6cb !important;
+            color: #721c24;
+        }
+        
+        .question-card {
+            transform: translateY(0);
+            transition: all 0.5s ease;
+        }
+        
+        .question-enter {
+            opacity: 0;
+            transform: translateX(30px);
+        }
+        
+        .question-enter-active {
+            opacity: 1;
+            transform: translateX(0);
+            transition: opacity 0.5s, transform 0.5s;
+        }
+        
+        .progress-bar {
+            transition: width 0.5s ease;
+        }
+        
+        @keyframes celebrate {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .celebrate {
+            animation: celebrate 0.5s ease;
+        }
+        
+        .feedback-message {
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .feedback-message.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.8s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen py-8 px-4 bg-gradient-to-b from-indigo-50 to-white">
+    <div class="max-w-2xl mx-auto">
+        <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+            <h1 class="text-3xl font-bold text-center text-indigo-800 mb-2">اختبار الأرقام العربية</h1>
+            <p class="text-center text-gray-600 mb-6">اختر الكلمة الصحيحة المقابلة للرقم</p>
+            
+            <div class="flex justify-between items-center mb-6">
+                <div class="text-lg font-medium text-gray-700">
+                    السؤال: <span id="current-question">1</span> / <span id="total-questions">10</span>
+                </div>
+                <div class="w-48 bg-gray-200 rounded-full h-4 overflow-hidden">
+                    <div id="progress-bar" class="bg-indigo-600 h-4 rounded-full progress-bar" style="width: 10%"></div>
+                </div>
+            </div>
+            
+            <div id="question-container" class="mb-6">
+                <!-- Current question will be displayed here -->
+            </div>
+            
+            <div id="feedback-container" class="feedback-message mb-6 text-center py-3 rounded-lg hidden">
+                <!-- Feedback will be shown here -->
+            </div>
+            
+            <div id="next-button-container" class="text-center hidden">
+                <button id="next-button" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-lg transition duration-200">
+                    السؤال التالي
+                </button>
+            </div>
+            
+            <div id="results" class="hidden text-center py-6">
+                <h2 class="text-2xl font-bold text-indigo-800 mb-4">انتهى الاختبار!</h2>
+                <div class="text-5xl font-bold text-indigo-700 mb-6">
+                    <span id="final-score">0</span> / <span id="final-total">10</span>
+                </div>
+                <p id="feedback" class="text-xl text-gray-700 mb-6"></p>
+                <button id="restart-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-6 rounded-lg transition duration-200">
+                    إعادة الاختبار
+                </button>
+                <button id="show-answers-btn" class="bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition duration-200 mr-3">
+                    عرض جدول الأرقام
+                </button>
+            </div>
+        </div>
+        
+        <div id="reference-table" class="bg-white rounded-2xl shadow-lg p-6 hidden fade-in">
+            <h2 class="text-xl font-bold text-indigo-800 mb-4">جدول الأرقام العربية</h2>
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <div class="bg-gray-50 p-3 rounded-lg text-center">
+                    <div class="font-bold text-gray-800">١٠</div>
+                    <div class="text-gray-600">عَشَرَةٌ</div>
+                </div>
+                <div class="bg-gray-50 p-3 rounded-lg text-center">
+                    <div class="font-bold text-gray-800">٢٠</div>
+                    <div class="text-gray-600">عِشْرُونَ</div>
+                </div>
+                <div class="bg-gray-50 p-3 rounded-lg text-center">
+                    <div class="font-bold text-gray-800">٣٠</div>
+                    <div class="text-gray-600">ثَلَاثُونَ</div>
+                </div>
+                <div class="bg-gray-50 p-3 rounded-lg text-center">
+                    <div class="font-bold text-gray-800">٤٠</div>
+                    <div class="text-gray-600">أَرْبَعُونَ</div>
+                </div>
+                <div class="bg-gray-50 p-3 rounded-lg text-center">
+                    <div class="font-bold text-gray-800">٥٠</div>
+                    <div class="text-gray-600">خَمْسُونَ</div>
+                </div>
+                <div class="bg-gray-50 p-3 rounded-lg text-center">
+                    <div class="font-bold text-gray-800">٦٠</div>
+                    <div class="text-gray-600">سِتُّونَ</div>
+                </div>
+                <div class="bg-gray-50 p-3 rounded-lg text-center">
+                    <div class="font-bold text-gray-800">٧٠</div>
+                    <div class="text-gray-600">سَبْعُونَ</div>
+                </div>
+                <div class="bg-gray-50 p-3 rounded-lg text-center">
+                    <div class="font-bold text-gray-800">٨٠</div>
+                    <div class="text-gray-600">ثَمَانُونَ</div>
+                </div>
+                <div class="bg-gray-50 p-3 rounded-lg text-center">
+                    <div class="font-bold text-gray-800">٩٠</div>
+                    <div class="text-gray-600">تِسْعُونَ</div>
+                </div>
+                <div class="bg-gray-50 p-3 rounded-lg text-center">
+                    <div class="font-bold text-gray-800">١٠٠</div>
+                    <div class="text-gray-600">مِائَةٌ</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const questions = [
+                {
+                    number: 20,
+                    options: ["عَشَرَةٌ", "خَمْسُونَ", "عِشْرُونَ", "مِائَةٌ"],
+                    correctAnswer: "عِشْرُونَ"
+                },
+                {
+                    number: 50,
+                    options: ["خَمْسُونَ", "سِتُّونَ", "ثَلَاثُونَ", "عِشْرُونَ"],
+                    correctAnswer: "خَمْسُونَ"
+                },
+                {
+                    number: 90,
+                    options: ["تِسْعُونَ", "ثَلَاثُونَ", "أَرْبَعُونَ", "عَشَرَةٌ"],
+                    correctAnswer: "تِسْعُونَ"
+                },
+                {
+                    number: 30,
+                    options: ["عِشْرُونَ", "ثَلَاثُونَ", "أَرْبَعُونَ", "خَمْسُونَ"],
+                    correctAnswer: "ثَلَاثُونَ"
+                },
+                {
+                    number: 60,
+                    options: ["خَمْسُونَ", "سَبْعُونَ", "سِتُّونَ", "ثَمَانُونَ"],
+                    correctAnswer: "سِتُّونَ"
+                },
+                {
+                    number: 40,
+                    options: ["ثَلَاثُونَ", "أَرْبَعُونَ", "خَمْسُونَ", "سِتُّونَ"],
+                    correctAnswer: "أَرْبَعُونَ"
+                },
+                {
+                    number: 80,
+                    options: ["سَبْعُونَ", "تِسْعُونَ", "سِتُّونَ", "ثَمَانُونَ"],
+                    correctAnswer: "ثَمَانُونَ"
+                },
+                {
+                    number: 10,
+                    options: ["عَشَرَةٌ", "عِشْرُونَ", "ثَلَاثُونَ", "أَرْبَعُونَ"],
+                    correctAnswer: "عَشَرَةٌ"
+                },
+                {
+                    number: 70,
+                    options: ["سِتُّونَ", "ثَمَانُونَ", "سَبْعُونَ", "تِسْعُونَ"],
+                    correctAnswer: "سَبْعُونَ"
+                },
+                {
+                    number: 100,
+                    options: ["تِسْعُونَ", "مِائَةٌ", "ثَمَانُونَ", "خَمْسُونَ"],
+                    correctAnswer: "مِائَةٌ"
+                }
+            ];
+
+            let currentScore = 0;
+            let currentQuestionIndex = 0;
+            const totalQuestions = questions.length;
+            
+            // Shuffle questions
+            const shuffledQuestions = [...questions].sort(() => Math.random() - 0.5);
+            
+            // Display first question
+            displayQuestion(currentQuestionIndex);
+            
+            // Next button event listener
+            document.getElementById('next-button').addEventListener('click', function() {
+                currentQuestionIndex++;
+                
+                if (currentQuestionIndex < totalQuestions) {
+                    // Hide feedback and next button
+                    document.getElementById('feedback-container').classList.add('hidden');
+                    document.getElementById('next-button-container').classList.add('hidden');
+                    
+                    // Show next question
+                    displayQuestion(currentQuestionIndex);
+                } else {
+                    // Show final results
+                    showResults();
+                }
+            });
+            
+            // Restart button event listener
+            document.getElementById('restart-btn').addEventListener('click', function() {
+                location.reload();
+            });
+            
+            // Show answers button event listener
+            document.getElementById('show-answers-btn').addEventListener('click', function() {
+                const referenceTable = document.getElementById('reference-table');
+                referenceTable.classList.remove('hidden');
+                this.disabled = true;
+                this.textContent = 'تم عرض الجدول';
+                this.classList.remove('bg-green-600', 'hover:bg-green-700');
+                this.classList.add('bg-gray-400');
+            });
+            
+            function displayQuestion(index) {
+                const question = shuffledQuestions[index];
+                const questionContainer = document.getElementById('question-container');
+                
+                // Update question number and progress bar
+                document.getElementById('current-question').textContent = index + 1;
+                document.getElementById('progress-bar').style.width = `${((index + 1) / totalQuestions) * 100}%`;
+                
+                // Create question card
+                questionContainer.innerHTML = '';
+                const questionCard = document.createElement('div');
+                questionCard.className = 'question-card bg-white border border-gray-200 rounded-xl p-6 shadow-sm question-enter';
+                
+                // Add number display
+                const numberDisplay = document.createElement('div');
+                numberDisplay.className = 'text-3xl font-bold text-indigo-800 mb-4 flex items-center justify-center';
+                numberDisplay.innerHTML = `<span class="bg-indigo-100 text-indigo-800 px-5 py-2 rounded-lg">${question.number}</span>`;
+                questionCard.appendChild(numberDisplay);
+                
+                // Add options
+                const optionsContainer = document.createElement('div');
+                optionsContainer.className = 'space-y-3 mt-4';
+                
+                // Shuffle options
+                const shuffledOptions = [...question.options].sort(() => Math.random() - 0.5);
+                
+                shuffledOptions.forEach((option, optionIndex) => {
+                    const optionId = `q${index}-option${optionIndex}`;
+                    
+                    const optionLabel = document.createElement('label');
+                    optionLabel.className = 'option-label flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:shadow-md';
+                    optionLabel.htmlFor = optionId;
+                    
+                    const radio = document.createElement('input');
+                    radio.type = 'radio';
+                    radio.name = `q${index}`;
+                    radio.id = optionId;
+                    radio.className = 'ml-3 h-5 w-5 text-indigo-600';
+                    radio.value = option;
+                    radio.dataset.correct = option === question.correctAnswer;
+                    
+                    radio.addEventListener('change', function() {
+                        if (this.checked) {
+                            handleAnswer(this, index);
+                        }
+                    });
+                    
+                    const optionText = document.createElement('span');
+                    optionText.textContent = option;
+                    optionText.className = 'text-lg';
+                    
+                    optionLabel.appendChild(radio);
+                    optionLabel.appendChild(optionText);
+                    optionsContainer.appendChild(optionLabel);
+                });
+                
+                questionCard.appendChild(optionsContainer);
+                questionContainer.appendChild(questionCard);
+                
+                // Trigger animation
+                setTimeout(() => {
+                    questionCard.classList.remove('question-enter');
+                }, 10);
+            }
+            
+            function handleAnswer(selectedOption, questionIndex) {
+                const isCorrect = selectedOption.dataset.correct === 'true';
+                const allOptions = document.querySelectorAll(`input[name="q${questionIndex}"]`);
+                
+                // Disable all options
+                allOptions.forEach(opt => {
+                    opt.disabled = true;
+                    const optLabel = opt.parentElement;
+                    
+                    if (opt.dataset.correct === 'true') {
+                        optLabel.classList.add('correct-answer');
+                    } else if (opt === selectedOption && opt.dataset.correct === 'false') {
+                        optLabel.classList.add('wrong-answer');
+                    }
+                });
+                
+                // Update score if correct
+                if (isCorrect) {
+                    currentScore++;
+                }
+                
+                // Show feedback
+                const feedbackContainer = document.getElementById('feedback-container');
+                feedbackContainer.innerHTML = '';
+                feedbackContainer.classList.remove('hidden');
+                
+                const feedbackMessage = document.createElement('div');
+                feedbackMessage.className = isCorrect ? 
+                    'text-green-700 font-bold text-xl' : 
+                    'text-red-700 font-bold text-xl';
+                
+                feedbackMessage.textContent = isCorrect ? 
+                    'إجابة صحيحة! أحسنت!' : 
+                    `إجابة خاطئة. الإجابة الصحيحة هي: ${shuffledQuestions[questionIndex].correctAnswer}`;
+                
+                feedbackContainer.appendChild(feedbackMessage);
+                
+                // Show next button
+                document.getElementById('next-button-container').classList.remove('hidden');
+                
+                // If last question, change button text
+                if (currentQuestionIndex === totalQuestions - 1) {
+                    document.getElementById('next-button').textContent = 'عرض النتيجة النهائية';
+                }
+                
+                // Animate feedback
+                setTimeout(() => {
+                    feedbackContainer.classList.add('show');
+                }, 10);
+            }
+            
+            function showResults() {
+                // Hide question container and show results
+                document.getElementById('question-container').classList.add('hidden');
+                document.getElementById('feedback-container').classList.add('hidden');
+                document.getElementById('next-button-container').classList.add('hidden');
+                document.getElementById('results').classList.remove('hidden');
+                
+                // Update score display
+                document.getElementById('final-score').textContent = currentScore;
+                document.getElementById('final-total').textContent = totalQuestions;
+                
+                // Show appropriate feedback based on score
+                const feedback = document.getElementById('feedback');
+                if (currentScore === totalQuestions) {
+                    feedback.textContent = 'ممتاز! لقد أجبت على جميع الأسئلة بشكل صحيح!';
+                } else if (currentScore >= totalQuestions * 0.7) {
+                    feedback.textContent = 'جيد جدًا! استمر في التعلم!';
+                } else if (currentScore >= totalQuestions * 0.5) {
+                    feedback.textContent = 'حسنًا! يمكنك تحسين نتيجتك بمزيد من الممارسة.';
+                } else {
+                    feedback.textContent = 'استمر في المحاولة! مع الممارسة ستتحسن.';
+                }
+            }
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'963fc5087754d42e',t:'MTc1MzMyMTg1Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
