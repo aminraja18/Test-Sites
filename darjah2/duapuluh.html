@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>لعبة - اسحب وأفلت الجمل</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Noto Sans Arabic', sans-serif;
+      background-color: #f0f7ff;
+    }
+    .drag-item {
+      cursor: grab;
+      transition: all 0.2s ease;
+    }
+    .drag-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .drag-item:active {
+      cursor: grabbing;
+    }
+    .dropzone {
+      min-height: 4rem;
+      border: 2px dashed #ccc;
+      border-radius: 1rem;
+      transition: all 0.3s ease;
+    }
+    .dropzone.highlight {
+      border-color: #3b82f6;
+      background-color: rgba(59, 130, 246, 0.1);
+    }
+    .dropzone.correct {
+      border-color: #10b981;
+      background-color: rgba(16, 185, 129, 0.1);
+    }
+    .dropzone.incorrect {
+      border-color: #ef4444;
+      background-color: rgba(239, 68, 68, 0.1);
+    }
+    .progress-bar {
+      height: 10px;
+      border-radius: 5px;
+      background-color: #e5e7eb;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background-color: #3b82f6;
+      transition: width 0.5s ease;
+    }
+    @keyframes celebrate {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    .celebrate {
+      animation: celebrate 0.5s ease;
+    }
+    .game-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    @media (max-width: 768px) {
+      .game-container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body class="p-4 min-h-screen">
+  <div class="max-w-6xl mx-auto bg-white p-6 rounded-2xl shadow-lg">
+    <div class="mb-8 text-center">
+      <h1 class="text-3xl font-bold mb-2 text-blue-800">اسحب الجملة المناسبة إلى الرقم الصحيح</h1>
+      <p class="text-gray-600">اسحب كل جملة من اليمين وأفلتها في المكان المناسب بجانب الرقم المطابق على اليسار</p>
+    </div>
+
+    <div class="mb-6">
+      <div class="flex justify-between items-center mb-2">
+        <span class="font-medium text-gray-700">تقدمك:</span>
+        <span id="progress-text" class="text-blue-600 font-medium">0 من 11</span>
+      </div>
+      <div class="progress-bar">
+        <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <div class="game-container">
+      <!-- Left side: Questions with dropzones -->
+      <div class="space-y-4" id="questions"></div>
+      
+      <!-- Right side: Answer choices -->
+      <div class="bg-blue-50 p-4 rounded-xl">
+        <h2 class="text-xl font-semibold text-center mb-4 text-blue-800">الجمل:</h2>
+        <div id="answers" class="flex flex-col gap-3"></div>
+      </div>
+    </div>
+
+    <div class="text-center mt-8 space-y-4">
+      <button id="check-btn" onclick="checkMatch()" class="bg-blue-600 text-white px-8 py-3 rounded-xl hover:bg-blue-700 transition-colors font-medium shadow-md">
+        تحقق من الإجابات
+      </button>
+      <button id="reset-btn" onclick="resetGame()" class="bg-gray-200 text-gray-700 px-8 py-3 rounded-xl hover:bg-gray-300 transition-colors font-medium">
+        إعادة اللعبة
+      </button>
+      <div id="result" class="mt-4 font-bold text-xl hidden"></div>
+    </div>
+  </div>
+
+  <script>
+    const data = [
+      { number: "٢٠", sentence: "عندي عشرون كتابًا" },
+      { number: "٢١", sentence: "عندي واحد وعشرون كتابًا" },
+      { number: "٢٢", sentence: "عندي اثنان وعشرون قلماً" },
+      { number: "٢٣", sentence: "عندي ثلاثة وعشرون تفاحةً" },
+      { number: "٢٤", sentence: "عندي أربعة وعشرون دفترًا" },
+      { number: "٢٥", sentence: "عندي خمسة وعشرون قلماً" },
+      { number: "٢٦", sentence: "عندي ستة وعشرون صديقًا" },
+      { number: "٢٧", sentence: "عندي سبعة وعشرون لعبةً" },
+      { number: "٢٨", sentence: "عندي ثمانية وعشرون كرسياً" },
+      { number: "٢٩", sentence: "عندي تسعة وعشرون حقيبةً" },
+      { number: "٣٠", sentence: "عندي ثلاثون كرةً" },
+    ];
+
+    let placedItems = 0;
+    let gameChecked = false;
+
+    function shuffle(arr) {
+      return arr.slice().sort(() => Math.random() - 0.5);
+    }
+
+    function renderQuestions() {
+      const qContainer = document.getElementById('questions');
+      qContainer.innerHTML = '';
+      data.forEach((item, i) => {
+        const div = document.createElement('div');
+        div.className = "p-4 border rounded-xl shadow-sm bg-white";
+        div.innerHTML = `
+          <div class="flex items-center gap-3">
+            <div class="bg-blue-100 text-blue-800 w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold">
+              ${item.number}
+            </div>
+            <div class="flex-grow">
+              <div class="dropzone bg-gray-50 p-3 text-center" 
+                   data-answer="${item.sentence}" 
+                   ondragover="allowDrop(event)" 
+                   ondrop="drop(event)"
+                   ondragenter="dragEnter(event)"
+                   ondragleave="dragLeave(event)">
+                <span class="text-gray-500">(اسحب الجملة هنا)</span>
+              </div>
+            </div>
+          </div>
+        `;
+        qContainer.appendChild(div);
+      });
+    }
+
+    function renderAnswers() {
+      const aContainer = document.getElementById('answers');
+      aContainer.innerHTML = '';
+      shuffle(data).forEach((item, i) => {
+        const p = document.createElement('div');
+        p.className = "bg-white border border-blue-200 text-blue-800 px-4 py-2 rounded-xl drag-item shadow-sm";
+        p.draggable = true;
+        p.id = `drag-${i}`;
+        p.innerText = item.sentence;
+        p.ondragstart = drag;
+        aContainer.appendChild(p);
+      });
+    }
+
+    function allowDrop(ev) {
+      ev.preventDefault();
+    }
+
+    function dragEnter(ev) {
+      let target = ev.target;
+      while (target && !target.classList.contains('dropzone')) {
+        target = target.parentElement;
+      }
+      if (target && target.classList.contains('dropzone')) {
+        target.classList.add('highlight');
+      }
+    }
+
+    function dragLeave(ev) {
+      let target = ev.target;
+      while (target && !target.classList.contains('dropzone')) {
+        target = target.parentElement;
+      }
+      if (target && target.classList.contains('dropzone')) {
+        target.classList.remove('highlight');
+      }
+    }
+
+    function drag(ev) {
+      ev.dataTransfer.setData("text", ev.target.id);
+    }
+
+    function drop(ev) {
+      ev.preventDefault();
+      
+      // Find the dropzone (might be a child element)
+      let dropzone = ev.target;
+      while (!dropzone.classList.contains('dropzone') && dropzone.parentElement) {
+        dropzone = dropzone.parentElement;
+      }
+      
+      if (!dropzone.classList.contains('dropzone')) return;
+      
+      dropzone.classList.remove('highlight');
+      
+      // If this dropzone already has an item and we're not in checked mode, return it
+      if (dropzone.querySelector('.drag-item') && !gameChecked) {
+        const existingItem = dropzone.querySelector('.drag-item');
+        document.getElementById('answers').appendChild(existingItem);
+      }
+      
+      const dataId = ev.dataTransfer.getData("text");
+      const draggedEl = document.getElementById(dataId);
+      
+      // Clear the dropzone
+      const placeholder = dropzone.querySelector('span');
+      if (placeholder) {
+        dropzone.removeChild(placeholder);
+      }
+      
+      // Add the dragged element
+      dropzone.appendChild(draggedEl);
+      
+      if (!gameChecked) {
+        updateProgress();
+      }
+    }
+
+    function updateProgress() {
+      const totalDropzones = data.length;
+      const filledDropzones = document.querySelectorAll('.dropzone .drag-item').length;
+      
+      placedItems = filledDropzones;
+      
+      const progressPercent = (filledDropzones / totalDropzones) * 100;
+      document.getElementById('progress-fill').style.width = `${progressPercent}%`;
+      document.getElementById('progress-text').textContent = `${filledDropzones} من ${totalDropzones}`;
+      
+      // Enable/disable check button based on progress
+      document.getElementById('check-btn').disabled = filledDropzones < totalDropzones;
+      document.getElementById('check-btn').classList.toggle('opacity-50', filledDropzones < totalDropzones);
+    }
+
+    function checkMatch() {
+      if (gameChecked) return;
+      
+      const zones = document.querySelectorAll(".dropzone");
+      let score = 0;
+      
+      zones.forEach(zone => {
+        const dragItem = zone.querySelector('.drag-item');
+        if (!dragItem) return;
+        
+        const userText = dragItem.innerText.trim();
+        const correct = zone.dataset.answer.trim();
+        
+        if (userText === correct) {
+          score++;
+          zone.classList.add("correct");
+          dragItem.classList.add("bg-green-100");
+        } else {
+          zone.classList.add("incorrect");
+          dragItem.classList.add("bg-red-100");
+        }
+      });
+      
+      const resultEl = document.getElementById('result');
+      resultEl.classList.remove('hidden');
+      
+      if (score === data.length) {
+        resultEl.textContent = `أحسنت! لقد أجبت على جميع الأسئلة بشكل صحيح (${score}/${data.length})`;
+        resultEl.className = "mt-4 font-bold text-xl text-green-600 celebrate";
+      } else {
+        resultEl.textContent = `حصلت على ${score} من أصل ${data.length}. حاول مرة أخرى!`;
+        resultEl.className = "mt-4 font-bold text-xl text-orange-600";
+      }
+      
+      gameChecked = true;
+      document.getElementById('check-btn').classList.add('hidden');
+      document.getElementById('reset-btn').classList.add('bg-blue-600', 'text-white', 'hover:bg-blue-700');
+      document.getElementById('reset-btn').classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+    }
+
+    function resetGame() {
+      gameChecked = false;
+      placedItems = 0;
+      
+      // Reset UI elements
+      document.getElementById('result').classList.add('hidden');
+      document.getElementById('check-btn').classList.remove('hidden', 'opacity-50');
+      document.getElementById('check-btn').disabled = false;
+      document.getElementById('reset-btn').classList.remove('bg-blue-600', 'text-white', 'hover:bg-blue-700');
+      document.getElementById('reset-btn').classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+      
+      // Reset progress
+      document.getElementById('progress-fill').style.width = '0%';
+      document.getElementById('progress-text').textContent = '0 من 11';
+      
+      // Re-render the game
+      renderQuestions();
+      renderAnswers();
+    }
+
+    // Initialize the game
+    document.addEventListener('DOMContentLoaded', () => {
+      renderQuestions();
+      renderAnswers();
+      updateProgress();
+    });
+  </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'962f507623b84b8c',t:'MTc1MzE0OTMxMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+  </html>
