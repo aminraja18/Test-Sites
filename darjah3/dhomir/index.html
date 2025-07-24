@@ -1,89 +1,190 @@
-<!DOCTYPE html>
-<html lang="ms">
+<!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Selamat Datang Tahun 4</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f4f4f4;
-      color: #333;
-      margin: 0;
-      padding: 40px 20px;
-      text-align: center;
-    }
-    h1 {
-      font-size: 2.5rem;
-      margin-bottom: 10px;
-    }
-    h2 {
-      color: #666;
-      margin-bottom: 40px;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 24px;
-      max-width: 1000px;
-      margin: auto;
-    }
-    .card {
-      background: #fff;
-      border-radius: 16px;
-      padding: 30px 20px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      text-align: center;
-      transition: transform 0.2s ease;
-    }
-    .card:hover {
-      transform: translateY(-6px);
-    }
-    .card h3 {
-      margin-top: 0;
-      color: #2c3e50;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-    .card a {
-      display: inline-block;
-      margin-top: 12px;
-      padding: 10px 20px;
-      background-color: #2e4057;
-      color: #fff;
-      border-radius: 8px;
-      text-decoration: none;
-      transition: background 0.2s;
-    }
-    .card a:hover {
-      background-color: #3c5671;
-    }
-    .emoji {
-      font-size: 1.4em;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Esei</title>
+    <style>
+        body { 
+            margin: 0; 
+            background-color: #f9f7f3; 
+            color: #3a3a3a; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            text-align: center;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        h1 { 
+            padding-top: 30px; 
+            color: #4a6d7c;
+            font-weight: 300;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #6a8d9d;
+            font-weight: 300;
+            margin-bottom: 40px;
+        }
+        .menu { 
+            display: flex; 
+            justify-content: center; 
+            gap: 25px; 
+            flex-wrap: wrap; 
+            margin-top: 30px; 
+        }
+        .menu-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            width: 200px;
+            background-color: white;
+            border-radius: 12px;
+            padding: 25px 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        .menu-item:hover { 
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: #4a6d7c;
+        }
+        .menu-title {
+            color: #3a3a3a;
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+        .decoration {
+            position: absolute;
+            z-index: -1;
+            opacity: 0.4;
+        }
+        .decoration-1 {
+            top: 10%;
+            left: 5%;
+            color: #a7c5d5;
+            font-size: 3rem;
+        }
+        .decoration-2 {
+            bottom: 15%;
+            right: 8%;
+            color: #d5c7a7;
+            font-size: 2.5rem;
+        }
+        .decoration-3 {
+            top: 40%;
+            right: 15%;
+            color: #a7d5b2;
+            font-size: 2rem;
+        }
+        footer {
+            margin-top: 60px;
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        /* Essay page styles */
+        .essay-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+        .essay-title {
+            color: #4a6d7c;
+            font-weight: 300;
+            font-size: 2.2rem;
+            margin-bottom: 30px;
+        }
+        .content {
+            text-align: left;
+            padding: 20px;
+            line-height: 1.8;
+        }
+        .content p {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+        .arabic-text {
+            font-size: 1.6rem;
+            line-height: 2;
+            margin: 30px 0;
+            color: #4a6d7c;
+            text-align: right;
+            direction: rtl;
+        }
+        .essay-image {
+            max-width: 100%;
+            border-radius: 10px;
+            margin: 30px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 40px;
+            color: #4a6d7c;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .back-link:hover {
+            color: #2c414b;
+        }
+        .back-icon {
+            margin-right: 8px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-  <h1>👋 Selamat Datang Tahun 4</h1>
-  <h2>Daripada Muallim Raja</h2>
-
-  <div class="grid">
-    <div class="card">
-      <h3><span class="emoji">🧠</span> Hafazan Karangan</h3>
-      <a href="hafazan.html">Mulakan</a>
+    <div class="container">
+        <h1>Karangan Bahasa Arab</h1>
+        <p class="subtitle">Koleksi esei dalam bahasa Arab</p>
+        
+        <div class="menu">
+            <a href="warna.html" class="menu-item">
+                <div class="icon"><i class="fas fa-number"></i></div>
+                <div class="menu-title">20</div>
+            </a>
+            <a href="gandaan.html" class="menu-item">
+                <div class="icon"><i class="fas fa-school"></i></div>
+                <div class="menu-title">Gandaan 10</div>
+            </a>
+            <a href="esei3.html" class="menu-item">
+                <div class="icon"><i class="fas fa-pen"></i></div>
+                <div class="menu-title">Esei 3</div>
+            </a>
+            <a href="esei4.html" class="menu-item">
+                <div class="icon"><i class="fas fa-star"></i></div>
+                <div class="menu-title">Esei 4</div>
+            </a>
+        </div>
+        
+        <footer>© 2023 Karangan Bahasa Arab</footer>
     </div>
+    
+    <div class="decoration decoration-1"><i class="fas fa-leaf"></i></div>
+    <div class="decoration decoration-2"><i class="fas fa-cloud"></i></div>
+    <div class="decoration decoration-3"><i class="fas fa-sun"></i></div>
 
-    <div class="card">
-      <h3><span class="emoji">🧩</span> Drag and Drop: Nama Malaikat</h3>
-      <a href="drag-drop.html">Main</a>
+    <!-- Essay 1 Page (Hidden by default, would be in separate file) -->
+    <div class="essay-container" style="display: none;">
+        <h1 class="essay-title">Keluargaku</h1>
+        <div class="content">
+            <div class="arabic-text">مَن جَدَّ وَجَدَ، وَمَنْ زَرَعَ حَصَدَ</div>
+            <img src="gambar-esei1.jpg" alt="Gambar Esei 1" class="essay-image">
+        </div>
+        <a href="index.html" class="back-link"><i class="fas fa-arrow-left back-icon"></i>Kembali ke Menu Utama</a>
     </div>
-
-    <div class="card">
-      <h3><span class="emoji">📚</span> Susun Ayat Ikut Turutan</h3>
-      <a href="susun-ayat.html">Cuba Sekarang</a>
-    </div>
-  </div>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'960878011097e581',t:'MTc1Mjc0MTk4NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
