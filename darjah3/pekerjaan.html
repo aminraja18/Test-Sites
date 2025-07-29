@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Permainan Drag & Drop – Pekerjaan dalam Bahasa Arab</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+      color: #333;
+      margin: 0;
+    }
+
+    .main-container {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+      max-width: 800px;
+      margin: 0 auto;
+      backdrop-filter: blur(10px);
+    }
+
+    h2 {
+      text-align: center;
+      color: #2c3e50;
+      font-size: 2.2em;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    h3 {
+      text-align: center;
+      color: #34495e;
+      font-size: 1.4em;
+      margin-bottom: 30px;
+      font-weight: 400;
+    }
+
+    /* Name Entry Stage */
+    #nameStage {
+      text-align: center;
+      padding: 40px;
+      background: #f8f9fa;
+      border-radius: 15px;
+      border: 2px solid #e9ecef;
+    }
+
+    #nameStage label {
+      font-size: 20px;
+      font-weight: 600;
+      color: #495057;
+      display: block;
+      margin-bottom: 20px;
+    }
+
+    input[type="text"] {
+      padding: 15px 25px;
+      font-size: 18px;
+      width: 100%;
+      max-width: 400px;
+      border: 2px solid #dee2e6;
+      border-radius: 25px;
+      outline: none;
+      transition: all 0.3s ease;
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    input[type="text"]:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .btn {
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 18px;
+      font-weight: 600;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Game Stage */
+    #gameStage {
+      display: none;
+    }
+
+    #timer {
+      text-align: center;
+      font-size: 20px;
+      margin-bottom: 25px;
+      padding: 15px;
+      background: linear-gradient(45deg, #ff6b6b, #ffa500);
+      color: white;
+      border-radius: 15px;
+      font-weight: 600;
+      box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+    }
+
+    .student-info {
+      text-align: center;
+      font-size: 18px;
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #e3f2fd;
+      border-radius: 15px;
+      color: #1976d2;
+      font-weight: 600;
+    }
+
+    .container {
+      max-width: 100%;
+      margin: auto;
+    }
+
+    .question-block {
+      margin-bottom: 25px;
+      padding: 20px;
+      background: #ffffff;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+      border-left: 5px solid #667eea;
+      transition: transform 0.2s ease;
+    }
+
+    .question-block:hover {
+      transform: translateY(-2px);
+    }
+
+    .question {
+      font-size: 18px;
+      margin-bottom: 15px;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+
+    .question strong {
+      color: #667eea;
+      font-size: 1.1em;
+    }
+
+    .dropzone {
+      border: 3px dashed #bdc3c7;
+      border-radius: 15px;
+      padding: 20px;
+      min-height: 60px;
+      background-color: #f8f9fa;
+      text-align: center;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: #6c757d;
+    }
+
+    .dropzone.drag-over {
+      border-color: #667eea;
+      background-color: #e3f2fd;
+      transform: scale(1.02);
+    }
+
+    .dropzone.filled {
+      border-color: #28a745;
+      background-color: #d4edda;
+    }
+
+    .drag-item {
+      display: inline-block;
+      padding: 15px 25px;
+      margin: 8px;
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      color: white;
+      border-radius: 25px;
+      cursor: grab;
+      font-size: 20px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+      user-select: none;
+      border: 2px solid transparent;
+    }
+
+    .drag-item:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .drag-item:active {
+      cursor: grabbing;
+      transform: scale(0.95);
+    }
+
+    .drag-item.used {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: #6c757d;
+    }
+
+    .correct {
+      background: linear-gradient(45deg, #28a745, #20c997) !important;
+      animation: correctPulse 0.6s ease;
+    }
+
+    .wrong {
+      background: linear-gradient(45deg, #dc3545, #fd7e14) !important;
+      animation: wrongShake 0.6s ease;
+    }
+
+    @keyframes correctPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes wrongShake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    #answers {
+      text-align: center;
+      margin-top: 30px;
+      padding: 25px;
+      background: #f8f9fa;
+      border-radius: 15px;
+      border: 2px dashed #dee2e6;
+    }
+
+    #answers h4 {
+      color: #495057;
+      margin-bottom: 20px;
+      font-size: 1.2em;
+    }
+
+    .score-display {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    #submitSection {
+      text-align: center;
+      margin-top: 30px;
+      padding: 25px;
+      background: #fff3cd;
+      border-radius: 15px;
+      border: 2px solid #ffc107;
+      display: none;
+    }
+
+    #submitSection h4 {
+      color: #856404;
+      margin-bottom: 15px;
+    }
+
+    /* Results Stage */
+    #resultsStage {
+      display: none;
+      text-align: center;
+      padding: 40px;
+      background: #d4edda;
+      border-radius: 15px;
+      border: 2px solid #28a745;
+    }
+
+    .results-title {
+      font-size: 28px;
+      color: #155724;
+      margin-bottom: 25px;
+      font-weight: 700;
+    }
+
+    .your-results {
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 10px;
+      padding: 20px;
+      margin: 20px 0;
+      border: 2px solid #2196f3;
+    }
+
+    .leaderboard {
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 10px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+
+    .leaderboard h4 {
+      color: #155724;
+      margin-bottom: 15px;
+      font-size: 1.3em;
+    }
+
+    .leaderboard-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 15px;
+      margin: 8px 0;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border-left: 4px solid #28a745;
+      transition: transform 0.2s ease;
+    }
+
+    .leaderboard-item:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .leaderboard-item.current-player {
+      background: #e3f2fd;
+      border-left-color: #2196f3;
+      box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2);
+    }
+
+    .rank {
+      font-size: 18px;
+      font-weight: 700;
+      color: #667eea;
+      min-width: 50px;
+    }
+
+    .player-info {
+      flex-grow: 1;
+      text-align: left;
+      margin-left: 15px;
+    }
+
+    .player-name {
+      font-weight: 600;
+      color: #2c3e50;
+      font-size: 16px;
+    }
+
+    .player-score {
+      font-size: 14px;
+      color: #6c757d;
+      margin-top: 2px;
+    }
+
+    .player-time {
+      font-weight: 600;
+      color: #e74c3c;
+      font-size: 14px;
+    }
+
+    .results-info {
+      font-size: 18px;
+      color: #155724;
+      margin-bottom: 10px;
+      padding: 8px;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 8px;
+    }
+
+    .results-message {
+      font-size: 18px;
+      color: #155724;
+      margin-top: 20px;
+      font-weight: 600;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 10px;
+    }
+
+    hr {
+      margin: 30px 0;
+      border: none;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #667eea, transparent);
+    }
+
+    @media (max-width: 768px) {
+      .main-container {
+        padding: 20px;
+        margin: 10px;
+      }
+      
+      h2 {
+        font-size: 1.8em;
+      }
+      
+      .drag-item {
+        font-size: 18px;
+        padding: 12px 20px;
+        margin: 5px;
+      }
+      
+      .question {
+        font-size: 16px;
+      }
+
+      .leaderboard-item {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .player-info {
+        margin: 10px 0;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="main-container">
+    <h2>🎯 Permainan Seret dan Lepas</h2>
+    <h3>Pekerjaan dalam Bahasa Arab</h3>
+
+    <!-- Stage 1: Name Entry -->
+    <div id="nameStage">
+      <label for="studentName">👤 Sila masukkan nama anda untuk memulakan permainan:</label>
+      <input type="text" id="studentName" placeholder="Nama pelajar..." maxlength="50">
+      <br>
+      <button class="btn" onclick="startGame()">🚀 Mula Permainan</button>
+    </div>
+
+    <!-- Stage 2: Game -->
+    <div id="gameStage">
+      <div class="student-info">
+        👋 Selamat datang, <span id="displayName"></span>!
+      </div>
+
+      <div id="timer">⏱️ Masa: <span id="timeElapsed">0</span> saat</div>
+
+      <div class="container" id="gameContainer">
+        <!-- Questions will be dynamically generated here -->
+        <hr>
+
+        <!-- Jawapan boleh diseret -->
+        <div id="answers">
+          <h4>📝 Pilih jawapan yang betul:</h4>
+          <!-- Answers will be dynamically generated here -->
+        </div>
+
+        <div class="score-display">
+          <div style="color: #667eea; font-size: 18px;">📝 Soalan dijawab: <span id="answeredCount">0</span>/7</div>
+        </div>
+
+        <!-- Submit Section -->
+        <div id="submitSection">
+          <h4>🎯 Selesai menjawab semua soalan?</h4>
+          <p>Klik butang di bawah untuk melihat keputusan anda!</p>
+          <button class="btn" onclick="showResults()">📊 Hantar Jawapan</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stage 3: Results -->
+    <div id="resultsStage">
+      <div class="results-title">🎉 Keputusan Permainan</div>
+      
+      <div class="your-results">
+        <h4 style="color: #1976d2; margin-bottom: 15px;">📊 Keputusan Anda</h4>
+        <div class="results-info">
+          👤 <strong>Nama:</strong> <span id="finalName"></span>
+        </div>
+        <div class="results-info">
+          ⏱️ <strong>Masa:</strong> <span id="finalTime"></span> saat
+        </div>
+        <div class="results-info">
+          📊 <strong>Markah:</strong> <span id="finalScore"></span>
+        </div>
+        <div class="results-info">
+          📈 <strong>Peratusan:</strong> <span id="finalPercentage"></span>%
+        </div>
+        <div class="results-info">
+          🏆 <strong>Kedudukan:</strong> <span id="yourRank"></span>
+        </div>
+        <div class="results-message" id="finalMessage"></div>
+      </div>
+      
+      <div class="leaderboard">
+        <h4>🏆 Papan Pendahulu Kelas</h4>
+        <p style="color: #6c757d; font-size: 14px; margin-bottom: 15px;">Skor semua pelajar yang telah bermain</p>
+        <div id="leaderboardList"></div>
+      </div>
+      
+      <button class="btn" onclick="restartGame()">🔄 Main Semula</button>
+    </div>
+  </div>
+
+  <script>
+    // Game data with questions and answers
+    const gameData = [
+      { english: 'Doktor', arabic: 'طَبِيبٌ' },
+      { english: 'Polis', arabic: 'شُرْطِيٌّ' },
+      { english: 'Petani', arabic: 'فَلَّاحٌ' },
+      { english: 'Peniaga', arabic: 'تَاجِرٌ' },
+      { english: 'Jurutera', arabic: 'مُهَنْدِسٌ' },
+      { english: 'Juruterbang', arabic: 'طَيَّارٌ' },
+      { english: 'Pegawai', arabic: 'مُوَظَّفٌ' }
+    ];
+
+    // Game state variables
+    let startTime = null;
+    let timerInterval = null;
+    let correctAnswers = 0;
+    let wrongAnswers = 0;
+    let totalQuestions = 7;
+    let answeredQuestions = 0;
+    let studentName = '';
+    let currentQuestions = [];
+    let currentAnswers = [];
+    
+    // Leaderboard storage (simulated - in real app would be server-side)
+    let leaderboard = [];
+
+    // Shuffle function
+    function shuffleArray(array) {
+      const shuffled = [...array];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    }
+
+    // Initialize with some sample scores for demonstration
+    function initializeLeaderboard() {
+      if (leaderboard.length === 0) {
+        const samplePlayers = [
+          { name: 'Ahmad Zaki', score: 6, time: 85, percentage: 86 },
+          { name: 'Siti Nurhaliza', score: 7, time: 92, percentage: 100 },
+          { name: 'Ali Rahman', score: 5, time: 78, percentage: 71 },
+          { name: 'Fatimah Zahra', score: 6, time: 95, percentage: 86 },
+          { name: 'Hassan Omar', score: 4, time: 120, percentage: 57 }
+        ];
+        
+        // Add random sample players
+        const numSamples = Math.floor(Math.random() * 3) + 2; // 2-4 sample players
+        for (let i = 0; i < numSamples; i++) {
+          leaderboard.push(samplePlayers[i]);
+        }
+      }
+    }
+
+    function startGame() {
+      const nameInput = document.getElementById('studentName');
+      studentName = nameInput.value.trim();
+      
+      if (!studentName) {
+        alert('Sila masukkan nama anda terlebih dahulu!');
+        nameInput.focus();
+        return;
+      }
+
+      // Initialize leaderboard with sample data
+      initializeLeaderboard();
+
+      // Randomize questions and answers
+      currentQuestions = shuffleArray(gameData);
+      currentAnswers = shuffleArray(gameData.map(item => item.arabic));
+
+      // Hide name stage and show game stage
+      document.getElementById('nameStage').style.display = 'none';
+      document.getElementById('gameStage').style.display = 'block';
+      
+      // Display student name
+      document.getElementById('displayName').textContent = studentName;
+      
+      // Generate randomized questions and answers
+      generateRandomizedContent();
+      
+      // Start timer
+      startTime = Date.now();
+      timerInterval = setInterval(updateTimer, 1000);
+      
+      // Initialize drag and drop
+      initializeDragAndDrop();
+    }
+
+    function generateRandomizedContent() {
+      const gameContainer = document.getElementById('gameContainer');
+      
+      // Clear existing questions
+      const existingQuestions = gameContainer.querySelectorAll('.question-block');
+      existingQuestions.forEach(q => q.remove());
+      
+      // Generate new randomized questions
+      const hr = gameContainer.querySelector('hr');
+      currentQuestions.forEach((question, index) => {
+        const questionDiv = document.createElement('div');
+        questionDiv.className = 'question-block';
+        questionDiv.innerHTML = `
+          <div class="question">${index + 1}. Apakah dalam Bahasa Arab bagi: <strong>${question.english}</strong>?</div>
+          <div class="dropzone" data-answer="${question.arabic}">Seret jawapan ke sini</div>
+        `;
+        
+        gameContainer.insertBefore(questionDiv, hr);
+      });
+      
+      // Update answers section with randomized answers
+      const answersDiv = document.getElementById('answers');
+      // Clear existing answers except the title
+      const existingAnswers = answersDiv.querySelectorAll('.drag-item');
+      existingAnswers.forEach(a => a.remove());
+      
+      currentAnswers.forEach(answer => {
+        const answerDiv = document.createElement('div');
+        answerDiv.className = 'drag-item';
+        answerDiv.setAttribute('draggable', 'true');
+        answerDiv.setAttribute('data-value', answer);
+        answerDiv.textContent = answer;
+        answersDiv.appendChild(answerDiv);
+      });
+    }
+
+    function updateTimer() {
+      const elapsed = Math.floor((Date.now() - startTime) / 1000);
+      document.getElementById('timeElapsed').textContent = elapsed;
+    }
+
+    function initializeDragAndDrop() {
+      let draggedElement = null;
+
+      // Add event listeners to all drag items
+      document.querySelectorAll('.drag-item').forEach(item => {
+        item.addEventListener('dragstart', function(e) {
+          if (this.classList.contains('used')) {
+            e.preventDefault();
+            return;
+          }
+          draggedElement = this;
+          this.style.opacity = '0.5';
+        });
+
+        item.addEventListener('dragend', function(e) {
+          this.style.opacity = '1';
+        });
+      });
+
+      // Add event listeners to all dropzones
+      document.querySelectorAll('.dropzone').forEach(zone => {
+        zone.addEventListener('dragover', function(e) {
+          e.preventDefault();
+          if (!this.classList.contains('filled')) {
+            this.classList.add('drag-over');
+          }
+        });
+
+        zone.addEventListener('dragleave', function(e) {
+          this.classList.remove('drag-over');
+        });
+
+        zone.addEventListener('drop', function(e) {
+          e.preventDefault();
+          this.classList.remove('drag-over');
+          
+          if (this.classList.contains('filled') || !draggedElement) {
+            return;
+          }
+
+          const correctAnswer = this.getAttribute('data-answer');
+          const droppedValue = draggedElement.getAttribute('data-value');
+
+          // Place the item in the dropzone
+          this.innerHTML = draggedElement.innerHTML;
+          this.classList.add('filled');
+
+          // Store the answer for later evaluation
+          this.setAttribute('data-student-answer', droppedValue);
+          
+          // Mark the dragged item as used
+          draggedElement.classList.add('used');
+          draggedElement.setAttribute('draggable', 'false');
+          
+          answeredQuestions++;
+          document.getElementById('answeredCount').textContent = answeredQuestions;
+          
+          // Check if all questions are answered
+          if (answeredQuestions === totalQuestions) {
+            setTimeout(() => {
+              document.getElementById('submitSection').style.display = 'block';
+              document.getElementById('submitSection').scrollIntoView({ behavior: 'smooth' });
+            }, 1000);
+          }
+
+          draggedElement = null;
+        });
+
+        // Double-click to reset
+        zone.addEventListener('dblclick', function() {
+          if (this.classList.contains('filled')) {
+            const content = this.innerHTML;
+            document.querySelectorAll('.drag-item').forEach(item => {
+              if (item.innerHTML === content) {
+                item.classList.remove('used');
+                item.setAttribute('draggable', 'true');
+              }
+            });
+            
+            // Reset the dropzone
+            this.innerHTML = 'Seret jawapan ke sini';
+            this.classList.remove('filled', 'correct', 'wrong');
+            this.removeAttribute('data-student-answer');
+            
+            answeredQuestions--;
+            document.getElementById('answeredCount').textContent = answeredQuestions;
+            
+            // Hide submit section if not all answered
+            if (answeredQuestions < totalQuestions) {
+              document.getElementById('submitSection').style.display = 'none';
+            }
+          }
+        });
+      });
+    }
+
+    function showResults() {
+      // Stop timer
+      clearInterval(timerInterval);
+      const finalTime = document.getElementById('timeElapsed').textContent;
+      
+      // Evaluate all answers
+      correctAnswers = 0;
+      wrongAnswers = 0;
+      
+      document.querySelectorAll('.dropzone').forEach(zone => {
+        const correctAnswer = zone.getAttribute('data-answer');
+        const studentAnswer = zone.getAttribute('data-student-answer');
+        
+        if (studentAnswer === correctAnswer) {
+          zone.classList.add('correct');
+          correctAnswers++;
+        } else {
+          zone.classList.add('wrong');
+          wrongAnswers++;
+        }
+      });
+      
+      const percentage = Math.round((correctAnswers / totalQuestions) * 100);
+      
+      // Add current player to leaderboard
+      const currentPlayerResult = {
+        name: studentName,
+        score: correctAnswers,
+        time: parseInt(finalTime),
+        percentage: percentage,
+        isCurrentPlayer: true
+      };
+      
+      leaderboard.push(currentPlayerResult);
+      
+      // Sort leaderboard by score (descending) then by time (ascending)
+      leaderboard.sort((a, b) => {
+        if (a.score !== b.score) {
+          return b.score - a.score; // Higher score first
+        }
+        return a.time - b.time; // Lower time first if same score
+      });
+      
+      // Find current player rank
+      const currentRank = leaderboard.findIndex(p => p.isCurrentPlayer) + 1;
+      
+      // Hide game stage and show results stage
+      document.getElementById('gameStage').style.display = 'none';
+      document.getElementById('resultsStage').style.display = 'block';
+      
+      // Display current player results
+      document.getElementById('finalName').textContent = studentName;
+      document.getElementById('finalTime').textContent = finalTime;
+      document.getElementById('finalScore').textContent = `${correctAnswers}/${totalQuestions}`;
+      document.getElementById('finalPercentage').textContent = percentage;
+      document.getElementById('yourRank').textContent = `#${currentRank} daripada ${leaderboard.length} pemain`;
+      
+      // Display leaderboard
+      displayLeaderboard();
+      
+      // Display message based on performance
+      let message = '';
+      if (currentRank === 1) {
+        message = '🏆 Tahniah! Anda Juara! Prestasi yang cemerlang!';
+      } else if (currentRank <= 3) {
+        message = '🎖️ Hebat! Anda berada dalam 3 teratas!';
+      } else if (percentage >= 80) {
+        message = '🎯 Sangat Baik! Prestasi yang memberangsangkan!';
+      } else if (percentage >= 70) {
+        message = '👍 Baik! Teruskan usaha untuk menguasai Bahasa Arab!';
+      } else if (percentage >= 60) {
+        message = '📚 Sederhana. Anda perlu lebih banyak latihan.';
+      } else {
+        message = '💪 Teruskan belajar! Anda pasti akan berjaya dengan lebih banyak latihan!';
+      }
+      
+      document.getElementById('finalMessage').textContent = message;
+    }
+
+    function displayLeaderboard() {
+      const leaderboardList = document.getElementById('leaderboardList');
+      leaderboardList.innerHTML = '';
+      
+      leaderboard.forEach((player, index) => {
+        const rank = index + 1;
+        const isCurrentPlayer = player.isCurrentPlayer || false;
+        
+        const leaderboardItem = document.createElement('div');
+        leaderboardItem.className = 'leaderboard-item';
+        if (isCurrentPlayer) {
+          leaderboardItem.classList.add('current-player');
+        }
+        
+        let medal = '';
+        if (rank === 1) medal = '🥇';
+        else if (rank === 2) medal = '🥈';
+        else if (rank === 3) medal = '🥉';
+        else medal = `#${rank}`;
+        
+        leaderboardItem.innerHTML = `
+          <div class="rank">${medal}</div>
+          <div class="player-info">
+            <div class="player-name">${player.name} ${isCurrentPlayer ? '(Anda)' : ''}</div>
+            <div class="player-score">${player.score}/${totalQuestions} soalan betul (${player.percentage}%)</div>
+          </div>
+          <div class="player-time">${player.time}s</div>
+        `;
+        
+        leaderboardList.appendChild(leaderboardItem);
+      });
+    }
+
+    function restartGame() {
+      // Reset game variables (but keep leaderboard)
+      startTime = null;
+      timerInterval = null;
+      correctAnswers = 0;
+      wrongAnswers = 0;
+      answeredQuestions = 0;
+      studentName = '';
+      currentQuestions = [];
+      currentAnswers = [];
+      
+      // Reset displays
+      document.getElementById('answeredCount').textContent = '0';
+      document.getElementById('timeElapsed').textContent = '0';
+      document.getElementById('studentName').value = '';
+      document.getElementById('submitSection').style.display = 'none';
+      
+      // Clear current player flag from leaderboard
+      leaderboard.forEach(player => {
+        player.isCurrentPlayer = false;
+      });
+      
+      // Show name stage
+      document.getElementById('resultsStage').style.display = 'none';
+      document.getElementById('gameStage').style.display = 'none';
+      document.getElementById('nameStage').style.display = 'block';
+    }
+
+    // Prevent form submission on Enter key in name input
+    document.getElementById('studentName').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        startGame();
+      }
+    });
+  </script>
+
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'966949a380f1e58c',t:'MTc1Mzc1NzIwNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
