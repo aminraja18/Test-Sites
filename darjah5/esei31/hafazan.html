@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>السُّوق - بطاقة تفاعلية</title>
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .card-container {
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+      width: 100%;
+      max-width: 600px;
+      padding: 40px;
+      text-align: center;
+      transition: transform 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-container:hover {
+      transform: translateY(-5px);
+    }
+
+    .card-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #4CAF50, #45a049);
+    }
+
+    .card-header {
+      margin-bottom: 30px;
+    }
+
+    .card-counter {
+      background: #f0f8ff;
+      color: #667eea;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      display: inline-block;
+      margin-bottom: 20px;
+    }
+
+    .flashcard {
+      font-size: 1.4rem;
+      margin-bottom: 25px;
+      line-height: 1.8;
+      color: #333;
+      min-height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f8f9fa;
+      border-radius: 15px;
+      padding: 20px;
+      border-right: 4px solid #4CAF50;
+    }
+
+    .translation {
+      font-size: 1.1rem;
+      color: #666;
+      margin: 20px 0;
+      font-style: italic;
+      min-height: 30px;
+      padding: 10px;
+      background: #fff8dc;
+      border-radius: 10px;
+      border-right: 3px solid #ffd700;
+    }
+
+    .button-container {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 30px;
+    }
+
+    button {
+      background: linear-gradient(135deg, #4CAF50, #45a049);
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      font-size: 1rem;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+      font-weight: bold;
+      min-width: 140px;
+    }
+
+    button:hover {
+      background: linear-gradient(135deg, #45a049, #3d8b40);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .flip-btn {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .flip-btn:hover {
+      background: linear-gradient(135deg, #5a6fd8, #6a4190);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      background: #e0e0e0;
+      border-radius: 3px;
+      margin: 20px 0;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #4CAF50, #45a049);
+      border-radius: 3px;
+      transition: width 0.3s ease;
+    }
+
+    @media (max-width: 480px) {
+      .card-container {
+        padding: 25px;
+      }
+      
+      .flashcard {
+        font-size: 1.2rem;
+        padding: 15px;
+      }
+      
+      .button-container {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      button {
+        width: 100%;
+        max-width: 250px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="card-container">
+    <div class="card-header">
+      <div class="card-counter" id="cardCounter">بطاقة ١ من ١٠</div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width: 10%"></div>
+      </div>
+    </div>
+    
+    <div class="flashcard" id="cardText">١. مَتَى تَسْتَيْقِظُ مِنَ النَّوْمِ؟</div>
+    <div class="translation" id="cardTranslation"></div>
+    
+    <div class="button-container">
+      <button class="flip-btn" onclick="flipCard()">تَقْلِيب / Flip</button>
+      <button onclick="nextCard()">السُّؤَالُ التَّالِي ➡</button>
+    </div>
+  </div>
+
+  <script>
+    const cards = [
+      {
+        q: "١. مَتَى تَسْتَيْقِظُ مِنَ النَّوْمِ؟",
+        a: "أَسْتَيْقِظُ فِي السَّاعَةِ السَّابِعَةِ صَبَاحًا كُلَّ يَوْمٍ.\n(Saya bangun pada pukul tujuh pagi setiap hari)"
+      },
+      {
+        q: "٢. مَاذَا تَفْعَلُ بَعْدَ ذَلِكَ؟",
+        a: "أُصَلِّي وَأَتَنَاوَلُ فُطُورِي مَعَ أُسْرَتِي.\n(Saya solat dan bersarapan dengan keluarga saya)"
+      },
+      {
+        q: "٣. مَتَى تَذْهَبُ إِلَى السُّوقِ؟",
+        a: "أَذْهَبُ إِلَى السُّوقِ بَعْدَ الْفُطُورِ فِي السَّاعَةِ التَّاسِعَةِ.\n(Saya pergi ke pasar selepas sarapan pada pukul sembilan)"
+      },
+      {
+        q: "٤. كَيْفَ تَذْهَبُ إِلَى هُنَاكَ؟",
+        a: "أَذْهَبُ إِلَى السُّوقِ بِالسَّيَّارَةِ مَعَ وَالِدَتِي.\n(Saya ke pasar dengan kereta bersama ibu saya)"
+      },
+      {
+        q: "٥. مَعَ مَنْ تَذْهَبُ إِلَى السُّوقِ؟",
+        a: "أَذْهَبُ مَعَ وَالِدَتِي وَأَخِي، وَنَشْتَرِي مَعًا.\n(Saya pergi bersama ibu dan abang saya, dan kami membeli bersama)"
+      },
+      {
+        q: "٦. مَاذَا تُشَاهِدُ فِي السُّوقِ؟",
+        a: "أَرَى كَثِيرًا مِنَ الْخُضَرِ وَالْمَأْكُولَاتِ وَالْفَوَاكِهِ.\n(Saya melihat banyak sayur-sayuran, makanan dan buah-buahan)"
+      },
+      {
+        q: "٧. مَاذَا تَشْتَرِي فِي السُّوقِ؟",
+        a: "أَشْتَرِي الْخُضَرَ وَالْفَوَاكِهَ وَبَعْضَ الْحَلْوَى.\n(Saya membeli sayur, buah-buahan dan beberapa manisan)"
+      },
+      {
+        q: "٨. مَتَى تَرْجِعُ إِلَى الْبَيْتِ؟",
+        a: "أَرْجِعُ إِلَى الْبَيْتِ بَعْدَ أَنْ أُنْهِـيَ التَّسَوُّقَ.\n(Saya pulang ke rumah selepas selesai membeli-belah)"
+      },
+      {
+        q: "٩. مَاذَا تَشْعُرُ فِي السُّوقِ؟",
+        a: "أَشْعُرُ بِالْفَرَحِ عِنْدَمَا أَذْهَبُ إِلَى السُّوقِ.\n(Saya rasa gembira apabila pergi ke pasar)"
+      },
+      {
+        q: "١٠. هَلْ تُحِبُّ أَنْ تَذْهَبَ إِلَى السُّوقِ؟ وَلِمَاذَا؟",
+        a: "نَعَمْ، أُحِبُّ أَنْ أَذْهَبَ إِلَى السُّوقِ لِأَنَّهُ مُـمْتِعٌ.\n(Ya, saya suka pergi ke pasar kerana ianya menyeronokkan)"
+      }
+    ];
+
+    let current = 0;
+    let flipped = false;
+
+    function updateProgress() {
+      const progress = ((current + 1) / cards.length) * 100;
+      document.getElementById("progressFill").style.width = progress + "%";
+      
+      // Convert number to Arabic numerals
+      const arabicNumerals = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+      const currentArabic = (current + 1).toString().split('').map(digit => arabicNumerals[parseInt(digit)]).join('');
+      const totalArabic = cards.length.toString().split('').map(digit => arabicNumerals[parseInt(digit)]).join('');
+      
+      document.getElementById("cardCounter").innerText = `بطاقة ${currentArabic} من ${totalArabic}`;
+    }
+
+    function flipCard() {
+      const card = document.getElementById("cardText");
+      const trans = document.getElementById("cardTranslation");
+      
+      if (!flipped) {
+        card.innerText = cards[current].a.split("\n")[0];
+        trans.innerText = cards[current].a.split("\n")[1];
+      } else {
+        card.innerText = cards[current].q;
+        trans.innerText = "";
+      }
+      flipped = !flipped;
+    }
+
+    function nextCard() {
+      current = (current + 1) % cards.length;
+      flipped = false;
+      document.getElementById("cardText").innerText = cards[current].q;
+      document.getElementById("cardTranslation").innerText = "";
+      updateProgress();
+    }
+
+    // Initialize the progress on page load
+    updateProgress();
+  </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'967ea367f2f1fdb8',t:'MTc1Mzk4MTA4My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
