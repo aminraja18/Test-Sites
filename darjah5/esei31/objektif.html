@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لُعْبَةُ السُّوقِ</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+    body { 
+      font-family: 'Amiri', serif; 
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      position: relative;
+      overflow-x: hidden;
+    }
+    
+    /* Scandinavian color palette */
+    :root {
+      --sage-green: #9ca3af;
+      --dusty-blue: #64748b;
+      --warm-beige: #f1f5f9;
+      --soft-pink: #fecaca;
+      --cream-white: #fefefe;
+    }
+    
+    /* Background decorative icons */
+    .bg-icons {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -1;
+      opacity: 0.08;
+    }
+    
+    .floating-icon {
+      position: absolute;
+      font-size: 2rem;
+      animation: float 6s ease-in-out infinite;
+      color: var(--dusty-blue);
+    }
+    
+    .floating-icon:nth-child(odd) {
+      animation-delay: -3s;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(5deg); }
+    }
+    
+    /* Scandinavian card styling */
+    .scandi-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+    
+    .scandi-button {
+      background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+      transition: all 0.3s ease;
+      border: none;
+      box-shadow: 0 4px 15px rgba(100, 116, 139, 0.3);
+    }
+    
+    .scandi-button:hover {
+      background: linear-gradient(135deg, #475569 0%, #334155 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(100, 116, 139, 0.4);
+    }
+    
+    .option-button {
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      border: 2px solid #cbd5e1;
+      color: #1e293b;
+      transition: all 0.3s ease;
+    }
+    
+    .option-button:hover {
+      background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+      border-color: #64748b;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(100, 116, 139, 0.2);
+    }
+  </style>
+</head>
+<body class="min-h-screen text-slate-800 p-6 text-center">
+
+  <!-- Floating Background Icons -->
+  <div class="bg-icons">
+    <div class="floating-icon" style="top: 10%; left: 15%;">🛒</div>
+    <div class="floating-icon" style="top: 20%; right: 20%;">🏪</div>
+    <div class="floating-icon" style="top: 35%; left: 10%;">🍎</div>
+    <div class="floating-icon" style="top: 45%; right: 15%;">🥕</div>
+    <div class="floating-icon" style="top: 60%; left: 20%;">🧸</div>
+    <div class="floating-icon" style="top: 70%; right: 25%;">🎈</div>
+    <div class="floating-icon" style="top: 80%; left: 25%;">🍞</div>
+    <div class="floating-icon" style="top: 25%; left: 50%;">🥛</div>
+    <div class="floating-icon" style="top: 55%; right: 40%;">🎨</div>
+    <div class="floating-icon" style="top: 15%; right: 45%;">🧩</div>
+    <div class="floating-icon" style="top: 75%; left: 45%;">🎪</div>
+    <div class="floating-icon" style="top: 40%; left: 70%;">🍌</div>
+  </div>
+
+  <!-- Start Page -->
+  <div id="startPage" class="max-w-md mx-auto mt-20">
+    <div class="scandi-card rounded-3xl p-8">
+      <h1 class="text-4xl mb-6 text-slate-700 font-bold">🛒 لُعْبَةُ السُّوقِ</h1>
+      <div class="text-6xl mb-4">🏪</div>
+      <p class="text-lg mb-6 text-slate-600">اِخْتَبِرْ مَعْلُومَاتِكَ عَنِ الذَّهَابِ إِلَى السُّوقِ</p>
+      <div class="mb-6">
+        <label class="block text-xl mb-2 font-bold text-slate-700">✏️ أَدْخِلِ اسْمَكَ:</label>
+        <input type="text" id="playerName" placeholder="اِسْمُكَ هُنَا" 
+               class="border-2 border-slate-300 p-3 rounded-xl text-xl w-full text-center focus:border-slate-500 focus:outline-none bg-slate-50">
+      </div>
+      <button onclick="startGame()" 
+              class="scandi-button text-white px-8 py-4 rounded-xl text-xl font-bold">
+        🚀 بِدَايَةُ اللُّعْبَةِ
+      </button>
+    </div>
+  </div>
+
+  <!-- Quiz Page -->
+  <div id="quizPage" class="hidden max-w-2xl mx-auto mt-10">
+    <div class="scandi-card rounded-3xl p-8">
+      <!-- Progress Bar and Timer -->
+      <div class="mb-6">
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-lg font-bold text-slate-700">السُّؤَالُ <span id="currentQuestionNum">1</span> مِنْ <span id="totalQuestions">5</span></span>
+          <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2 bg-slate-100 px-3 py-1 rounded-lg">
+              <span class="text-2xl">⏰</span>
+              <span id="timer" class="text-xl font-bold text-slate-700">0:00</span>
+            </div>
+            <span class="text-lg font-bold text-slate-700">النُّقَاطُ: <span id="score" class="text-slate-600">0</span></span>
+          </div>
+        </div>
+        <div class="w-full bg-slate-200 rounded-full h-3">
+          <div id="progressBar" class="bg-slate-500 h-3 rounded-full transition-all duration-500" style="width: 20%"></div>
+        </div>
+      </div>
+
+      <!-- Question -->
+      <div id="questionBox" class="text-2xl font-bold mb-8 p-4 bg-slate-50 rounded-xl border-2 border-slate-200 text-slate-700"></div>
+      
+      <!-- Options -->
+      <div id="optionsBox" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6"></div>
+      
+      <!-- Feedback -->
+      <div id="feedback" class="text-3xl font-bold mb-4 h-12 flex items-center justify-center"></div>
+      
+      <!-- Next Button -->
+      <button id="nextBtn" onclick="nextQuestion()" 
+              class="hidden scandi-button text-white px-6 py-3 rounded-xl text-lg font-bold">
+        السُّؤَالُ التَّالِي ⬅️
+      </button>
+    </div>
+  </div>
+
+  <!-- End Page -->
+  <div id="endPage" class="hidden max-w-2xl mx-auto mt-10">
+    <div class="scandi-card rounded-3xl p-8">
+      <h2 class="text-4xl mb-6 text-slate-700 font-bold">🏆 نِهَايَةُ اللُّعْبَةِ</h2>
+      <div class="text-8xl mb-4">🎉</div>
+      
+      <div class="bg-slate-50 rounded-xl p-6 mb-6 border-2 border-slate-200">
+        <p class="text-2xl mb-2 text-slate-700">👤 اللَّاعِبُ: <span id="finalName" class="font-bold text-slate-600"></span></p>
+        <p class="text-2xl mb-2 text-slate-700">⭐ النُّقَاطُ النِّهَائِيَّةُ: <span id="finalScore" class="font-bold text-slate-600"></span> مِنْ 5</p>
+        <p class="text-xl mb-2 text-slate-700">⏱️ الوقت الإجمالي: <span id="finalTime" class="font-bold text-slate-600"></span></p>
+        <p id="performanceMessage" class="text-xl font-bold mt-4"></p>
+      </div>
+
+      <div class="mb-6">
+        <h3 class="text-2xl font-bold mb-4 text-slate-700">📋 لَائِحَةُ الصَّدَارَةِ:</h3>
+        <div class="bg-slate-50 rounded-xl p-4 border-2 border-slate-200">
+          <ul id="leaderboard" class="text-lg space-y-2"></ul>
+        </div>
+      </div>
+
+      <button onclick="restartGame()" 
+              class="scandi-button text-white px-8 py-4 rounded-xl text-xl font-bold">
+        🔄 لَعِبْ مَرَّةً أُخْرَى
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        q: "مَتَى تَسْتَيْقِظُ مِنَ النَّوْمِ؟",
+        options: ["أَذْهَبُ إِلَى السُّوقِ", "أَسْتَيْقِظُ فِي السَّاعَةِ السَّابِعَةِ", "أُشَاهِدُ التِّلْفَازَ", "أَرْسُمُ دَجَاجَةً"],
+        answer: "أَسْتَيْقِظُ فِي السَّاعَةِ السَّابِعَةِ"
+      },
+      {
+        q: "مَاذَا تَفْعَلُ بَعْدَ ذَلِكَ؟",
+        options: ["أُصَلِّي وَأَتَنَاوَلُ فُطُورِي", "أَرْكَبُ فِيلًا", "أَطِيرُ فِي السَّمَاءِ", "أُشَاهِدُ السَّيَّارَاتِ"],
+        answer: "أُصَلِّي وَأَتَنَاوَلُ فُطُورِي"
+      },
+      {
+        q: "مَتَى تَذْهَبُ إِلَى السُّوقِ؟",
+        options: ["فِي السَّاعَةِ التَّاسِعَةِ", "فِي المَسَاءِ البَارِدِ", "أَنَامُ فِي السُّوقِ", "أَلْعَبُ مَعَ أَسَدٍ"],
+        answer: "فِي السَّاعَةِ التَّاسِعَةِ"
+      },
+      {
+        q: "كَيْفَ تَذْهَبُ إِلَى هُنَاكَ؟",
+        options: ["بِالسَّيَّارَةِ مَعَ وَالِدَتِي", "بِالسَّفِينَةِ فِي البَحْرِ", "أَجْلِسُ فِي البَيْتِ", "أَرْكَبُ الجَمَلَ"],
+        answer: "بِالسَّيَّارَةِ مَعَ وَالِدَتِي"
+      },
+      {
+        q: "مَعَ مَنْ تَذْهَبُ إِلَى السُّوقِ؟",
+        options: ["مَعَ وَالِدَتِي وَأَخِي", "مَعَ قِطَّةٍ وَعَصَا", "مَعَ الكُرْسِيِّ", "مَعَ السَّمَكِ"],
+        answer: "مَعَ وَالِدَتِي وَأَخِي"
+      }
+    ];
+
+    let currentQ = 0;
+    let score = 0;
+    let player = "";
+    let answered = false;
+    let shuffledQuestions = [];
+    let currentTime = 0;
+    let timerInterval = null;
+    let gameStartTime = 0;
+
+    const startPage = document.getElementById('startPage');
+    const quizPage = document.getElementById('quizPage');
+    const endPage = document.getElementById('endPage');
+
+    // Shuffle array function
+    function shuffleArray(array) {
+      const shuffled = [...array];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    }
+
+    // Initialize total questions display
+    document.getElementById('totalQuestions').textContent = questions.length;
+
+    function startGame() {
+      player = document.getElementById('playerName').value.trim() || "مَجْهُول";
+      currentQ = 0;
+      score = 0;
+      answered = false;
+      currentTime = 0;
+      gameStartTime = Date.now();
+      
+      // Shuffle questions at the start of each game
+      shuffledQuestions = shuffleArray(questions);
+      
+      startPage.classList.add('hidden');
+      quizPage.classList.remove('hidden');
+      
+      // Start the game timer
+      startTimer();
+      showQuestion();
+    }
+
+    function startTimer() {
+      timerInterval = setInterval(() => {
+        currentTime = Math.floor((Date.now() - gameStartTime) / 1000);
+        updateTimerDisplay();
+      }, 1000);
+    }
+
+    function stopTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+    }
+
+    function updateTimerDisplay() {
+      const minutes = Math.floor(currentTime / 60);
+      const seconds = currentTime % 60;
+      const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+      document.getElementById('timer').textContent = timeString;
+    }
+
+    function showQuestion() {
+      if (currentQ >= shuffledQuestions.length) {
+        endGame();
+        return;
+      }
+
+      const q = shuffledQuestions[currentQ];
+      answered = false;
+      
+      // Update question number and progress
+      document.getElementById('currentQuestionNum').textContent = currentQ + 1;
+      document.getElementById('progressBar').style.width = `${((currentQ + 1) / shuffledQuestions.length) * 100}%`;
+      
+      // Show question
+      document.getElementById('questionBox').innerHTML = `📌 ${q.q}`;
+      
+      // Clear previous feedback and hide next button
+      document.getElementById('feedback').innerHTML = "";
+      document.getElementById('nextBtn').classList.add('hidden');
+      
+      // Shuffle options for this question
+      const shuffledOptions = shuffleArray(q.options);
+      
+      // Create option buttons
+      const optionsBox = document.getElementById('optionsBox');
+      optionsBox.innerHTML = "";
+      
+      shuffledOptions.forEach((opt, index) => {
+        const btn = document.createElement("button");
+        btn.innerHTML = opt;
+        btn.className = "option-button p-4 rounded-xl text-lg font-bold";
+        btn.onclick = () => checkAnswer(opt, btn);
+        optionsBox.appendChild(btn);
+      });
+      
+      // Update score display
+      document.getElementById('score').textContent = score;
+    }
+
+    function checkAnswer(selected, clickedBtn) {
+      if (answered) return;
+      answered = true;
+
+      const feedback = document.getElementById('feedback');
+      const optionButtons = document.querySelectorAll('#optionsBox button');
+      
+      // Disable all buttons
+      optionButtons.forEach(btn => {
+        btn.disabled = true;
+        btn.classList.add('opacity-50', 'cursor-not-allowed');
+      });
+
+      if (selected === shuffledQuestions[currentQ].answer) {
+        score += 1;
+        feedback.innerHTML = "✅ أَحْسَنْتَ! إِجَابَةٌ صَحِيحَةٌ!";
+        feedback.className = "text-3xl font-bold mb-4 h-12 flex items-center justify-center text-slate-600";
+        clickedBtn.style.background = "linear-gradient(135deg, #10b981 0%, #059669 100%)";
+        clickedBtn.style.color = "white";
+        clickedBtn.style.borderColor = "#059669";
+        
+        // Success sound simulation
+        playSuccessSound();
+      } else {
+        feedback.innerHTML = "❌ إِجَابَةٌ خَاطِئَةٌ! حَاوِلْ مَرَّةً أُخْرَى!";
+        feedback.className = "text-3xl font-bold mb-4 h-12 flex items-center justify-center text-slate-600";
+        clickedBtn.style.background = "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)";
+        clickedBtn.style.color = "white";
+        clickedBtn.style.borderColor = "#dc2626";
+        
+        // Highlight correct answer
+        optionButtons.forEach(btn => {
+          if (btn.innerHTML === shuffledQuestions[currentQ].answer) {
+            btn.style.background = "linear-gradient(135deg, #10b981 0%, #059669 100%)";
+            btn.style.color = "white";
+            btn.style.borderColor = "#059669";
+          }
+        });
+        
+        // Error sound simulation
+        playErrorSound();
+      }
+      
+      // Update score display
+      document.getElementById('score').textContent = score;
+      
+      // Show next button after a delay
+      setTimeout(() => {
+        document.getElementById('nextBtn').classList.remove('hidden');
+      }, 1500);
+    }
+
+    function nextQuestion() {
+      currentQ++;
+      showQuestion();
+    }
+
+    function endGame() {
+      // Stop the timer
+      stopTimer();
+      
+      quizPage.classList.add('hidden');
+      endPage.classList.remove('hidden');
+      
+      // Calculate final time
+      const finalTime = Math.floor((Date.now() - gameStartTime) / 1000);
+      const minutes = Math.floor(finalTime / 60);
+      const seconds = finalTime % 60;
+      const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+      
+      // Display final results
+      document.getElementById('finalName').textContent = player;
+      document.getElementById('finalScore').textContent = score;
+      document.getElementById('finalTime').textContent = timeString;
+      
+      // Performance message based on score
+      const performanceMsg = document.getElementById('performanceMessage');
+      if (score === 5) {
+        performanceMsg.innerHTML = "🌟 مُمْتَاز! حَصَلْتَ عَلَى الدَّرَجَةِ الكَامِلَةِ!";
+        performanceMsg.className = "text-xl font-bold mt-4 text-slate-600";
+      } else if (score >= 3) {
+        performanceMsg.innerHTML = "👍 جَيِّدٌ جِدًّا! أَدَاءٌ رَائِعٌ!";
+        performanceMsg.className = "text-xl font-bold mt-4 text-slate-600";
+      } else {
+        performanceMsg.innerHTML = "💪 حَاوِلْ مَرَّةً أُخْرَى لِتَحْسِينِ نَتِيجَتِكَ!";
+        performanceMsg.className = "text-xl font-bold mt-4 text-slate-600";
+      }
+      
+      // Update leaderboard with final time
+      updateLeaderboard(finalTime);
+    }
+
+    function updateLeaderboard(finalTime) {
+      // Get existing leaderboard from localStorage
+      let leaderboard = JSON.parse(localStorage.getItem('marketGameLeaderboard') || '[]');
+      
+      // Add current player with time
+      leaderboard.push({ 
+        name: player, 
+        score: score, 
+        time: finalTime,
+        date: new Date().toLocaleDateString('ar-SA') 
+      });
+      
+      // Sort by score (descending), then by time (ascending) for ties
+      leaderboard.sort((a, b) => {
+        if (b.score !== a.score) {
+          return b.score - a.score;
+        }
+        return a.time - b.time; // Faster time wins for same score
+      });
+      leaderboard = leaderboard.slice(0, 5);
+      
+      // Save back to localStorage
+      localStorage.setItem('marketGameLeaderboard', JSON.stringify(leaderboard));
+      
+      // Display leaderboard
+      const leaderboardEl = document.getElementById('leaderboard');
+      leaderboardEl.innerHTML = '';
+      
+      if (leaderboard.length === 0) {
+        leaderboardEl.innerHTML = '<li class="text-gray-500">لَا يُوجَدُ لَاعِبُونَ بَعْد</li>';
+      } else {
+        leaderboard.forEach((entry, index) => {
+          const li = document.createElement('li');
+          const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '🏅';
+          
+          // Format time display
+          const minutes = Math.floor(entry.time / 60);
+          const seconds = entry.time % 60;
+          const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+          
+          li.innerHTML = `${medal} ${entry.name} - ${entry.score}/5 نُقْطَة (${timeString})`;
+          li.className = index < 3 ? 'font-bold text-slate-600' : 'text-slate-500';
+          leaderboardEl.appendChild(li);
+        });
+      }
+    }
+
+    function restartGame() {
+      endPage.classList.add('hidden');
+      startPage.classList.remove('hidden');
+      document.getElementById('playerName').value = '';
+    }
+
+    // Sound simulation functions
+    function playSuccessSound() {
+      // Create a simple success sound using Web Audio API
+      try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
+        oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1); // E5
+        oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2); // G5
+        
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.3);
+      } catch (e) {
+        // Fallback: no sound if Web Audio API is not supported
+      }
+    }
+
+    function playErrorSound() {
+      // Create a simple error sound using Web Audio API
+      try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+        oscillator.frequency.setValueAtTime(150, audioContext.currentTime + 0.1);
+        
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.2);
+      } catch (e) {
+        // Fallback: no sound if Web Audio API is not supported
+      }
+    }
+
+    // Initialize the game
+    document.addEventListener('DOMContentLoaded', function() {
+      // Focus on name input when page loads
+      document.getElementById('playerName').focus();
+      
+      // Allow Enter key to start game
+      document.getElementById('playerName').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          startGame();
+        }
+      });
+    });
+  </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'967e9375114cfd25',t:'MTc1Mzk4MDQyOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
