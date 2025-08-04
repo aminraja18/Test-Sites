@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة اللغة العربية - السوق</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Amiri', serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .draggable {
+            cursor: grab;
+            transition: all 0.3s ease;
+        }
+        
+        .draggable:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .draggable.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+        
+        .drop-zone {
+            min-height: 80px;
+            border: 2px dashed #cbd5e0;
+            transition: all 0.3s ease;
+        }
+        
+        .drop-zone.drag-over {
+            border-color: #4299e1;
+            background-color: #ebf8ff;
+        }
+        
+        .correct-answer {
+            animation: correctPulse 0.6s ease-in-out;
+        }
+        
+        .wrong-answer {
+            animation: wrongShake 0.6s ease-in-out;
+        }
+        
+        @keyframes correctPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); background-color: #48bb78; }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes wrongShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Start Screen -->
+    <div id="startScreen" class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center fade-in">
+            <div class="text-6xl mb-6">🛒</div>
+            <h1 class="text-3xl font-bold text-gray-800 mb-4">لعبة اللغة العربية</h1>
+            <h2 class="text-xl text-gray-600 mb-8">موضوع: السوق</h2>
+            <div class="mb-6">
+                <label for="nameInput" class="block text-lg font-semibold text-gray-700 mb-2">اسمك:</label>
+                <input type="text" id="nameInput" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none text-lg text-center" placeholder="أدخل اسمك هنا">
+            </div>
+            <button onclick="startGame()" class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold py-4 px-8 rounded-xl hover:from-blue-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-300 text-lg">
+                ابدأ اللعبة
+            </button>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="gameScreen" class="min-h-screen p-4 hidden">
+        <div class="max-w-4xl mx-auto">
+            <!-- Header -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 mb-6 flex justify-between items-center">
+                <div class="flex items-center space-x-4 space-x-reverse">
+                    <div class="text-2xl">👤</div>
+                    <span id="playerName" class="text-xl font-bold text-gray-800"></span>
+                </div>
+                <div class="flex items-center space-x-4 space-x-reverse">
+                    <div class="text-2xl">⭐</div>
+                    <span id="currentScore" class="text-xl font-bold text-blue-600">0/5</span>
+                </div>
+                <div class="flex items-center space-x-4 space-x-reverse">
+                    <div class="text-2xl">📝</div>
+                    <span id="questionNumber" class="text-xl font-bold text-purple-600">1/5</span>
+                </div>
+            </div>
+
+            <!-- Question -->
+            <div class="bg-white rounded-2xl shadow-lg p-8 mb-6 text-center">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">السؤال:</h2>
+                <p id="soalanTeks" class="text-3xl text-blue-600 font-bold leading-relaxed"></p>
+            </div>
+
+            <!-- Drop Zone -->
+            <div class="bg-white rounded-2xl shadow-lg p-8 mb-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4 text-center">اسحب الإجابة الصحيحة هنا:</h3>
+                <div id="dropZone" class="drop-zone rounded-xl p-6 text-center bg-gray-50">
+                    <p class="text-gray-500 text-lg">اسحب الإجابة هنا</p>
+                </div>
+            </div>
+
+            <!-- Answer Options -->
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+                <h3 class="text-xl font-bold text-gray-800 mb-6 text-center">الخيارات:</h3>
+                <div id="jawapanPilihan" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- End Screen -->
+    <div id="endScreen" class="min-h-screen flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-2xl w-full text-center fade-in">
+            <div class="text-6xl mb-6">🏆</div>
+            <h1 class="text-3xl font-bold text-gray-800 mb-4">انتهت اللعبة!</h1>
+            <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">لوحة المتصدرين:</h2>
+                <pre id="skorAkhir" class="text-lg text-gray-700 font-mono leading-relaxed"></pre>
+            </div>
+            <button onclick="restartGame()" class="w-full bg-gradient-to-r from-green-500 to-blue-600 text-white font-bold py-4 px-8 rounded-xl hover:from-green-600 hover:to-blue-700 transform hover:scale-105 transition-all duration-300 text-lg">
+                العب مرة أخرى
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let namaPengguna = "";
+        let markah = 0;
+        let soalanAktif = 0;
+        let masaMula;
+        let masaTamat;
+        let leaderboard = JSON.parse(localStorage.getItem('arabicQuizLeaderboard')) || [];
+
+        const soalan = [
+            {
+                teks: "مَعَ مَنْ تَذْهَبُ إِلَى السُّوقِ؟",
+                jawapan: "أَذْهَبُ مَعَ وَالِدَتِي وَأَخِي، وَنَشْتَرِي مَعًا"
+            },
+            {
+                teks: "مَاذَا تُشَاهِدُ فِي السُّوقِ؟",
+                jawapan: "أَرَى كَثِيرًا مِنَ الْخُضَرِ وَالْمَأْكُولَاتِ وَالْفَوَاكِهِ"
+            },
+            {
+                teks: "مَاذَا تَشْتَرِي فِي السُّوقِ؟",
+                jawapan: "أَشْتَرِي الْخُضَرَ وَالْفَوَاكِهَ وَبَعْضَ الْحَلْوَى"
+            },
+            {
+                teks: "مَتَى تَرْجِعُ إِلَى الْبَيْتِ؟",
+                jawapan: "أَرْجِعُ إِلَى الْبَيْتِ بَعْدَ أَنْ أُنْهِـيَ التَّسَوُّقَ"
+            },
+            {
+                teks: "مَاذَا تَشْعُرُ فِي السُّوقِ؟",
+                jawapan: "أَشْعُرُ بِالْفَرَحِ عِنْدَمَا أَذْهَبُ إِلَى السُّوقِ"
+            }
+        ];
+
+        function startGame() {
+            const nameInput = document.getElementById("nameInput");
+            if (!nameInput.value.trim()) {
+                alert("يرجى إدخال اسمك أولاً");
+                return;
+            }
+            
+            namaPengguna = nameInput.value.trim();
+            markah = 0;
+            soalanAktif = 0;
+            masaMula = Date.now();
+            
+            document.getElementById("playerName").textContent = namaPengguna;
+            goToScreen("gameScreen");
+            setSoalan();
+        }
+
+        function setSoalan() {
+            if (soalanAktif >= soalan.length) {
+                tamatPermainan();
+                return;
+            }
+            
+            document.getElementById("soalanTeks").textContent = soalan[soalanAktif].teks;
+            document.getElementById("currentScore").textContent = `${markah}/${soalan.length}`;
+            document.getElementById("questionNumber").textContent = `${soalanAktif + 1}/${soalan.length}`;
+            
+            // Reset drop zone
+            const dropZone = document.getElementById("dropZone");
+            dropZone.innerHTML = '<p class="text-gray-500 text-lg">اسحب الإجابة هنا</p>';
+            dropZone.className = "drop-zone rounded-xl p-6 text-center bg-gray-50";
+            
+            setDraggableTextOptions();
+        }
+
+        function setDraggableTextOptions() {
+            const container = document.getElementById("jawapanPilihan");
+            const correctAnswer = soalan[soalanAktif].jawapan;
+            const wrongAnswers = [
+                "لا أَدْرِي مَا هَذَا",
+                "أُرِيدُ الذَّهَابَ إِلَى مَكَانٍ آخَر",
+                "هَذَا سُؤَالٌ صَعْبٌ جِدًّا"
+            ];
+            
+            const allOptions = [correctAnswer, ...wrongAnswers].sort(() => Math.random() - 0.5);
+            
+            container.innerHTML = "";
+            allOptions.forEach((option, index) => {
+                const div = document.createElement("div");
+                div.className = "draggable bg-gradient-to-r from-blue-100 to-purple-100 p-4 rounded-xl border-2 border-blue-200 text-center font-semibold text-gray-800 leading-relaxed";
+                div.draggable = true;
+                div.textContent = option;
+                div.dataset.answer = option;
+                
+                div.addEventListener('dragstart', handleDragStart);
+                div.addEventListener('dragend', handleDragEnd);
+                
+                container.appendChild(div);
+            });
+            
+            setupDropZone();
+        }
+
+        function setupDropZone() {
+            const dropZone = document.getElementById("dropZone");
+            
+            dropZone.addEventListener('dragover', handleDragOver);
+            dropZone.addEventListener('dragenter', handleDragEnter);
+            dropZone.addEventListener('dragleave', handleDragLeave);
+            dropZone.addEventListener('drop', handleDrop);
+        }
+
+        function handleDragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.dataset.answer);
+            e.target.classList.add('dragging');
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+        }
+
+        function handleDragEnter(e) {
+            e.preventDefault();
+            e.target.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            e.target.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.target.classList.remove('drag-over');
+            
+            const droppedAnswer = e.dataTransfer.getData('text/plain');
+            const dropZone = document.getElementById("dropZone");
+            
+            dropZone.innerHTML = `<p class="text-lg font-semibold text-gray-800 leading-relaxed">${droppedAnswer}</p>`;
+            
+            setTimeout(() => {
+                semakJawapan(droppedAnswer);
+            }, 500);
+        }
+
+        function semakJawapan(jawapan) {
+            const dropZone = document.getElementById("dropZone");
+            
+            if (jawapan === soalan[soalanAktif].jawapan) {
+                markah += 1;
+                dropZone.classList.add('correct-answer');
+                dropZone.style.backgroundColor = '#c6f6d5';
+                dropZone.style.borderColor = '#48bb78';
+                playCorrectSound();
+            } else {
+                dropZone.classList.add('wrong-answer');
+                dropZone.style.backgroundColor = '#fed7d7';
+                dropZone.style.borderColor = '#f56565';
+                playWrongSound();
+            }
+            
+            soalanAktif += 1;
+            setTimeout(() => {
+                setSoalan();
+            }, 1500);
+        }
+
+        function tamatPermainan() {
+            masaTamat = Date.now();
+            const masaAmbil = Math.floor((masaTamat - masaMula) / 1000);
+            
+            leaderboard.push({ 
+                nama: namaPengguna, 
+                markah: markah, 
+                masa: masaAmbil,
+                tarikh: new Date().toLocaleDateString('ar-SA')
+            });
+            
+            leaderboard.sort((a, b) => b.markah - a.markah || a.masa - b.masa);
+            leaderboard = leaderboard.slice(0, 10); // Keep only top 10
+            
+            localStorage.setItem('arabicQuizLeaderboard', JSON.stringify(leaderboard));
+            
+            let skorAkhir = "";
+            leaderboard.forEach((item, index) => {
+                const medal = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `${index + 1}.`;
+                skorAkhir += `${medal} ${item.nama} - ${item.markah}/${soalan.length} - ${item.masa}ث\n`;
+            });
+            
+            document.getElementById("skorAkhir").textContent = skorAkhir;
+            goToScreen("endScreen");
+        }
+
+        function goToScreen(screenId) {
+            const screens = ["startScreen", "gameScreen", "endScreen"];
+            screens.forEach(screen => {
+                document.getElementById(screen).classList.add("hidden");
+            });
+            document.getElementById(screenId).classList.remove("hidden");
+        }
+
+        function restartGame() {
+            document.getElementById("nameInput").value = "";
+            goToScreen("startScreen");
+        }
+
+        function playCorrectSound() {
+            // Create a simple success sound using Web Audio API
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
+            oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1); // E5
+            oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2); // G5
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.3);
+        }
+
+        function playWrongSound() {
+            // Create a simple error sound using Web Audio API
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+            oscillator.frequency.setValueAtTime(150, audioContext.currentTime + 0.1);
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.2);
+        }
+
+        // Initialize the game
+        document.addEventListener('DOMContentLoaded', function() {
+            goToScreen("startScreen");
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9699d20fa16d1ed9',t:'MTc1NDI2NjExMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
