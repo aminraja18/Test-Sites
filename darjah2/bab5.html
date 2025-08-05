@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لعبة الأفعال - الصف الثاني</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+    body { 
+      font-family: 'Amiri', serif; 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #222; 
+    }
+    .hidden { display: none; }
+    .question-box { min-height: 120px; }
+    .game-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .correct-animation {
+      animation: bounce 0.6s ease-in-out;
+    }
+    .wrong-animation {
+      animation: shake 0.6s ease-in-out;
+    }
+    @keyframes bounce {
+      0%, 20%, 60%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-20px); }
+      80% { transform: translateY(-10px); }
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+      20%, 40%, 60%, 80% { transform: translateX(10px); }
+    }
+    .star {
+      color: #ffd700;
+      font-size: 1.5rem;
+    }
+  </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-4">
+  <div id="game" class="w-full max-w-2xl space-y-6">
+    <div class="text-center mb-8">
+      <h1 class="text-4xl font-bold text-white mb-2">🎮 لعبة الأفعال 🎮</h1>
+      <p class="text-white text-lg">للصف الثاني الابتدائي</p>
+    </div>
+
+    <div id="game-selection" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="game-card rounded-xl shadow-lg p-6 text-center cursor-pointer hover:scale-105 transition-transform" onclick="startGame(0)">
+        <div class="text-4xl mb-3">✏️</div>
+        <h3 class="text-xl font-bold mb-2">لعبة الإملاء</h3>
+        <p class="text-gray-600">اكتب الفعل الصحيح</p>
+      </div>
+      <div class="game-card rounded-xl shadow-lg p-6 text-center cursor-pointer hover:scale-105 transition-transform" onclick="startGame(1)">
+        <div class="text-4xl mb-3">🔗</div>
+        <h3 class="text-xl font-bold mb-2">لعبة المطابقة</h3>
+        <p class="text-gray-600">طابق الكلمة مع معناها</p>
+      </div>
+      <div class="game-card rounded-xl shadow-lg p-6 text-center cursor-pointer hover:scale-105 transition-transform" onclick="startGame(2)">
+        <div class="text-4xl mb-3">⚖️</div>
+        <h3 class="text-xl font-bold mb-2">لعبة المتضادات</h3>
+        <p class="text-gray-600">اختر الكلمة المضادة</p>
+      </div>
+    </div>
+
+    <div id="question-container" class="game-card rounded-xl shadow-lg p-6 text-center question-box hidden"></div>
+    <div id="options" class="flex flex-col space-y-3 hidden"></div>
+    
+    <div id="game-info" class="flex justify-between items-center text-white hidden">
+      <div id="score" class="text-xl font-semibold">
+        <span class="star">⭐</span> الدرجة: <span id="score-value">0</span>
+      </div>
+      <div id="progress" class="text-lg">
+        السؤال: <span id="current-q">1</span> من <span id="total-q">3</span>
+      </div>
+    </div>
+
+    <div id="feedback" class="game-card rounded-xl shadow-lg p-4 text-center hidden">
+      <div id="feedback-content"></div>
+      <button id="next-btn" class="mt-4 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-lg" onclick="nextQuestion()">
+        السؤال التالي ➡️
+      </button>
+    </div>
+
+    <div id="game-complete" class="game-card rounded-xl shadow-lg p-8 text-center hidden">
+      <div class="text-6xl mb-4">🎉</div>
+      <h2 class="text-2xl font-bold mb-4">أحسنت! لقد أنهيت اللعبة</h2>
+      <div id="final-score" class="text-xl mb-6"></div>
+      <button class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg" onclick="resetGame()">
+        العب مرة أخرى 🔄
+      </button>
+    </div>
+
+    <button id="back-btn" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg hidden" onclick="backToMenu()">
+      ← العودة للقائمة
+    </button>
+  </div>
+
+  <script>
+    const games = [
+      {
+        title: "لعبة الإملاء",
+        icon: "✏️",
+        questions: [
+          { q: "Tulis kata kerja yang bermaksud: Saya membeli", correct: "اشتري", hint: "يبدأ بحرف الألف" },
+          { q: "Tulis kata kerja yang bermaksud: Saya minum", correct: "اشرب", hint: "يبدأ بحرف الألف" },
+          { q: "Tulis kata kerja yang bermaksud: Saya bertanya", correct: "اسأل", hint: "يبدأ بحرف الألف" },
+          { q: "Tulis kata kerja yang bermaksud: Saya makan", correct: "اكل", hint: "يبدأ بحرف الألف" },
+          { q: "Tulis kata kerja yang bermaksud: Saya menjual", correct: "ابيع", hint: "يبدأ بحرف الألف" }
+        ],
+        type: "spell"
+      },
+      {
+        title: "لعبة المطابقة",
+        icon: "🔗",
+        questions: [
+          { q: "Padankan perkataan dengan maknanya: آكُلُ", options: ["saya minum", "saya makan", "saya bertanya"], correct: "saya makan" },
+          { q: "Padankan perkataan dengan maknanya: أَبِيعُ", options: ["saya menjual", "saya membeli", "saya bertanya"], correct: "saya menjual" },
+          { q: "Padankan perkataan dengan maknanya: أَشْرَبُ", options: ["saya bertanya", "saya minum", "saya membeli"], correct: "saya minum" },
+          { q: "Padankan perkataan dengan maknanya: أَشْتَرِي", options: ["saya menjual", "saya membeli", "saya makan"], correct: "saya membeli" },
+          { q: "Padankan perkataan dengan maknanya: أَسْأَلُ", options: ["saya bertanya", "saya minum", "saya menjual"], correct: "saya bertanya" }
+        ],
+        type: "match"
+      },
+      {
+        title: "لعبة المتضادات",
+        icon: "⚖️",
+        questions: [
+          { q: "ما ضد: أَشْتَرِي؟", options: ["أَبِيعُ", "آكُلُ", "أَسْأَلُ"], correct: "أَبِيعُ" },
+          { q: "ما ضد: أَسْأَلُ؟", options: ["أُجِيبُ", "أَشْرَبُ", "أَبِيعُ"], correct: "أُجِيبُ" },
+          { q: "ما ضد: آكُلُ؟", options: ["أَصُومُ", "أَشْرَبُ", "أَبِيعُ"], correct: "أَصُومُ" },
+          { q: "ما ضد: أَفْتَحُ؟", options: ["أُغْلِقُ", "أَشْرَبُ", "آكُلُ"], correct: "أُغْلِقُ" },
+          { q: "ما ضد: أَنَامُ؟", options: ["أَسْتَيْقِظُ", "آكُلُ", "أَشْرَبُ"], correct: "أَسْتَيْقِظُ" }
+        ],
+        type: "opposite"
+      }
+    ];
+
+    let currentGameIndex = 0;
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let totalQuestions = 0;
+
+    const gameSelection = document.getElementById("game-selection");
+    const questionContainer = document.getElementById("question-container");
+    const optionsContainer = document.getElementById("options");
+    const gameInfo = document.getElementById("game-info");
+    const scoreValue = document.getElementById("score-value");
+    const currentQ = document.getElementById("current-q");
+    const totalQ = document.getElementById("total-q");
+    const feedback = document.getElementById("feedback");
+    const feedbackContent = document.getElementById("feedback-content");
+    const nextBtn = document.getElementById("next-btn");
+    const gameComplete = document.getElementById("game-complete");
+    const finalScore = document.getElementById("final-score");
+    const backBtn = document.getElementById("back-btn");
+
+    function startGame(gameIndex) {
+      currentGameIndex = gameIndex;
+      currentQuestionIndex = 0;
+      score = 0;
+      totalQuestions = games[gameIndex].questions.length;
+      
+      gameSelection.classList.add("hidden");
+      questionContainer.classList.remove("hidden");
+      optionsContainer.classList.remove("hidden");
+      gameInfo.classList.remove("hidden");
+      backBtn.classList.remove("hidden");
+      
+      totalQ.textContent = totalQuestions;
+      showQuestion();
+    }
+
+    function showQuestion() {
+      const game = games[currentGameIndex];
+      const qData = game.questions[currentQuestionIndex];
+
+      questionContainer.innerHTML = `
+        <div class="flex items-center justify-center mb-4">
+          <span class="text-3xl ml-3">${game.icon}</span>
+          <h2 class="text-2xl font-bold">${game.title}</h2>
+        </div>
+        <p class="text-lg">${qData.q}</p>
+      `;
+      
+      optionsContainer.innerHTML = "";
+      feedback.classList.add("hidden");
+      
+      currentQ.textContent = currentQuestionIndex + 1;
+      scoreValue.textContent = score;
+
+      if (game.type === "spell") {
+        const inputContainer = document.createElement("div");
+        inputContainer.className = "space-y-3";
+        
+        const input = document.createElement("input");
+        input.type = "text";
+        input.className = "w-full border-2 border-blue-300 rounded-lg p-3 text-right text-lg focus:border-blue-500 focus:outline-none";
+        input.placeholder = "اكتب الإجابة هنا...";
+        input.addEventListener("keydown", function (e) {
+          if (e.key === "Enter") checkAnswer(input.value.trim());
+        });
+        
+        const submitBtn = document.createElement("button");
+        submitBtn.textContent = "تحقق من الإجابة ✓";
+        submitBtn.className = "w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg";
+        submitBtn.onclick = () => checkAnswer(input.value.trim());
+        
+        if (qData.hint) {
+          const hintDiv = document.createElement("div");
+          hintDiv.className = "text-sm text-gray-600 bg-yellow-100 p-2 rounded";
+          hintDiv.innerHTML = `💡 تلميح: ${qData.hint}`;
+          inputContainer.appendChild(hintDiv);
+        }
+        
+        inputContainer.appendChild(input);
+        inputContainer.appendChild(submitBtn);
+        optionsContainer.appendChild(inputContainer);
+        input.focus();
+      } else {
+        qData.options.forEach(opt => {
+          const btn = document.createElement("button");
+          btn.textContent = opt;
+          btn.className = "bg-blue-100 hover:bg-blue-200 text-black font-bold py-3 px-4 rounded-lg border-2 border-blue-300 hover:border-blue-400 transition-all";
+          btn.onclick = () => checkAnswer(opt);
+          optionsContainer.appendChild(btn);
+        });
+      }
+    }
+
+    function checkAnswer(answer) {
+      const game = games[currentGameIndex];
+      const qData = game.questions[currentQuestionIndex];
+      const isCorrect = answer === qData.correct;
+
+      // Disable all buttons/inputs
+      const buttons = optionsContainer.querySelectorAll("button");
+      const inputs = optionsContainer.querySelectorAll("input");
+      buttons.forEach(btn => btn.disabled = true);
+      inputs.forEach(input => input.disabled = true);
+
+      if (isCorrect) {
+        score += 10;
+        scoreValue.textContent = score;
+        feedbackContent.innerHTML = `
+          <div class="text-green-600 correct-animation">
+            <div class="text-4xl mb-2">🎉</div>
+            <h3 class="text-xl font-bold">ممتاز! إجابة صحيحة</h3>
+            <p class="text-lg mt-2">الإجابة: <span class="font-bold">${qData.correct}</span></p>
+          </div>
+        `;
+        playCorrectSound();
+      } else {
+        feedbackContent.innerHTML = `
+          <div class="text-red-600 wrong-animation">
+            <div class="text-4xl mb-2">😔</div>
+            <h3 class="text-xl font-bold">حاول مرة أخرى</h3>
+            <p class="text-lg mt-2">الإجابة الصحيحة: <span class="font-bold">${qData.correct}</span></p>
+            <p class="text-sm text-gray-600 mt-1">إجابتك: ${answer}</p>
+          </div>
+        `;
+        playWrongSound();
+      }
+
+      feedback.classList.remove("hidden");
+      
+      if (currentQuestionIndex === totalQuestions - 1) {
+        nextBtn.textContent = "إنهاء اللعبة 🏁";
+      }
+    }
+
+    function nextQuestion() {
+      currentQuestionIndex++;
+      
+      if (currentQuestionIndex >= totalQuestions) {
+        showGameComplete();
+      } else {
+        showQuestion();
+      }
+    }
+
+    function showGameComplete() {
+      questionContainer.classList.add("hidden");
+      optionsContainer.classList.add("hidden");
+      gameInfo.classList.add("hidden");
+      feedback.classList.add("hidden");
+      backBtn.classList.add("hidden");
+      gameComplete.classList.remove("hidden");
+      
+      const percentage = Math.round((score / (totalQuestions * 10)) * 100);
+      let message = "";
+      let emoji = "";
+      
+      if (percentage >= 90) {
+        message = "ممتاز جداً! أنت بطل!";
+        emoji = "🏆";
+      } else if (percentage >= 70) {
+        message = "أحسنت! عمل رائع!";
+        emoji = "🌟";
+      } else if (percentage >= 50) {
+        message = "جيد! يمكنك التحسن أكثر!";
+        emoji = "👍";
+      } else {
+        message = "حاول مرة أخرى، ستتحسن!";
+        emoji = "💪";
+      }
+      
+      finalScore.innerHTML = `
+        <div class="text-4xl mb-3">${emoji}</div>
+        <p class="text-xl mb-2">${message}</p>
+        <p class="text-lg">درجتك النهائية: <span class="font-bold text-blue-600">${score}</span> من ${totalQuestions * 10}</p>
+        <p class="text-md text-gray-600">نسبة النجاح: ${percentage}%</p>
+      `;
+    }
+
+    function resetGame() {
+      gameComplete.classList.add("hidden");
+      backToMenu();
+    }
+
+    function backToMenu() {
+      questionContainer.classList.add("hidden");
+      optionsContainer.classList.add("hidden");
+      gameInfo.classList.add("hidden");
+      feedback.classList.add("hidden");
+      backBtn.classList.add("hidden");
+      gameComplete.classList.add("hidden");
+      gameSelection.classList.remove("hidden");
+      
+      currentGameIndex = 0;
+      currentQuestionIndex = 0;
+      score = 0;
+    }
+
+    function playCorrectSound() {
+      // Create a simple success sound using Web Audio API
+      try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
+        oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1); // E5
+        oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2); // G5
+        
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.5);
+      } catch (e) {
+        console.log("Audio not supported");
+      }
+    }
+
+    function playWrongSound() {
+      // Create a simple error sound using Web Audio API
+      try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+        oscillator.frequency.setValueAtTime(150, audioContext.currentTime + 0.1);
+        
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.3);
+      } catch (e) {
+        console.log("Audio not supported");
+      }
+    }
+
+    // Initialize the game
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('Arabic Verb Game loaded successfully!');
+    });
+  </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96a34e2e61dbe53f',t:'MTc1NDM2NTU2NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
