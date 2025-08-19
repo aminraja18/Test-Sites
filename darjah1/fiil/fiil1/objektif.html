@@ -318,30 +318,30 @@
 
 <script>
 let allQuestions = [
-  {q:"(هُوَ ...) يكتب الدرس", options:["يكتب","أكتب","نكتب","تكتبين"], answer:0},
-  {q:"(أَنَا ...) آكل التفاح", options:["تأكل","يأكل","آكل","نأكل"], answer:2},
-  {q:"(نَحْنُ ...) نلعب الكرة", options:["يلعب","ألعب","نلعب","تلعب"], answer:2},
-  {q:"(أَنْتِ ...) تشربين الماء", options:["تشربين","أشرب","يشرب","نشرب"], answer:0},
-  {q:"(هِيَ ...) تقرأ الكتاب", options:["تقرأ","أقرأ","يقرأ","نقرأ"], answer:0},
-  {q:"(أَنْتَ ...) تكتب بالقلم", options:["أكتب","تكتب","يكتب","نكتب"], answer:1},
-  {q:"(أَنَا ...) أذهب إلى المدرسة", options:["أذهب","نذهب","يذهب","تذهب"], answer:0},
-  {q:"(نَحْنُ ...) نقرأ القرآن", options:["يقرأ","نقرأ","أقرأ","تقرأ"], answer:1},
-  {q:"(هُوَ ...) يجلس على الكرسي", options:["يجلس","تجلس","أجلس","نجلس"], answer:0},
-  {q:"(هِيَ ...) تذهب إلى السوق", options:["تذهب","يذهب","أذهب","نذهب"], answer:0},
-  {q:"(أَنْتَ ...) تلعب في الحديقة", options:["ألعب","نلعب","تلعب","يلعب"], answer:2},
-  {q:"(أَنْتِ ...) تدرسين العربية", options:["أدرس","ندرس","تدرسين","يدرس"], answer:2},
-  {q:"(أَنَا ...) أسبح في البحر", options:["نسبح","يسبح","أسبح","تسبح"], answer:2},
-  {q:"(نَحْنُ ...) نكتب الدرس", options:["نكتب","يكتب","أكتب","تكتب"], answer:0},
-  {q:"(هُوَ ...) يقرأ الصحيفة", options:["أقرأ","يقرأ","تقرأ","نقرأ"], answer:1},
-  {q:"(هِيَ ...) تنام مبكرا", options:["ينام","أنام","تنام","ننام"], answer:2},
-  {q:"(أَنْتَ ...) تذهب إلى المسجد", options:["تذهب","أذهب","نذهب","يذهب"], answer:0},
-  {q:"(أَنْتِ ...) تكتبين الواجب", options:["أكتب","تكتبين","يكتب","نكتب"], answer:1},
-  {q:"(أَنَا ...) أشرب اللبن", options:["أشرب","يشرب","نشرب","تشرب"], answer:0},
-  {q:"(نَحْنُ ...) نلعب معا", options:["يلعب","ألعب","تلعب","نلعب"], answer:3},
-  {q:"(هُوَ ...) يسمع الدرس", options:["يسمع","أسمع","نسمع","تسمع"], answer:0},
-  {q:"(هِيَ ...) تأكل الفاكهة", options:["أأكل","تأكل","يأكل","نأكل"], answer:1},
-  {q:"(أَنْتَ ...) تقرأ القصة", options:["أقرأ","نقرأ","يقرأ","تقرأ"], answer:3},
-  {q:"(أَنْتِ ...) تجلسين في الفصل", options:["أجلس","يجلس","تجلسين","نجلس"], answer:2}
+  {q:"(هُوَ ...) الدرس", options:["يكتب","أكتب","نكتب","تكتبين"], answer:0},
+  {q:"(أَنَا ...) التفاح", options:["تأكل","يأكل","آكل","نأكل"], answer:2},
+  {q:"(نَحْنُ ...) الكرة", options:["يلعب","ألعب","نلعب","تلعب"], answer:2},
+  {q:"(أَنْتِ ...) الماء", options:["تشربين","أشرب","يشرب","نشرب"], answer:0},
+  {q:"(هِيَ ...) الكتاب", options:["تقرأ","أقرأ","يقرأ","نقرأ"], answer:0},
+  {q:"(أَنْتَ ...) بالقلم", options:["أكتب","تكتب","يكتب","نكتب"], answer:1},
+  {q:"(أَنَا ...) إلى المدرسة", options:["أذهب","نذهب","يذهب","تذهب"], answer:0},
+  {q:"(نَحْنُ ...) القرآن", options:["يقرأ","نقرأ","أقرأ","تقرأ"], answer:1},
+  {q:"(هُوَ ...) على الكرسي", options:["يجلس","تجلس","أجلس","نجلس"], answer:0},
+  {q:"(هِيَ ...) إلى السوق", options:["تذهب","يذهب","أذهب","نذهب"], answer:0},
+  {q:"(أَنْتَ ...) في الحديقة", options:["ألعب","نلعب","تلعب","يلعب"], answer:2},
+  {q:"(أَنْتِ ...) العربية", options:["أدرس","ندرس","تدرسين","يدرس"], answer:2},
+  {q:"(أَنَا ...) في البحر", options:["نسبح","يسبح","أسبح","تسبح"], answer:2},
+  {q:"(نَحْنُ ...) الدرس", options:["نكتب","يكتب","أكتب","تكتب"], answer:0},
+  {q:"(هُوَ ...) الصحيفة", options:["أقرأ","يقرأ","تقرأ","نقرأ"], answer:1},
+  {q:"(هِيَ ...) مبكرا", options:["ينام","أنام","تنام","ننام"], answer:2},
+  {q:"(أَنْتَ ...) إلى المسجد", options:["تذهب","أذهب","نذهب","يذهب"], answer:0},
+  {q:"(أَنْتِ ...) الواجب", options:["أكتب","تكتبين","يكتب","نكتب"], answer:1},
+  {q:"(أَنَا ...) اللبن", options:["أشرب","يشرب","نشرب","تشرب"], answer:0},
+  {q:"(نَحْنُ ...) معا", options:["يلعب","ألعب","تلعب","نلعب"], answer:3},
+  {q:"(هُوَ ...) الدرس", options:["يسمع","أسمع","نسمع","تسمع"], answer:0},
+  {q:"(هِيَ ...) الفاكهة", options:["أأكل","تأكل","يأكل","نأكل"], answer:1},
+  {q:"(أَنْتَ ...) القصة", options:["أقرأ","نقرأ","يقرأ","تقرأ"], answer:3},
+  {q:"(أَنْتِ ...) في الفصل", options:["أجلس","يجلس","تجلسين","نجلس"], answer:2}
 ];
 
 let currentQuestions = [];
@@ -496,5 +496,5 @@ window.onload = function() {
 }
 </script>
 
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9716b679c782b15c',t:'MTc1NTU3NTY5OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9716be3c45a0b15c',t:'MTc1NTU3NjAxNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
