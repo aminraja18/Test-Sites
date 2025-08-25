@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hangman - Arabic Nouns (Isim)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;500;600&display=swap');
+        
+        .arabic-text {
+            font-family: 'Amiri', serif;
+            direction: rtl;
+            text-align: right;
+        }
+        
+        .hangman-drawing {
+            font-family: monospace;
+            white-space: pre-line;
+            line-height: 1.2;
+        }
+        
+        .letter-button {
+            transition: all 0.2s ease;
+        }
+        
+        .letter-button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .letter-button:disabled {
+            transform: none;
+        }
+        
+        .word-display {
+            letter-spacing: 0.5rem;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .bounce {
+            animation: bounce 0.6s ease;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen font-['Inter']">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-indigo-800 mb-2">🎯 Hangman Game</h1>
+            <p class="text-lg text-gray-600">Arabic Nouns (الأسماء) - Guess the word!</p>
+        </div>
+
+        <!-- Game Stats -->
+        <div class="flex justify-center gap-8 mb-8">
+            <div class="bg-white rounded-lg px-6 py-3 shadow-md">
+                <div class="text-sm text-gray-500">Score</div>
+                <div id="score" class="text-2xl font-bold text-green-600">0</div>
+            </div>
+            <div class="bg-white rounded-lg px-6 py-3 shadow-md">
+                <div class="text-sm text-gray-500">Question</div>
+                <div id="questionNumber" class="text-2xl font-bold text-blue-600">1/10</div>
+            </div>
+            <div class="bg-white rounded-lg px-6 py-3 shadow-md">
+                <div class="text-sm text-gray-500">Wrong Guesses</div>
+                <div id="wrongCount" class="text-2xl font-bold text-red-600">0/6</div>
+            </div>
+        </div>
+
+        <!-- Main Game Area -->
+        <div class="bg-white rounded-xl shadow-lg p-8 mb-6">
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Left Side: Hangman Drawing -->
+                <div class="flex flex-col items-center">
+                    <div class="bg-gray-50 rounded-lg p-6 mb-4">
+                        <div id="hangmanDrawing" class="hangman-drawing text-4xl text-gray-700 text-center">
+  +---+
+  |   |
+      |
+      |
+      |
+      |
+=========
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Side: Game Content -->
+                <div class="flex flex-col">
+                    <!-- Question -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-3">Clue:</h3>
+                        <div id="question" class="bg-blue-50 rounded-lg p-4 text-gray-800 leading-relaxed">
+                            Loading question...
+                        </div>
+                    </div>
+
+                    <!-- Word Display -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-3">Word:</h3>
+                        <div id="wordDisplay" class="arabic-text text-3xl font-bold text-indigo-800 bg-gray-50 rounded-lg p-4 text-center word-display">
+                            _ _ _ _
+                        </div>
+                    </div>
+
+                    <!-- Game Status -->
+                    <div id="gameStatus" class="text-center mb-4 h-8">
+                        <!-- Status messages will appear here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Arabic Alphabet Buttons -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4 text-center">Choose a letter:</h3>
+            <div id="alphabetGrid" class="grid grid-cols-7 sm:grid-cols-9 md:grid-cols-14 gap-2">
+                <!-- Arabic letters will be generated here -->
+            </div>
+        </div>
+
+        <!-- Control Buttons -->
+        <div class="flex justify-center gap-4">
+            <button id="newGameBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors shadow-md">
+                🎮 New Game
+            </button>
+            <button id="skipBtn" class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors shadow-md">
+                ⏭️ Skip Question
+            </button>
+            <button id="hintBtn" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors shadow-md">
+                💡 Show Answer
+            </button>
+        </div>
+
+        <!-- Game Over Modal -->
+        <div id="gameOverModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+            <div class="bg-white rounded-xl p-8 max-w-md mx-4 text-center">
+                <div id="gameOverIcon" class="text-6xl mb-4">🎉</div>
+                <h2 id="gameOverTitle" class="text-2xl font-bold mb-4">Game Complete!</h2>
+                <p id="gameOverMessage" class="text-gray-600 mb-6">You scored 8 out of 10!</p>
+                <button id="playAgainBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                    Play Again
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game data
+        const questions = [
+            {q:"Saya bapa kepada ayah saya dalam bahasa Arab.", a:"جَدّ"},
+            {q:"Saya ibu kepada ayah saya dalam bahasa Arab.", a:"جَدَّة"},
+            {q:"Saya bapa saudara sebelah ibu.", a:"خَال"},
+            {q:"Saya emak saudara sebelah ibu.", a:"خَالَة"},
+            {q:"Saya bapa saudara sebelah ayah.", a:"عَمّ"},
+            {q:"Saya emak saudara sebelah ayah.", a:"عَمَّة"},
+            {q:"Saya makanan pada waktu pagi.", a:"فُطُور"},
+            {q:"Saya makanan pada waktu tengah hari.", a:"غَدَاء"},
+            {q:"Saya makanan pada waktu malam.", a:"عَشَاء"},
+            {q:"Saya waktu awal hari, sebelum siang.", a:"الصَّبَاح"},
+            {q:"Saya waktu matahari berada, bukan malam.", a:"النَّهَار"},
+            {q:"Saya waktu selepas matahari terbenam.", a:"اللَّيْل"},
+            {q:"Saya mempunyai empat tayar dan membawa keluarga berjalan.", a:"سَيَّارَة"},
+            {q:"Saya membawa ramai orang di jalan raya, lebih besar dari kereta.", a:"حَافِلَة"},
+            {q:"Saya mempunyai dua roda dan dikayuh.", a:"دَرَّاجَة"},
+            {q:"Saya terbang di langit.", a:"طَائِرَة"},
+            {q:"Saya bergerak di atas air.", a:"سَفِينَة"},
+            {q:"Saya berjalan atas landasan.", a:"قِطَار"},
+            {q:"Saya tempat membuang air.", a:"مِرْحَاض"},
+            {q:"Saya tempat membeli makanan di sekolah.", a:"مَطْعَم"},
+            {q:"Saya tempat bermain bola di sekolah.", a:"مَلْعَب"},
+            {q:"Saya tempat solat di sekolah.", a:"مُصَلّى"},
+            {q:"Saya tempat yang penuh dengan bunga dan pokok.", a:"حَدِيقَة"},
+            {q:"Saya tempat murid berkumpul untuk majlis.", a:"قَاعَة"},
+            {q:"Saya tempat menyimpan dan membaca buku.", a:"مَكْتَبَة"},
+            {q:"Saya tempat eksperimen sains.", a:"مَعْمَل"},
+            {q:"Saya tempat pentadbiran sekolah.", a:"إِدَارَة"},
+            {q:"Saya bilik guru lelaki.", a:"غُرْفَةُ الْمُعَلِّمِينَ"},
+            {q:"Saya bilik guru perempuan.", a:"غُرْفَةُ الْمُعَلِّمَات"},
+            {q:"Saya dibuat daripada gandum dan dimakan setiap hari.", a:"خُبْز"},
+            {q:"Saya keluar daripada ayam, bulat dan keras.", a:"بَيْض"},
+            {q:"Saya nasi dalam bahasa Arab.", a:"أَرُزّ"},
+            {q:"Saya haiwan yang biasa dimakan goreng atau kari.", a:"دَجَاج"},
+            {q:"Saya haiwan yang hidup di laut dan sungai.", a:"سَمَك"},
+            {q:"Saya daging dalam bahasa Arab.", a:"لَحْم"},
+            {q:"Saya air yang paling penting untuk hidup.", a:"مَاء"},
+            {q:"Saya susu dalam bahasa Arab.", a:"حَلِيب"},
+            {q:"Saya minuman koko.", a:"كَاكَاو"},
+            {q:"Saya kopi dalam bahasa Arab.", a:"قَهْوَة"},
+            {q:"Saya teh dalam bahasa Arab.", a:"شَاي"},
+            {q:"Saya buku-buku dalam bahasa Arab.", a:"كُتُب"},
+            {q:"Saya pena-pena dalam bahasa Arab.", a:"أَقْلَام"},
+            {q:"Saya pensel-pensel dalam bahasa Arab.", a:"أَقْلَام رَصَاص"},
+            {q:"Saya buku latihan dalam bahasa Arab.", a:"كُرَّاسَات"},
+            {q:"Saya pembaris-pembaris dalam bahasa Arab.", a:"مَسَاطِر"}
+        ];
+
+        // Arabic alphabet
+        const arabicLetters = [
+            'ا', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'س', 'ش', 'ص',
+            'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ك', 'ل', 'م', 'ن', 'ه', 'و', 'ي',
+            'ء', 'ئ', 'ة', 'ى', 'أ', 'إ'
+        ];
+
+        // Hangman drawings
+        const hangmanStages = [
+            `  +---+
+  |   |
+      |
+      |
+      |
+      |
+=========`,
+            `  +---+
+  |   |
+  O   |
+      |
+      |
+      |
+=========`,
+            `  +---+
+  |   |
+  O   |
+  |   |
+      |
+      |
+=========`,
+            `  +---+
+  |   |
+  O   |
+ /|   |
+      |
+      |
+=========`,
+            `  +---+
+  |   |
+  O   |
+ /|\\  |
+      |
+      |
+=========`,
+            `  +---+
+  |   |
+  O   |
+ /|\\  |
+ /    |
+      |
+=========`,
+            `  +---+
+  |   |
+  O   |
+ /|\\  |
+ / \\  |
+      |
+=========`
+        ];
+
+        // Game state
+        let gameQuestions = [];
+        let currentQuestionIndex = 0;
+        let currentWord = '';
+        let guessedLetters = [];
+        let wrongGuesses = 0;
+        let score = 0;
+        let gameActive = true;
+
+        // DOM elements
+        const questionEl = document.getElementById('question');
+        const wordDisplayEl = document.getElementById('wordDisplay');
+        const hangmanDrawingEl = document.getElementById('hangmanDrawing');
+        const alphabetGridEl = document.getElementById('alphabetGrid');
+        const scoreEl = document.getElementById('score');
+        const questionNumberEl = document.getElementById('questionNumber');
+        const wrongCountEl = document.getElementById('wrongCount');
+        const gameStatusEl = document.getElementById('gameStatus');
+        const gameOverModal = document.getElementById('gameOverModal');
+        const newGameBtn = document.getElementById('newGameBtn');
+        const skipBtn = document.getElementById('skipBtn');
+        const hintBtn = document.getElementById('hintBtn');
+        const playAgainBtn = document.getElementById('playAgainBtn');
+
+        // Initialize game
+        function initGame() {
+            // Shuffle and select 10 random questions
+            gameQuestions = questions.sort(() => 0.5 - Math.random()).slice(0, 10);
+            currentQuestionIndex = 0;
+            score = 0;
+            updateDisplay();
+            loadQuestion();
+            createAlphabetButtons();
+            gameOverModal.classList.add('hidden');
+            gameOverModal.classList.remove('flex');
+        }
+
+        // Create alphabet buttons
+        function createAlphabetButtons() {
+            alphabetGridEl.innerHTML = '';
+            arabicLetters.forEach(letter => {
+                const button = document.createElement('button');
+                button.textContent = letter;
+                button.className = 'letter-button bg-blue-100 hover:bg-blue-200 text-blue-800 font-bold py-2 px-3 rounded-lg transition-all arabic-text text-lg';
+                button.onclick = () => guessLetter(letter, button);
+                alphabetGridEl.appendChild(button);
+            });
+        }
+
+        // Load current question
+        function loadQuestion() {
+            if (currentQuestionIndex >= gameQuestions.length) {
+                endGame();
+                return;
+            }
+
+            const currentQ = gameQuestions[currentQuestionIndex];
+            currentWord = currentQ.a;
+            guessedLetters = [];
+            wrongGuesses = 0;
+            gameActive = true;
+
+            questionEl.textContent = currentQ.q;
+            updateWordDisplay();
+            updateHangman();
+            resetAlphabetButtons();
+            gameStatusEl.innerHTML = '';
+            updateDisplay();
+        }
+
+        // Update word display
+        function updateWordDisplay() {
+            let display = '';
+            for (let char of currentWord) {
+                if (char === ' ') {
+                    display += '   ';
+                } else if (guessedLetters.includes(char) || /[َُِّْ]/.test(char)) {
+                    display += char + ' ';
+                } else {
+                    display += '_ ';
+                }
+            }
+            wordDisplayEl.textContent = display.trim();
+        }
+
+        // Update hangman drawing
+        function updateHangman() {
+            hangmanDrawingEl.textContent = hangmanStages[wrongGuesses];
+        }
+
+        // Update display elements
+        function updateDisplay() {
+            scoreEl.textContent = score;
+            questionNumberEl.textContent = `${currentQuestionIndex + 1}/10`;
+            wrongCountEl.textContent = `${wrongGuesses}/6`;
+        }
+
+        // Reset alphabet buttons
+        function resetAlphabetButtons() {
+            const buttons = alphabetGridEl.querySelectorAll('button');
+            buttons.forEach(button => {
+                button.disabled = false;
+                button.className = 'letter-button bg-blue-100 hover:bg-blue-200 text-blue-800 font-bold py-2 px-3 rounded-lg transition-all arabic-text text-lg';
+            });
+        }
+
+        // Guess a letter
+        function guessLetter(letter, button) {
+            if (!gameActive || guessedLetters.includes(letter)) return;
+
+            guessedLetters.push(letter);
+            button.disabled = true;
+
+            // Remove diacritics for comparison
+            const wordWithoutDiacritics = currentWord.replace(/[َُِّْ]/g, '');
+            
+            if (wordWithoutDiacritics.includes(letter)) {
+                button.className = 'letter-button bg-green-200 text-green-800 font-bold py-2 px-3 rounded-lg arabic-text text-lg';
+                showStatus('✅ Correct!', 'text-green-600');
+                
+                updateWordDisplay();
+                
+                // Check if word is complete
+                let wordComplete = true;
+                for (let char of wordWithoutDiacritics) {
+                    if (char !== ' ' && !guessedLetters.includes(char)) {
+                        wordComplete = false;
+                        break;
+                    }
+                }
+                
+                if (wordComplete) {
+                    gameActive = false;
+                    score++;
+                    showStatus('🎉 Word completed! Well done!', 'text-green-600');
+                    setTimeout(() => {
+                        currentQuestionIndex++;
+                        loadQuestion();
+                    }, 2000);
+                }
+            } else {
+                button.className = 'letter-button bg-red-200 text-red-800 font-bold py-2 px-3 rounded-lg arabic-text text-lg';
+                wrongGuesses++;
+                showStatus('❌ Wrong letter', 'text-red-600');
+                
+                updateHangman();
+                updateDisplay();
+                
+                if (wrongGuesses >= 6) {
+                    gameActive = false;
+                    showStatus(`💀 Game over! The word was: ${currentWord}`, 'text-red-600');
+                    setTimeout(() => {
+                        currentQuestionIndex++;
+                        loadQuestion();
+                    }, 3000);
+                }
+            }
+        }
+
+        // Show status message
+        function showStatus(message, className) {
+            gameStatusEl.innerHTML = `<div class="${className} font-semibold fade-in">${message}</div>`;
+        }
+
+        // Skip current question
+        function skipQuestion() {
+            if (!gameActive) return;
+            
+            gameActive = false;
+            showStatus(`⏭️ Skipped! The answer was: ${currentWord}`, 'text-yellow-600');
+            setTimeout(() => {
+                currentQuestionIndex++;
+                loadQuestion();
+            }, 2000);
+        }
+
+        // Show hint (reveal answer)
+        function showHint() {
+            if (!gameActive) return;
+            
+            gameActive = false;
+            wordDisplayEl.textContent = currentWord;
+            showStatus('💡 Answer revealed!', 'text-blue-600');
+            setTimeout(() => {
+                currentQuestionIndex++;
+                loadQuestion();
+            }, 2000);
+        }
+
+        // End game
+        function endGame() {
+            const gameOverIcon = document.getElementById('gameOverIcon');
+            const gameOverTitle = document.getElementById('gameOverTitle');
+            const gameOverMessage = document.getElementById('gameOverMessage');
+            
+            if (score >= 8) {
+                gameOverIcon.textContent = '🏆';
+                gameOverTitle.textContent = 'Excellent!';
+                gameOverMessage.textContent = `Outstanding performance! You scored ${score} out of 10!`;
+            } else if (score >= 6) {
+                gameOverIcon.textContent = '🎉';
+                gameOverTitle.textContent = 'Well Done!';
+                gameOverMessage.textContent = `Good job! You scored ${score} out of 10!`;
+            } else if (score >= 4) {
+                gameOverIcon.textContent = '👍';
+                gameOverTitle.textContent = 'Not Bad!';
+                gameOverMessage.textContent = `Keep practicing! You scored ${score} out of 10!`;
+            } else {
+                gameOverIcon.textContent = '📚';
+                gameOverTitle.textContent = 'Keep Learning!';
+                gameOverMessage.textContent = `Don't give up! You scored ${score} out of 10. Practice makes perfect!`;
+            }
+            
+            gameOverModal.classList.remove('hidden');
+            gameOverModal.classList.add('flex');
+        }
+
+        // Event listeners
+        newGameBtn.addEventListener('click', initGame);
+        skipBtn.addEventListener('click', skipQuestion);
+        hintBtn.addEventListener('click', showHint);
+        playAgainBtn.addEventListener('click', initGame);
+
+        // Initialize the game
+        initGame();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9749cbbe268bfcf8',t:'MTc1NjExMTM0NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
