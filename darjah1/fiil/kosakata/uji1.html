@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الأفعال (Perbuatan) - Arabic Verbs Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .arabic-text {
+            font-family: 'Arial', sans-serif;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        .option-btn {
+            transition: all 0.3s ease;
+            transform: translateY(0);
+        }
+        .option-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        .correct {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+        .incorrect {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+    <div class="card w-full max-w-2xl p-8">
+        <div id="game" class="text-center">
+            <!-- Header -->
+            <div class="mb-8">
+                <h1 class="text-4xl font-bold text-gray-800 mb-2">الأفعال</h1>
+                <p class="text-lg text-gray-600">(Perbuatan - Arabic Verbs Quiz)</p>
+            </div>
+
+            <!-- Start Screen -->
+            <div id="startScreen" class="space-y-6">
+                <div class="bg-blue-50 p-6 rounded-xl">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Selamat Datang!</h2>
+                    <p class="text-gray-600 mb-4">Uji pengetahuan anda tentang kata kerja Arab</p>
+                </div>
+                <div class="space-y-4">
+                    <input 
+                        id="nameInput" 
+                        placeholder="Masukkan nama anda" 
+                        class="w-full p-4 border-2 border-gray-200 rounded-xl text-center text-lg focus:border-blue-500 focus:outline-none transition-colors"
+                        maxlength="20"
+                    />
+                    <button 
+                        id="startBtn" 
+                        class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 rounded-xl text-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105"
+                    >
+                        🚀 Mula Quiz
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quiz Screen -->
+            <div id="quiz" class="hidden space-y-6">
+                <!-- Progress and Timer -->
+                <div class="flex justify-between items-center bg-gray-50 p-4 rounded-xl">
+                    <div class="text-sm font-medium text-gray-600">
+                        Soalan <span id="questionNum">1</span> daripada <span id="totalQuestions">10</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-2xl">⏱️</span>
+                        <span class="text-lg font-bold text-blue-600"><span id="timer">0</span>s</span>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                    <div id="progressBar" class="bg-gradient-to-r from-blue-500 to-purple-600 h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+
+                <!-- Question -->
+                <div class="bg-gradient-to-r from-indigo-50 to-purple-50 p-8 rounded-xl">
+                    <p class="text-sm text-gray-600 mb-2">Apakah maksud kata kerja ini?</p>
+                    <h2 id="question" class="arabic-text text-5xl text-gray-800 mb-4"></h2>
+                </div>
+
+                <!-- Options -->
+                <div id="options" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+
+                <!-- Feedback -->
+                <div id="feedback" class="text-xl font-bold min-h-[2rem] flex items-center justify-center"></div>
+
+                <!-- Score Display -->
+                <div class="bg-yellow-50 p-4 rounded-xl">
+                    <p class="text-lg font-semibold text-gray-700">
+                        Markah: <span id="currentScore" class="text-yellow-600">0</span>/10
+                    </p>
+                </div>
+            </div>
+
+            <!-- Result Screen -->
+            <div id="result" class="hidden space-y-6">
+                <div class="text-center">
+                    <div class="text-6xl mb-4">🎉</div>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">
+                        Tahniah, <span id="player" class="text-blue-600"></span>!
+                    </h2>
+                </div>
+
+                <div class="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-xl">
+                    <div class="grid grid-cols-2 gap-4 text-center">
+                        <div>
+                            <p class="text-2xl font-bold text-green-600" id="finalScore">0</p>
+                            <p class="text-sm text-gray-600">Markah Akhir</p>
+                        </div>
+                        <div>
+                            <p class="text-2xl font-bold text-blue-600"><span id="finalTime">0</span>s</p>
+                            <p class="text-sm text-gray-600">Masa Diambil</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-purple-50 p-6 rounded-xl">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">🏆 Papan Pendahulu</h3>
+                    <ul id="leaderboard" class="space-y-2"></ul>
+                </div>
+
+                <button 
+                    id="playAgainBtn" 
+                    class="w-full bg-gradient-to-r from-green-500 to-blue-600 text-white p-4 rounded-xl text-lg font-semibold hover:from-green-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105"
+                >
+                    🔄 Main Lagi
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Quiz data
+        let questions = [
+            { q: "آكُلُ", options: ["Saya tidur", "Saya makan", "Saya minum", "Saya pergi"], answer: 1 },
+            { q: "أَتَنَاوَلُ", options: ["Saya bangun tidur", "Saya makan", "Saya beli", "Saya tanya"], answer: 1 },
+            { q: "أَسْتَيْقِظُ", options: ["Saya bangun tidur", "Saya tidur", "Saya jual", "Saya pulang"], answer: 0 },
+            { q: "أَمْشِي", options: ["Saya berjalan", "Saya minum", "Saya makan", "Saya beli"], answer: 0 },
+            { q: "أَذْهَبُ", options: ["Saya tanya", "Saya jual", "Saya pergi", "Saya tidur"], answer: 2 },
+            { q: "أَرْجِعُ", options: ["Saya pulang", "Saya minum", "Saya beli", "Saya makan"], answer: 0 },
+            { q: "أَنَامُ", options: ["Saya bangun tidur", "Saya tidur", "Saya jual", "Saya minum"], answer: 1 },
+            { q: "أَبِيعُ", options: ["Saya tanya", "Saya beli", "Saya jual", "Saya makan"], answer: 2 },
+            { q: "أَشْرَبُ", options: ["Saya minum", "Saya berjalan", "Saya pulang", "Saya tidur"], answer: 0 },
+            { q: "أَسْأَلُ", options: ["Saya tanya", "Saya pergi", "Saya tidur", "Saya makan"], answer: 0 }
+        ];
+
+        // Global variables
+        let current = 0;
+        let score = 0;
+        let playerName = "";
+        let startTime;
+        let timerInterval;
+        let gameQuestions = [];
+
+        // Sound effects (using Web Audio API for compatibility)
+        function playSound(frequency, duration, type = 'sine') {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = frequency;
+            oscillator.type = type;
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+
+        // Initialize game
+        function initGame() {
+            // Shuffle questions
+            gameQuestions = [...questions].sort(() => Math.random() - 0.5);
+            current = 0;
+            score = 0;
+            
+            document.getElementById('totalQuestions').textContent = gameQuestions.length;
+            document.getElementById('currentScore').textContent = score;
+        }
+
+        // Start game
+        document.getElementById("startBtn").onclick = () => {
+            playerName = document.getElementById("nameInput").value.trim() || "Pelajar";
+            
+            if (playerName.length < 2) {
+                alert("Sila masukkan nama yang sah (sekurang-kurangnya 2 huruf)");
+                return;
+            }
+            
+            initGame();
+            document.getElementById("startScreen").classList.add("hidden");
+            document.getElementById("quiz").classList.remove("hidden");
+            
+            startTime = Date.now();
+            timerInterval = setInterval(updateTimer, 1000);
+            loadQuestion();
+        };
+
+        // Timer function
+        function updateTimer() {
+            let elapsed = Math.floor((Date.now() - startTime) / 1000);
+            document.getElementById("timer").textContent = elapsed;
+        }
+
+        // Load question
+        function loadQuestion() {
+            if (current >= gameQuestions.length) {
+                endGame();
+                return;
+            }
+
+            const q = gameQuestions[current];
+            const progress = ((current) / gameQuestions.length) * 100;
+            
+            document.getElementById("question").textContent = q.q;
+            document.getElementById("questionNum").textContent = current + 1;
+            document.getElementById("progressBar").style.width = progress + "%";
+            
+            const optionsDiv = document.getElementById("options");
+            optionsDiv.innerHTML = "";
+            
+            q.options.forEach((opt, i) => {
+                const btn = document.createElement("button");
+                btn.textContent = opt;
+                btn.className = "option-btn bg-white border-2 border-gray-200 p-4 rounded-xl text-left font-medium hover:border-blue-300 focus:outline-none focus:border-blue-500 transition-all duration-300";
+                btn.onclick = () => checkAnswer(i, btn);
+                optionsDiv.appendChild(btn);
+            });
+        }
+
+        // Check answer
+        function checkAnswer(choice, buttonElement) {
+            const q = gameQuestions[current];
+            const allButtons = document.querySelectorAll('.option-btn');
+            
+            // Disable all buttons
+            allButtons.forEach(btn => btn.disabled = true);
+            
+            if (choice === q.answer) {
+                score++;
+                buttonElement.classList.add('correct');
+                playSound(523.25, 0.3); // C note for correct
+                document.getElementById("feedback").innerHTML = '<span class="text-green-600">✅ Betul! Jawapan yang tepat!</span>';
+                document.getElementById("currentScore").textContent = score;
+            } else {
+                buttonElement.classList.add('incorrect');
+                allButtons[q.answer].classList.add('correct');
+                playSound(196, 0.5, 'sawtooth'); // Lower note for incorrect
+                document.getElementById("feedback").innerHTML = '<span class="text-red-600">❌ Salah! Jawapan yang betul telah ditunjukkan.</span>';
+            }
+
+            setTimeout(() => {
+                current++;
+                document.getElementById("feedback").innerHTML = "";
+                loadQuestion();
+            }, 2000);
+        }
+
+        // End game
+        function endGame() {
+            clearInterval(timerInterval);
+            const finalTime = Math.floor((Date.now() - startTime) / 1000);
+            
+            document.getElementById("quiz").classList.add("hidden");
+            document.getElementById("result").classList.remove("hidden");
+            
+            document.getElementById("player").textContent = playerName;
+            document.getElementById("finalScore").textContent = `${score}/${gameQuestions.length}`;
+            document.getElementById("finalTime").textContent = finalTime;
+            
+            // Play completion sound
+            playSound(659.25, 0.2); // E note
+            setTimeout(() => playSound(783.99, 0.2), 200); // G note
+            setTimeout(() => playSound(1046.50, 0.4), 400); // C note
+            
+            updateLeaderboard(playerName, score, finalTime);
+        }
+
+        // Leaderboard management
+        function updateLeaderboard(name, score, time) {
+            let leaderboard = JSON.parse(localStorage.getItem('arabicVerbsLeaderboard') || '[]');
+            
+            leaderboard.push({
+                name: name,
+                score: score,
+                time: time,
+                date: new Date().toLocaleDateString()
+            });
+            
+            // Sort by score (desc) then by time (asc)
+            leaderboard.sort((a, b) => {
+                if (b.score !== a.score) return b.score - a.score;
+                return a.time - b.time;
+            });
+            
+            // Keep top 5
+            leaderboard = leaderboard.slice(0, 5);
+            
+            localStorage.setItem('arabicVerbsLeaderboard', JSON.stringify(leaderboard));
+            displayLeaderboard(leaderboard);
+        }
+
+        function displayLeaderboard(leaderboard) {
+            const leaderboardDiv = document.getElementById("leaderboard");
+            leaderboardDiv.innerHTML = "";
+            
+            if (leaderboard.length === 0) {
+                leaderboardDiv.innerHTML = '<li class="text-gray-500 text-center">Tiada rekod lagi</li>';
+                return;
+            }
+            
+            leaderboard.forEach((entry, index) => {
+                const li = document.createElement("li");
+                const medal = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : "🏅";
+                li.className = "flex justify-between items-center bg-white p-3 rounded-lg";
+                li.innerHTML = `
+                    <span>${medal} ${entry.name}</span>
+                    <span class="text-sm text-gray-600">${entry.score}/10 (${entry.time}s)</span>
+                `;
+                leaderboardDiv.appendChild(li);
+            });
+        }
+
+        // Play again
+        document.getElementById("playAgainBtn").onclick = () => {
+            document.getElementById("result").classList.add("hidden");
+            document.getElementById("startScreen").classList.remove("hidden");
+            document.getElementById("nameInput").value = playerName;
+        };
+
+        // Load leaderboard on page load
+        window.onload = () => {
+            const leaderboard = JSON.parse(localStorage.getItem('arabicVerbsLeaderboard') || '[]');
+            displayLeaderboard(leaderboard);
+        };
+
+        // Enter key support for name input
+        document.getElementById("nameInput").addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                document.getElementById("startBtn").click();
+            }
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97488218f04e833d',t:'MTc1NjA5Nzg0Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
