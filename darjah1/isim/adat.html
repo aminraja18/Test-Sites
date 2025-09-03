@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Adwāt Istifhām – Objektif ABCD</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Noto+Sans+Arabic:wght@400;600;700&display=swap');
+  
+  :root { 
+    --bg: linear-gradient(135deg, #0f4c3a 0%, #1a5f4a 50%, #0d3d2f 100%);
+    --card: #ffffff; 
+    --ink: #1a4037; 
+    --muted: #4a7c59; 
+    --brand: #d4af37; 
+    --brand-dark: #b8941f;
+    --green: #16a34a; 
+    --red: #dc2626;
+    --islamic-gold: #d4af37;
+    --islamic-green: #0f4c3a;
+    --islamic-cream: #faf7f0;
+  }
+  
+  *{box-sizing:border-box} 
+  
+  body{
+    margin:0;
+    font-family: 'Noto Sans Arabic', 'Amiri', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, 'Helvetica Neue', Arial;
+    background: var(--bg);
+    color:var(--ink);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    position: relative;
+  }
+  
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      radial-gradient(circle at 20% 20%, rgba(212, 175, 55, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(212, 175, 55, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 40% 60%, rgba(15, 76, 58, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  
+  .container{
+    width:min(900px,92vw); 
+    background: var(--card); 
+    box-shadow: 0 20px 60px rgba(15, 76, 58, 0.3), 0 0 0 1px rgba(212, 175, 55, 0.2); 
+    border-radius: 24px; 
+    padding: 32px;
+    position: relative;
+    border: 2px solid rgba(212, 175, 55, 0.3);
+  }
+  
+  .container::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, var(--islamic-gold), var(--islamic-green), var(--islamic-gold));
+    border-radius: 26px;
+    z-index: -1;
+    opacity: 0.3;
+  }
+  
+  h1{
+    margin:0 0 12px 0; 
+    font-size:clamp(24px,3.5vw,32px);
+    font-family: 'Amiri', serif;
+    font-weight: 700;
+    color: var(--islamic-green);
+    text-shadow: 0 2px 4px rgba(212, 175, 55, 0.3);
+  }
+  
+  .muted{
+    color:var(--muted); 
+    margin:0 0 20px;
+    font-weight: 500;
+  }
+  
+  .row{display:flex; gap:12px; align-items:center; flex-wrap:wrap}
+  
+  .pill{
+    background: linear-gradient(135deg, var(--islamic-gold), #e6c547); 
+    color: var(--islamic-green); 
+    padding: 8px 14px; 
+    border-radius: 20px; 
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+  }
+  
+  .card{
+    border: 2px solid rgba(212, 175, 55, 0.2); 
+    border-radius: 20px; 
+    padding: 24px; 
+    margin-top: 18px;
+    background: linear-gradient(135deg, #faf7f0 0%, #ffffff 100%);
+    box-shadow: 0 8px 32px rgba(15, 76, 58, 0.1);
+  }
+  
+  input[type=text]{
+    width:100%; 
+    padding: 16px 20px; 
+    border: 2px solid rgba(212, 175, 55, 0.3); 
+    border-radius: 16px; 
+    font-size: 16px;
+    background: var(--islamic-cream);
+    transition: all 0.3s ease;
+  }
+  
+  input[type=text]:focus {
+    outline: none;
+    border-color: var(--islamic-gold);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+  }
+  
+  button{
+    appearance:none; 
+    border:none; 
+    background: linear-gradient(135deg, var(--islamic-gold), var(--brand-dark)); 
+    color: var(--islamic-green); 
+    padding: 14px 24px; 
+    border-radius: 16px; 
+    font-weight: 700; 
+    cursor:pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 16px rgba(212, 175, 55, 0.3);
+    font-size: 15px;
+  }
+  
+  button:hover{
+    background: linear-gradient(135deg, var(--brand-dark), var(--islamic-gold));
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+  }
+  
+  button.secondary{
+    background: linear-gradient(135deg, #f0f0f0, #e0e0e0); 
+    color: var(--islamic-green);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  }
+  
+  button.secondary:hover{
+    background: linear-gradient(135deg, #e0e0e0, #d0d0d0);
+  }
+  
+  .topbar{display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:8px}
+  
+  .kpi{display:flex; gap:12px; flex-wrap:wrap}
+  
+  .kpi div{
+    background: linear-gradient(135deg, var(--islamic-cream), #ffffff); 
+    padding: 10px 16px; 
+    border-radius: 16px; 
+    font-weight: 600;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    color: var(--islamic-green);
+    box-shadow: 0 2px 8px rgba(15, 76, 58, 0.1);
+  }
+  
+  .qbox{
+    direction:rtl; 
+    text-align:right; 
+    font-size:clamp(26px,4vw,40px); 
+    padding: 24px; 
+    border-radius: 20px; 
+    background: linear-gradient(135deg, var(--islamic-cream), #ffffff);
+    border: 2px solid rgba(212, 175, 55, 0.3);
+    font-family: 'Amiri', serif;
+    font-weight: 600;
+    color: var(--islamic-green);
+    box-shadow: inset 0 2px 8px rgba(15, 76, 58, 0.1);
+  }
+  
+  .choices{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin-top:20px}
+  
+  .choice{
+    border: 2px solid rgba(212, 175, 55, 0.2); 
+    background: linear-gradient(135deg, #ffffff, var(--islamic-cream)); 
+    padding: 18px; 
+    border-radius: 16px; 
+    text-align:left; 
+    font-size: 16px; 
+    transition: all .3s ease; 
+    cursor:pointer;
+    font-weight: 500;
+    color: var(--islamic-green);
+  }
+  
+  .choice:hover{
+    transform:translateY(-3px); 
+    box-shadow: 0 8px 24px rgba(212, 175, 55, 0.3);
+    border-color: var(--islamic-gold);
+  }
+  
+  .choice.correct{
+    border-color: var(--green); 
+    background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+    color: #166534;
+  }
+  
+  .choice.wrong{
+    border-color: var(--red); 
+    background: linear-gradient(135deg, #fef2f2, #fecaca);
+    color: #991b1b;
+  }
+  
+  .choice.disabled{pointer-events:none; opacity:0.7}
+  
+  .progress{
+    height: 12px; 
+    background: rgba(212, 175, 55, 0.2); 
+    border-radius: 20px; 
+    overflow:hidden;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+  }
+  
+  .bar{
+    height:100%; 
+    width:0%; 
+    background: linear-gradient(90deg, var(--islamic-gold), var(--brand-dark)); 
+    transition: width .5s ease;
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+  }
+  
+  .end h2{
+    margin-top:0;
+    color: var(--islamic-green);
+    font-family: 'Amiri', serif;
+  }
+  
+  ol{margin:8px 0 0 20px}
+  .rtl{direction:rtl}
+  
+  .feedback{
+    margin-top: 16px; 
+    padding: 16px; 
+    border-radius: 16px; 
+    font-weight: 600;
+    border: 2px solid;
+  }
+  
+  .feedback.correct{
+    background: linear-gradient(135deg, #ecfdf5, #d1fae5); 
+    color: #166534;
+    border-color: var(--green);
+  }
+  
+  .feedback.wrong{
+    background: linear-gradient(135deg, #fef2f2, #fecaca); 
+    color: #991b1b;
+    border-color: var(--red);
+  }
+  
+  /* Islamic decorative elements */
+  .container::after {
+    content: '﷽';
+    position: absolute;
+    top: 12px;
+    right: 20px;
+    font-family: 'Amiri', serif;
+    font-size: 14px;
+    color: rgba(212, 175, 55, 0.6);
+    font-weight: 400;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <!-- START SCREEN -->
+  <div id="start">
+    <h1>🎯 أدوات الاستفهام — Objektif ABCD</h1>
+    <p class="muted">Soalan dalam <b>Bahasa Arab</b>, jawapan dalam <b>Bahasa Melayu</b>. Lengkap 10 soalan rawak.</p>
+    <div class="card">
+      <label for="name">Masukkan nama anda</label>
+      <input id="name" type="text" placeholder="Contoh: Aiman / Cikgu Siti"/>
+      <div style="display:flex; gap:10px; margin-top:12px;">
+        <button onclick="startGame()">Mula</button>
+        <button class="secondary" onclick="prefill()">Isi contoh</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="row">
+        <span class="pill">Topik</span><span>Adwāt Istifhām (كَمْ، كَيْفَ، هَلْ، مَاذَا، أَيْنَ، مَنْ، مَتَى، لِمَاذَا)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="game" style="display:none">
+    <div class="topbar">
+      <h1>أدوات الاستفهام</h1>
+      <div class="kpi">
+        <div id="who">👤 —</div>
+        <div id="timer">⏱️ 0s</div>
+        <div id="score">🏆 0</div>
+        <div id="qprog">❓ 0/10</div>
+      </div>
+    </div>
+    <div class="progress" aria-hidden="true"><div id="bar" class="bar"></div></div>
+
+    <div class="card">
+      <div id="qtext" class="qbox">—</div>
+      <div id="choices" class="choices"></div>
+      <div id="feedback" class="feedback" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- END SCREEN -->
+  <div id="end" style="display:none">
+    <div class="end">
+      <h2>Selesai! 🎉</h2>
+      <p id="summary"></p>
+      <div class="card">
+        <h3>🏆 Leaderboard (Top 10)</h3>
+        <ol id="leaders"></ol>
+        <button onclick="restartGame()" style="margin-top:16px">Main Lagi</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Game state
+let currentQuestion = 0;
+let score = 0;
+let startTime = 0;
+let timerInterval = null;
+let playerName = '';
+let questions = [];
+
+// Question bank
+const questionBank = [
+  {
+    arabic: "مَنْ هَذَا؟",
+    choices: ["Siapa ini?", "Apa ini?", "Di mana ini?", "Bila ini?"],
+    correct: 0
+  },
+  {
+    arabic: "مَاذَا تَفْعَلُ؟",
+    choices: ["Bila kamu pergi?", "Apa yang kamu buat?", "Siapa kamu?", "Di mana kamu?"],
+    correct: 1
+  },
+  {
+    arabic: "أَيْنَ الْمَدْرَسَةُ؟",
+    choices: ["Siapa sekolah?", "Apa sekolah?", "Di mana sekolah?", "Bila sekolah?"],
+    correct: 2
+  },
+  {
+    arabic: "مَتَى تَذْهَبُ؟",
+    choices: ["Bila kamu pergi?", "Siapa pergi?", "Di mana pergi?", "Apa pergi?"],
+    correct: 0
+  },
+  {
+    arabic: "كَيْفَ حَالُكَ؟",
+    choices: ["Siapa kamu?", "Bagaimana keadaan kamu?", "Di mana kamu?", "Bila kamu?"],
+    correct: 1
+  },
+  {
+    arabic: "كَمْ عُمْرُكَ؟",
+    choices: ["Berapa umur kamu?", "Siapa umur kamu?", "Di mana umur?", "Bagaimana umur?"],
+    correct: 0
+  },
+  {
+    arabic: "لِمَاذَا تَبْكِي؟",
+    choices: ["Bila kamu menangis?", "Siapa menangis?", "Mengapa kamu menangis?", "Di mana menangis?"],
+    correct: 2
+  },
+  {
+    arabic: "هَلْ تَفْهَمُ؟",
+    choices: ["Adakah kamu faham?", "Siapa faham?", "Di mana faham?", "Bila faham?"],
+    correct: 0
+  },
+  {
+    arabic: "مَنْ أَبُوكَ؟",
+    choices: ["Apa bapa kamu?", "Siapa bapa kamu?", "Di mana bapa?", "Bila bapa?"],
+    correct: 1
+  },
+  {
+    arabic: "مَاذَا تُرِيدُ؟",
+    choices: ["Siapa kamu mahu?", "Apa yang kamu mahu?", "Di mana kamu mahu?", "Bila kamu mahu?"],
+    correct: 1
+  },
+  {
+    arabic: "أَيْنَ تَسْكُنُ؟",
+    choices: ["Bila kamu tinggal?", "Siapa tinggal?", "Di mana kamu tinggal?", "Apa tinggal?"],
+    correct: 2
+  },
+  {
+    arabic: "مَتَى وُلِدْتَ؟",
+    choices: ["Bila kamu lahir?", "Siapa lahir?", "Di mana lahir?", "Apa lahir?"],
+    correct: 0
+  },
+  {
+    arabic: "كَيْفَ تَأْتِي؟",
+    choices: ["Siapa datang?", "Bagaimana kamu datang?", "Bila datang?", "Di mana datang?"],
+    correct: 1
+  },
+  {
+    arabic: "كَمْ كِتَابًا؟",
+    choices: ["Berapa buku?", "Siapa buku?", "Di mana buku?", "Bagaimana buku?"],
+    correct: 0
+  },
+  {
+    arabic: "لِمَاذَا تَدْرُسُ؟",
+    choices: ["Bila kamu belajar?", "Siapa belajar?", "Mengapa kamu belajar?", "Di mana belajar?"],
+    correct: 2
+  }
+];
+
+function prefill() {
+  document.getElementById('name').value = 'Ahmad';
+}
+
+function startGame() {
+  playerName = document.getElementById('name').value.trim();
+  if (!playerName) {
+    alert('Sila masukkan nama anda');
+    return;
+  }
+  
+  // Reset game state
+  currentQuestion = 0;
+  score = 0;
+  startTime = Date.now();
+  
+  // Select 10 random questions
+  questions = [...questionBank].sort(() => Math.random() - 0.5).slice(0, 10);
+  
+  // Show game screen
+  document.getElementById('start').style.display = 'none';
+  document.getElementById('game').style.display = 'block';
+  document.getElementById('who').textContent = `👤 ${playerName}`;
+  
+  // Start timer
+  timerInterval = setInterval(updateTimer, 1000);
+  
+  showQuestion();
+}
+
+function updateTimer() {
+  const elapsed = Math.floor((Date.now() - startTime) / 1000);
+  document.getElementById('timer').textContent = `⏱️ ${elapsed}s`;
+}
+
+function showQuestion() {
+  const question = questions[currentQuestion];
+  
+  // Update progress
+  document.getElementById('qprog').textContent = `❓ ${currentQuestion + 1}/10`;
+  document.getElementById('bar').style.width = `${((currentQuestion + 1) / 10) * 100}%`;
+  
+  // Show question
+  document.getElementById('qtext').textContent = question.arabic;
+  
+  // Show choices
+  const choicesDiv = document.getElementById('choices');
+  choicesDiv.innerHTML = '';
+  
+  question.choices.forEach((choice, index) => {
+    const button = document.createElement('div');
+    button.className = 'choice';
+    button.textContent = choice;
+    button.onclick = () => selectAnswer(index);
+    choicesDiv.appendChild(button);
+  });
+  
+  // Hide feedback
+  document.getElementById('feedback').style.display = 'none';
+}
+
+function selectAnswer(selectedIndex) {
+  const question = questions[currentQuestion];
+  const choices = document.querySelectorAll('.choice');
+  const feedback = document.getElementById('feedback');
+  
+  // Disable all choices
+  choices.forEach(choice => choice.classList.add('disabled'));
+  
+  // Show correct/wrong
+  if (selectedIndex === question.correct) {
+    choices[selectedIndex].classList.add('correct');
+    score++;
+    feedback.className = 'feedback correct';
+    feedback.textContent = '✅ Betul!';
+  } else {
+    choices[selectedIndex].classList.add('wrong');
+    choices[question.correct].classList.add('correct');
+    feedback.className = 'feedback wrong';
+    feedback.textContent = `❌ Salah. Jawapan betul: ${question.choices[question.correct]}`;
+  }
+  
+  // Update score
+  document.getElementById('score').textContent = `🏆 ${score}`;
+  
+  // Show feedback
+  feedback.style.display = 'block';
+  
+  // Next question after delay
+  setTimeout(() => {
+    currentQuestion++;
+    if (currentQuestion < 10) {
+      showQuestion();
+    } else {
+      endGame();
+    }
+  }, 2000);
+}
+
+function endGame() {
+  clearInterval(timerInterval);
+  const totalTime = Math.floor((Date.now() - startTime) / 1000);
+  
+  // Calculate percentage
+  const percentage = (score / 10) * 100;
+  
+  // Save to leaderboard
+  saveScore(playerName, score, totalTime, percentage);
+  
+  // Show end screen
+  document.getElementById('game').style.display = 'none';
+  document.getElementById('end').style.display = 'block';
+  
+  // Show summary
+  document.getElementById('summary').innerHTML = `
+    <strong>${playerName}</strong> mendapat <strong>${score}/10</strong> (${percentage}%) dalam masa <strong>${totalTime} saat</strong>.
+  `;
+  
+  // Show leaderboard
+  showLeaderboard();
+}
+
+function saveScore(name, score, time, percentage) {
+  let leaderboard = JSON.parse(localStorage.getItem('adwat-leaderboard') || '[]');
+  
+  leaderboard.push({
+    name: name,
+    score: score,
+    time: time,
+    percentage: percentage,
+    date: new Date().toLocaleDateString('ms-MY')
+  });
+  
+  // Sort by score (desc), then by time (asc)
+  leaderboard.sort((a, b) => {
+    if (b.score !== a.score) return b.score - a.score;
+    return a.time - b.time;
+  });
+  
+  // Keep top 10
+  leaderboard = leaderboard.slice(0, 10);
+  
+  localStorage.setItem('adwat-leaderboard', JSON.stringify(leaderboard));
+}
+
+function showLeaderboard() {
+  const leaderboard = JSON.parse(localStorage.getItem('adwat-leaderboard') || '[]');
+  const leadersDiv = document.getElementById('leaders');
+  
+  if (leaderboard.length === 0) {
+    leadersDiv.innerHTML = '<li>Tiada rekod lagi</li>';
+    return;
+  }
+  
+  leadersDiv.innerHTML = leaderboard.map(entry => 
+    `<li><strong>${entry.name}</strong> - ${entry.score}/10 (${entry.percentage}%) dalam ${entry.time}s <small>(${entry.date})</small></li>`
+  ).join('');
+}
+
+function restartGame() {
+  document.getElementById('end').style.display = 'none';
+  document.getElementById('start').style.display = 'block';
+  document.getElementById('name').value = playerName;
+}
+</script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97921026314c4a14',t:'MTc1Njg2OTEyMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
