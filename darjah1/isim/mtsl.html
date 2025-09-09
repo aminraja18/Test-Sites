@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الضمائر المتصلة</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Amiri', serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .card {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .option-btn {
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            transition: all 0.3s ease;
+        }
+        
+        .option-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(79, 172, 254, 0.4);
+        }
+        
+        .correct {
+            background: linear-gradient(45deg, #56ab2f, #a8e6cf) !important;
+            animation: pulse 0.5s ease-in-out;
+        }
+        
+        .incorrect {
+            background: linear-gradient(45deg, #ff416c, #ff4b2b) !important;
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .progress-bar {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+        
+        .leaderboard-item {
+            background: linear-gradient(45deg, #ffecd2, #fcb69f);
+            border-left: 4px solid #667eea;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <!-- شاشة البداية -->
+    <div id="start" class="card rounded-3xl shadow-2xl p-8 max-w-md w-full text-center">
+        <div class="mb-6">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">🎯 لعبة الضمائر المتصلة</h1>
+            <p class="text-gray-600 text-lg">اختبر معرفتك بالضمائر المتصلة في اللغة العربية</p>
+        </div>
+        
+        <div class="mb-6">
+            <label class="block text-gray-700 text-lg font-semibold mb-3">أدخل اسمك للبدء:</label>
+            <input type="text" id="playerName" 
+                   class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none text-lg text-center"
+                   placeholder="اسمك هنا...">
+        </div>
+        
+        <button onclick="startGame()" 
+                class="btn-primary w-full py-4 text-white text-xl font-bold rounded-xl shadow-lg">
+            🚀 ابدأ اللعبة
+        </button>
+        
+        <div class="mt-6 text-sm text-gray-500">
+            <p>📝 10 أسئلة • ⏱️ مؤقت • 🏆 نقاط</p>
+        </div>
+    </div>
+
+    <!-- شاشة اللعبة -->
+    <div id="game" class="card rounded-3xl shadow-2xl p-8 max-w-2xl w-full hidden">
+        <!-- شريط التقدم -->
+        <div class="mb-6">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-sm font-semibold text-gray-600">السؤال <span id="currentQ">1</span> من 10</span>
+                <div id="timer" class="text-lg font-bold text-blue-600">⏱️ 0 ثانية</div>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3">
+                <div id="progressBar" class="progress-bar h-3 rounded-full" style="width: 10%"></div>
+            </div>
+        </div>
+        
+        <!-- السؤال -->
+        <div class="text-center mb-8">
+            <div class="text-3xl font-bold text-gray-800 mb-4" id="question"></div>
+            <div class="text-lg text-gray-600">اختر الإجابة الصحيحة:</div>
+        </div>
+        
+        <!-- الخيارات -->
+        <div id="options" class="space-y-4 mb-6"></div>
+        
+        <!-- النتيجة -->
+        <div class="text-center">
+            <div id="score" class="text-2xl font-bold text-purple-600">النتيجة: 0 🌟</div>
+        </div>
+    </div>
+
+    <!-- لوحة المتصدرين -->
+    <div id="leaderboard" class="card rounded-3xl shadow-2xl p-8 max-w-md w-full text-center hidden">
+        <h2 class="text-3xl font-bold text-gray-800 mb-6">🏆 لوحة المتصدرين</h2>
+        
+        <div id="playerResult" class="mb-6 p-4 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl text-white">
+            <div class="text-xl font-bold">نتيجتك النهائية</div>
+            <div id="finalScore" class="text-3xl font-bold"></div>
+            <div id="finalTime" class="text-sm"></div>
+        </div>
+        
+        <div class="mb-6">
+            <h3 class="text-xl font-semibold text-gray-700 mb-4">أفضل النتائج:</h3>
+            <ol id="topPlayers" class="space-y-2"></ol>
+        </div>
+        
+        <button onclick="location.reload()" 
+                class="btn-primary w-full py-3 text-white text-lg font-bold rounded-xl shadow-lg">
+            🔄 إعادة اللعب
+        </button>
+    </div>
+
+    <script>
+        const questions = [
+            // 1–10 (set asal)
+            { q: "كتاب + هو", options: ["كتابه", "كتابها", "كتابي", "كتابنا"], answer: "كتابه" },
+            { q: "مدرسة + هي", options: ["مدرسته", "مدرستها", "مدرستي", "مدرستنا"], answer: "مدرستها" },
+            { q: "قلم + أنتَ", options: ["قلمك", "قلمه", "قلمها", "قلمي"], answer: "قلمك" },
+            { q: "دفتر + أنتِ", options: ["دفتركِ", "دفتره", "دفترها", "دفتري"], answer: "دفتركِ" },
+            { q: "كرسي + نحن", options: ["كرسيه", "كرسيها", "كرسيي", "كرسيُنا"], answer: "كرسيُنا" },
+            { q: "بيت + أنا", options: ["بيتي", "بيته", "بيتها", "بيتنا"], answer: "بيتي" },
+            { q: "طالب + هو", options: ["طالبه", "طالبها", "طالبي", "طالبنا"], answer: "طالبه" },
+            { q: "أخت + نحن", options: ["أختنا", "أختها", "أختي", "أختهم"], answer: "أختنا" },
+            { q: "قلم + أنتِ", options: ["قلمكِ", "قلمها", "قلمي", "قلمنا"], answer: "قلمكِ" },
+            { q: "معلمة + أنا", options: ["معلمتي", "معلمتها", "معلمه", "معلمنا"], answer: "معلمتي" },
+
+            // 11–30 (tambahan)
+            { q: "قلم + أنا", options: ["قلمي", "قلمها", "قلمه", "قلمنا"], answer: "قلمي" },
+            { q: "مدرسة + هي", options: ["مدرسته", "مدرستها", "مدرستي", "مدرستنا"], answer: "مدرستها" },
+            { q: "كرسي + نحن", options: ["كرسيهم", "كرسيها", "كرسيي", "كرسيُنا"], answer: "كرسيُنا" },
+            { q: "كتاب + أنتَ", options: ["كتابك", "كتابه", "كتابها", "كتابنا"], answer: "كتابك" },
+            { q: "دفتر + أنتِ", options: ["دفتري", "دفتركِ", "دفتره", "دفترنا"], answer: "دفتركِ" },
+            { q: "حديقة + هو", options: ["حديقته", "حديقتها", "حديقتي", "حديقتنا"], answer: "حديقته" },
+            { q: "سيارة + نحن", options: ["سيارتنا", "سيارته", "سيارتها", "سيارتي"], answer: "سيارتنا" },
+            { q: "معلمة + أنا", options: ["معلمتي", "معلمتها", "معلمه", "معلمنا"], answer: "معلمتي" },
+            { q: "طالب + هي", options: ["طالبها", "طالبه", "طالبي", "طالبنا"], answer: "طالبها" },
+            { q: "بيت + أنتَ", options: ["بيتك", "بيته", "بيتها", "بيتي"], answer: "بيتك" },
+            { q: "أخ + أنا", options: ["أخي", "أخها", "أخوك", "أخونا"], answer: "أخي" },
+            { q: "أخت + نحن", options: ["أختنا", "أختها", "أختي", "أختهم"], answer: "أختنا" },
+            { q: "قلم + أنتِ", options: ["قلمكِ", "قلمها", "قلمي", "قلمنا"], answer: "قلمكِ" },
+            { q: "مكتب + هو", options: ["مكتبه", "مكتبها", "مكتبي", "مكتبنا"], answer: "مكتبه" },
+            { q: "غرفة + نحن", options: ["غرفتنا", "غرفتها", "غرفتي", "غرفته"], answer: "غرفتنا" },
+            { q: "كرسي + أنتَ", options: ["كرسيكَ", "كرسيها", "كرسيه", "كرسيي"], answer: "كرسيكَ" },
+            { q: "كتاب + هي", options: ["كتابها", "كتابه", "كتابي", "كتابنا"], answer: "كتابها" },
+            { q: "مدرسة + نحن", options: ["مدرستنا", "مدرستهم", "مدرستي", "مدرستها"], answer: "مدرستنا" },
+            { q: "دفتر + هو", options: ["دفتره", "دفتري", "دفترها", "دفترنا"], answer: "دفتره" },
+            { q: "سيارة + أنا", options: ["سيارتي", "سيارتها", "سيارته", "سيارتنا"], answer: "سيارتي" }
+        ];
+
+        let player = { name: "", score: 0, time: 0 };
+        let current = 0;
+        let timerInterval;
+        let gameQuestions = [];
+
+        function startGame() {
+            const nameInput = document.getElementById("playerName");
+            player.name = nameInput.value.trim();
+            
+            if (!player.name) {
+                nameInput.focus();
+                nameInput.style.borderColor = "#ef4444";
+                setTimeout(() => nameInput.style.borderColor = "#d1d5db", 2000);
+                return;
+            }
+
+            document.getElementById("start").style.display = "none";
+            document.getElementById("game").classList.remove("hidden");
+            
+            // إعداد اللعبة
+            player.score = 0;
+            player.time = 0;
+            current = 0;
+            gameQuestions = shuffle([...questions]).slice(0, 10);
+            
+            // بدء المؤقت
+            timerInterval = setInterval(() => {
+                player.time++;
+                document.getElementById("timer").innerText = `⏱️ ${player.time} ثانية`;
+            }, 1000);
+            
+            showQuestion();
+        }
+
+        function showQuestion() {
+            if (current >= gameQuestions.length) {
+                endGame();
+                return;
+            }
+
+            const q = gameQuestions[current];
+            const progress = ((current + 1) / gameQuestions.length) * 100;
+            
+            document.getElementById("currentQ").innerText = current + 1;
+            document.getElementById("progressBar").style.width = progress + "%";
+            document.getElementById("question").innerText = q.q;
+            
+            const optionsContainer = document.getElementById("options");
+            optionsContainer.innerHTML = "";
+            
+            q.options.forEach((option, index) => {
+                const button = document.createElement("button");
+                button.className = "option-btn w-full py-4 px-6 text-white text-xl font-semibold rounded-xl shadow-lg";
+                button.innerText = option;
+                button.onclick = () => checkAnswer(index, button);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function checkAnswer(selectedIndex, buttonElement) {
+            const q = gameQuestions[current];
+            const allButtons = document.querySelectorAll(".option-btn");
+            const selectedAnswer = q.options[selectedIndex];
+            
+            // تعطيل جميع الأزرار
+            allButtons.forEach(btn => btn.disabled = true);
+            
+            if (selectedAnswer === q.answer) {
+                buttonElement.classList.add("correct");
+                player.score += 10;
+                
+                // إظهار رسالة صحيح
+                showFeedback("✅ إجابة صحيحة!", "text-green-600");
+            } else {
+                buttonElement.classList.add("incorrect");
+                
+                // إظهار الإجابة الصحيحة
+                allButtons.forEach((btn, index) => {
+                    if (q.options[index] === q.answer) {
+                        btn.classList.add("correct");
+                    }
+                });
+                
+                // إظهار رسالة خطأ
+                showFeedback("❌ إجابة خاطئة!", "text-red-600");
+            }
+            
+            document.getElementById("score").innerText = `النتيجة: ${player.score} 🌟`;
+            
+            current++;
+            setTimeout(() => {
+                showQuestion();
+            }, 1500);
+        }
+
+        function showFeedback(message, className) {
+            const feedback = document.createElement("div");
+            feedback.className = `text-center text-xl font-bold ${className} mt-4`;
+            feedback.innerText = message;
+            document.getElementById("options").appendChild(feedback);
+        }
+
+        function endGame() {
+            clearInterval(timerInterval);
+            
+            document.getElementById("game").classList.add("hidden");
+            document.getElementById("leaderboard").classList.remove("hidden");
+            
+            // عرض النتيجة النهائية
+            document.getElementById("finalScore").innerText = `${player.score} نقطة`;
+            document.getElementById("finalTime").innerText = `في ${player.time} ثانية`;
+            
+            // حفظ النتيجة
+            saveScore();
+            displayLeaderboard();
+        }
+
+        function saveScore() {
+            let scores = JSON.parse(localStorage.getItem("arabicGameScores") || "[]");
+            scores.push({
+                name: player.name,
+                score: player.score,
+                time: player.time,
+                date: new Date().toLocaleDateString("ar")
+            });
+            
+            // ترتيب النتائج (أعلى نقاط أولاً، ثم أقل وقت)
+            scores.sort((a, b) => {
+                if (b.score !== a.score) return b.score - a.score;
+                return a.time - b.time;
+            });
+            
+            // الاحتفاظ بأفضل 10 نتائج فقط
+            scores = scores.slice(0, 10);
+            localStorage.setItem("arabicGameScores", JSON.stringify(scores));
+        }
+
+        function displayLeaderboard() {
+            const scores = JSON.parse(localStorage.getItem("arabicGameScores") || "[]");
+            const topPlayers = document.getElementById("topPlayers");
+            topPlayers.innerHTML = "";
+            
+            scores.forEach((score, index) => {
+                const li = document.createElement("li");
+                li.className = "leaderboard-item p-3 rounded-lg mb-2 flex justify-between items-center";
+                
+                const medal = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : "🏅";
+                
+                li.innerHTML = `
+                    <div class="flex items-center">
+                        <span class="text-2xl mr-2">${medal}</span>
+                        <div>
+                            <div class="font-bold text-gray-800">${score.name}</div>
+                            <div class="text-sm text-gray-600">${score.date}</div>
+                        </div>
+                    </div>
+                    <div class="text-left">
+                        <div class="font-bold text-purple-600">${score.score} نقطة</div>
+                        <div class="text-sm text-gray-600">${score.time} ثانية</div>
+                    </div>
+                `;
+                
+                topPlayers.appendChild(li);
+            });
+            
+            if (scores.length === 0) {
+                topPlayers.innerHTML = '<li class="text-gray-500 text-center py-4">لا توجد نتائج بعد</li>';
+            }
+        }
+
+        function shuffle(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        // تحميل لوحة المتصدرين عند بدء الصفحة
+        window.onload = function() {
+            // يمكن عرض أفضل النتائج في الصفحة الرئيسية إذا أردت
+        };
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97c40d9d44f526f2',t:'MTc1NzM5MzMwNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
