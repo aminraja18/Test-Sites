@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 أدوات المطبخ - لعبة تعليمية</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .menu-screen, .game-screen, .end-screen {
+            display: none;
+        }
+
+        .menu-screen.active, .game-screen.active, .end-screen.active {
+            display: block;
+        }
+
+        .input-group {
+            margin: 30px 0;
+        }
+
+        input[type="text"] {
+            padding: 15px 20px;
+            font-size: 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            width: 300px;
+            max-width: 100%;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .score, .timer, .progress {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .question-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .question-text {
+            font-size: 24px;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-weight: bold;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .option-btn {
+            background: white;
+            border: 2px solid #e0e0e0;
+            padding: 15px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .option-btn:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .option-btn.correct {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        .option-btn.wrong {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+        .spelling-input {
+            width: 100%;
+            padding: 20px;
+            font-size: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .leaderboard {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .leaderboard-item:last-child {
+            border-bottom: none;
+        }
+
+        .feedback {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-weight: bold;
+            display: none;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .feedback.wrong {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .mode-indicator {
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .arabic-keyboard {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 2px solid #e0e0e0;
+        }
+
+        .keyboard-row {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .key-btn {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 45px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .key-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .key-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .key-btn.special {
+            background: #e3f2fd;
+            border-color: #2196f3;
+            color: #1976d2;
+        }
+
+        .key-btn.special:hover {
+            background: #2196f3;
+            color: white;
+        }
+
+        .key-btn.action {
+            background: #fff3e0;
+            border-color: #ff9800;
+            color: #f57c00;
+            font-size: 14px;
+            min-width: 80px;
+        }
+
+        .key-btn.action:hover {
+            background: #ff9800;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .options {
+                grid-template-columns: 1fr;
+            }
+            
+            .game-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+
+            .key-btn {
+                padding: 10px 12px;
+                font-size: 16px;
+                min-width: 40px;
+                height: 45px;
+            }
+
+            .keyboard-row {
+                gap: 5px;
+            }
+
+            .arabic-keyboard {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- شاشة القائمة الرئيسية -->
+        <div class="menu-screen active" id="menuScreen">
+            <h1>🎮 أدوات المطبخ</h1>
+            <p style="font-size: 18px; color: #666; margin-bottom: 30px;">
+                لعبة تعليمية لتعلم أسماء أدوات المطبخ بالعربية<br>
+                للصف الثاني - اللغة العربية
+            </p>
+            
+            <div class="input-group">
+                <input type="text" id="playerName" placeholder="أدخل اسمك هنا" maxlength="20">
+            </div>
+            
+            <button class="btn" onclick="startGame()">🚀 ابدأ اللعبة</button>
+            
+            <div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 10px;">
+                <h3>📋 قواعد اللعبة:</h3>
+                <p>• المرحلة الأولى: اختيار متعدد (5 أسئلة)</p>
+                <p>• المرحلة الثانية: كتابة الكلمات (5 أسئلة)</p>
+                <p>• كل إجابة صحيحة = 10 نقاط</p>
+            </div>
+        </div>
+
+        <!-- شاشة اللعبة -->
+        <div class="game-screen" id="gameScreen">
+            <div class="game-header">
+                <div class="score">النقاط: <span id="scoreDisplay">0</span></div>
+                <div class="progress">السؤال: <span id="questionProgress">1/5</span></div>
+                <div class="timer">الوقت: <span id="timerDisplay">0</span>s</div>
+            </div>
+
+            <div class="mode-indicator" id="modeIndicator">🔤 اختيار متعدد</div>
+
+            <div class="question-card">
+                <div class="question-text" id="questionText"></div>
+                
+                <!-- خيارات الاختيار المتعدد -->
+                <div class="options" id="optionsContainer"></div>
+                
+                <!-- حقل الكتابة للإملاء -->
+                <div id="spellingContainer" style="display: none;">
+                    <input type="text" class="spelling-input" id="spellingInput" placeholder="اكتب الإجابة هنا...">
+                    
+                    <!-- لوحة المفاتيح العربية -->
+                    <div class="arabic-keyboard">
+                        <div class="keyboard-row">
+                            <button class="key-btn" onclick="addChar('ض')">ض</button>
+                            <button class="key-btn" onclick="addChar('ص')">ص</button>
+                            <button class="key-btn" onclick="addChar('ث')">ث</button>
+                            <button class="key-btn" onclick="addChar('ق')">ق</button>
+                            <button class="key-btn" onclick="addChar('ف')">ف</button>
+                            <button class="key-btn" onclick="addChar('غ')">غ</button>
+                            <button class="key-btn" onclick="addChar('ع')">ع</button>
+                            <button class="key-btn" onclick="addChar('ه')">ه</button>
+                            <button class="key-btn" onclick="addChar('خ')">خ</button>
+                            <button class="key-btn" onclick="addChar('ح')">ح</button>
+                            <button class="key-btn" onclick="addChar('ج')">ج</button>
+                        </div>
+                        <div class="keyboard-row">
+                            <button class="key-btn" onclick="addChar('ش')">ش</button>
+                            <button class="key-btn" onclick="addChar('س')">س</button>
+                            <button class="key-btn" onclick="addChar('ي')">ي</button>
+                            <button class="key-btn" onclick="addChar('ب')">ب</button>
+                            <button class="key-btn" onclick="addChar('ل')">ل</button>
+                            <button class="key-btn" onclick="addChar('ا')">ا</button>
+                            <button class="key-btn" onclick="addChar('ت')">ت</button>
+                            <button class="key-btn" onclick="addChar('ن')">ن</button>
+                            <button class="key-btn" onclick="addChar('م')">م</button>
+                            <button class="key-btn" onclick="addChar('ك')">ك</button>
+                            <button class="key-btn" onclick="addChar('ط')">ط</button>
+                        </div>
+                        <div class="keyboard-row">
+                            <button class="key-btn" onclick="addChar('ئ')">ئ</button>
+                            <button class="key-btn" onclick="addChar('ء')">ء</button>
+                            <button class="key-btn" onclick="addChar('ؤ')">ؤ</button>
+                            <button class="key-btn" onclick="addChar('ر')">ر</button>
+                            <button class="key-btn" onclick="addChar('لا')">لا</button>
+                            <button class="key-btn" onclick="addChar('ى')">ى</button>
+                            <button class="key-btn" onclick="addChar('ة')">ة</button>
+                            <button class="key-btn" onclick="addChar('و')">و</button>
+                            <button class="key-btn" onclick="addChar('ز')">ز</button>
+                            <button class="key-btn" onclick="addChar('ظ')">ظ</button>
+                        </div>
+                        <div class="keyboard-row">
+                            <button class="key-btn special" onclick="addChar('أ')">أ</button>
+                            <button class="key-btn special" onclick="addChar('إ')">إ</button>
+                            <button class="key-btn special" onclick="addChar('آ')">آ</button>
+                            <button class="key-btn action" onclick="deleteChar()">⌫ مسح</button>
+                            <button class="key-btn action" onclick="clearInput()">🗑️ مسح الكل</button>
+                        </div>
+                    </div>
+                    
+                    <button class="btn" onclick="submitSpelling()">✅ إرسال الإجابة</button>
+                </div>
+            </div>
+
+            <div class="feedback" id="feedback"></div>
+        </div>
+
+        <!-- شاشة النهاية -->
+        <div class="end-screen" id="endScreen">
+            <h1>🎉 انتهت اللعبة!</h1>
+            
+            <div style="font-size: 24px; margin: 30px 0; color: #2c3e50;">
+                <div>اللاعب: <strong id="finalPlayerName"></strong></div>
+                <div>النقاط النهائية: <strong id="finalScore"></strong></div>
+                <div>الوقت المستغرق: <strong id="finalTime"></strong> ثانية</div>
+            </div>
+
+            <div class="leaderboard">
+                <h3>🏆 لوحة الشرف</h3>
+                <div id="leaderboardList"></div>
+            </div>
+
+            <button class="btn" onclick="restartGame()">🔄 لعب مرة أخرى</button>
+        </div>
+    </div>
+
+    <script>
+        // متغيرات اللعبة
+        let playerName = "";
+        let score = 0;
+        let timer = 0;
+        let gameStarted = false;
+        let currentQuestion = 0;
+        let questions = [];
+        let mode = "abc"; // abc, spelling
+        let leaderboard = JSON.parse(localStorage.getItem('kitchenGameLeaderboard')) || [];
+        let timerInterval;
+
+        // بنك الأسئلة - اختيار متعدد
+        const bankABC = [
+            { q: "ما معنى (شوكة)؟", a: ["Garpu", "Sudu", "Pisau", "Cawan"], c: 0 },
+            { q: "ما معنى (ملعقة)؟", a: ["Sudu", "Garpu", "Pinggan", "Gula"], c: 0 },
+            { q: "ما معنى (ملح)؟", a: ["Gula", "Garam", "Cawan", "Pisau"], c: 1 },
+            { q: "ما معنى (كوب)؟", a: ["Pinggan", "Mug/Cawan", "Almari", "Garpu"], c: 1 },
+            { q: "ما معنى (سكين)؟", a: ["Garpu", "Sudip", "Pisau", "Gula"], c: 2 },
+            { q: "ما معنى (سكر)؟", a: ["Susu", "Garam", "Gula", "Air"], c: 2 },
+            { q: "ما معنى (فنجان)؟", a: ["Cawan kecil", "Pinggan", "Sudip", "Pisau"], c: 0 },
+            { q: "ما معنى (صحن)؟", a: ["Pinggan", "Garpu", "Almari", "Sudip"], c: 0 },
+            { q: "ما معنى (إبريق)؟", a: ["Almari", "Jag", "Cawan", "Pisau"], c: 1 },
+            { q: "ما معنى (خزانة)؟", a: ["Almari", "Garpu", "Sudu", "Pinggan"], c: 0 },
+            { q: "ما معنى (درج)؟", a: ["Laci", "Pisau", "Gula", "Garpu"], c: 0 }
+        ];
+
+        // بنك الأسئلة - الإملاء
+        const bankSpelling = [
+            { q: "اكتب كلمة (Garpu) بالعربية:", a: "شوكة" },
+            { q: "اكتب كلمة (Sudu) بالعربية:", a: "ملعقة" },
+            { q: "اكتب كلمة (Garam) بالعربية:", a: "ملح" },
+            { q: "اكتب كلمة (Mug/Cawan) بالعربية:", a: "كوب" },
+            { q: "اكتب كلمة (Pisau) بالعربية:", a: "سكين" },
+            { q: "اكتب كلمة (Gula) بالعربية:", a: "سكر" },
+            { q: "اكتب كلمة (Cawan kecil) بالعربية:", a: "فنجان" },
+            { q: "اكتب كلمة (Pinggan) بالعربية:", a: "صحن" },
+            { q: "اكتب كلمة (Jag) بالعربية:", a: "إبريق" },
+            { q: "اكتب كلمة (Almari) بالعربية:", a: "خزانة" },
+            { q: "اكتب كلمة (Laci) بالعربية:", a: "درج" }
+        ];
+
+        // خلط المصفوفة
+        function shuffle(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        // بدء اللعبة
+        function startGame() {
+            const nameInput = document.getElementById('playerName');
+            if (!nameInput.value.trim()) {
+                alert('يرجى إدخال اسمك أولاً!');
+                return;
+            }
+
+            playerName = nameInput.value.trim();
+            score = 0;
+            timer = 0;
+            currentQuestion = 0;
+            mode = "abc";
+            questions = shuffle(bankABC).slice(0, 5);
+            gameStarted = true;
+
+            // إخفاء شاشة القائمة وإظهار شاشة اللعبة
+            document.getElementById('menuScreen').classList.remove('active');
+            document.getElementById('gameScreen').classList.add('active');
+
+            // بدء المؤقت
+            timerInterval = setInterval(() => {
+                timer++;
+                document.getElementById('timerDisplay').textContent = timer;
+            }, 1000);
+
+            // عرض السؤال الأول
+            displayQuestion();
+        }
+
+        // عرض السؤال
+        function displayQuestion() {
+            const question = questions[currentQuestion];
+            document.getElementById('questionText').textContent = question.q;
+            document.getElementById('questionProgress').textContent = `${currentQuestion + 1}/5`;
+            document.getElementById('scoreDisplay').textContent = score;
+
+            // إخفاء التغذية الراجعة
+            document.getElementById('feedback').classList.remove('show');
+
+            if (mode === "abc") {
+                // عرض خيارات الاختيار المتعدد
+                document.getElementById('modeIndicator').textContent = '🔤 اختيار متعدد';
+                document.getElementById('optionsContainer').style.display = 'grid';
+                document.getElementById('spellingContainer').style.display = 'none';
+
+                const optionsContainer = document.getElementById('optionsContainer');
+                optionsContainer.innerHTML = '';
+
+                question.a.forEach((option, index) => {
+                    const button = document.createElement('button');
+                    button.className = 'option-btn';
+                    button.textContent = option;
+                    button.onclick = () => answerABC(index);
+                    optionsContainer.appendChild(button);
+                });
+            } else {
+                // عرض حقل الإملاء
+                document.getElementById('modeIndicator').textContent = '✍️ الإملاء';
+                document.getElementById('optionsContainer').style.display = 'none';
+                document.getElementById('spellingContainer').style.display = 'block';
+                document.getElementById('spellingInput').value = '';
+                document.getElementById('spellingInput').focus();
+            }
+        }
+
+        // الإجابة على سؤال الاختيار المتعدد
+        function answerABC(choice) {
+            const question = questions[currentQuestion];
+            const options = document.querySelectorAll('.option-btn');
+            const feedback = document.getElementById('feedback');
+
+            // تعطيل جميع الأزرار
+            options.forEach(btn => btn.style.pointerEvents = 'none');
+
+            if (choice === question.c) {
+                score += 10;
+                options[choice].classList.add('correct');
+                showFeedback('صحيح! 👏', 'correct');
+            } else {
+                options[choice].classList.add('wrong');
+                options[question.c].classList.add('correct');
+                showFeedback('خطأ! الإجابة الصحيحة: ' + question.a[question.c], 'wrong');
+            }
+
+            // الانتقال للسؤال التالي بعد ثانيتين
+            setTimeout(nextQuestion, 2000);
+        }
+
+        // إرسال إجابة الإملاء
+        function submitSpelling() {
+            const userAnswer = document.getElementById('spellingInput').value.trim();
+            if (!userAnswer) {
+                alert('يرجى كتابة الإجابة!');
+                return;
+            }
+
+            const question = questions[currentQuestion];
+            
+            if (userAnswer === question.a) {
+                score += 10;
+                showFeedback('ممتاز! الكتابة صحيحة 👏', 'correct');
+            } else {
+                showFeedback(`خطأ! الإجابة الصحيحة: ${question.a}`, 'wrong');
+            }
+
+            // تعطيل الحقل والزر
+            document.getElementById('spellingInput').disabled = true;
+            document.querySelector('#spellingContainer button').disabled = true;
+
+            // الانتقال للسؤال التالي بعد ثانيتين
+            setTimeout(nextQuestion, 2000);
+        }
+
+        // عرض التغذية الراجعة
+        function showFeedback(message, type) {
+            const feedback = document.getElementById('feedback');
+            feedback.textContent = message;
+            feedback.className = `feedback ${type} show`;
+        }
+
+        // الانتقال للسؤال التالي
+        function nextQuestion() {
+            currentQuestion++;
+            
+            if (currentQuestion < 5) {
+                // إعادة تمكين العناصر
+                document.getElementById('spellingInput').disabled = false;
+                document.querySelector('#spellingContainer button').disabled = false;
+                displayQuestion();
+            } else {
+                if (mode === "abc") {
+                    // الانتقال لمرحلة الإملاء
+                    mode = "spelling";
+                    questions = shuffle(bankSpelling).slice(0, 5);
+                    currentQuestion = 0;
+                    displayQuestion();
+                } else {
+                    // انتهاء اللعبة
+                    endGame();
+                }
+            }
+        }
+
+        // انتهاء اللعبة
+        function endGame() {
+            clearInterval(timerInterval);
+            gameStarted = false;
+
+            // إضافة النتيجة للوحة الشرف
+            leaderboard.push({ name: playerName, score: score, time: timer });
+            leaderboard.sort((a, b) => b.score - a.score || a.time - b.time);
+            leaderboard = leaderboard.slice(0, 10);
+            localStorage.setItem('kitchenGameLeaderboard', JSON.stringify(leaderboard));
+
+            // إظهار شاشة النهاية
+            document.getElementById('gameScreen').classList.remove('active');
+            document.getElementById('endScreen').classList.add('active');
+
+            // عرض النتائج
+            document.getElementById('finalPlayerName').textContent = playerName;
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('finalTime').textContent = timer;
+
+            // عرض لوحة الشرف
+            const leaderboardList = document.getElementById('leaderboardList');
+            leaderboardList.innerHTML = '';
+            
+            leaderboard.forEach((player, index) => {
+                const item = document.createElement('div');
+                item.className = 'leaderboard-item';
+                item.innerHTML = `
+                    <span>${index + 1}. ${player.name}</span>
+                    <span>${player.score} نقطة</span>
+                `;
+                leaderboardList.appendChild(item);
+            });
+        }
+
+        // إعادة بدء اللعبة
+        function restartGame() {
+            document.getElementById('endScreen').classList.remove('active');
+            document.getElementById('menuScreen').classList.add('active');
+            document.getElementById('playerName').value = '';
+        }
+
+        // وظائف لوحة المفاتيح العربية
+        function addChar(char) {
+            const input = document.getElementById('spellingInput');
+            if (input.disabled) return;
+            
+            const cursorPos = input.selectionStart;
+            const textBefore = input.value.substring(0, cursorPos);
+            const textAfter = input.value.substring(input.selectionEnd);
+            
+            input.value = textBefore + char + textAfter;
+            input.focus();
+            input.setSelectionRange(cursorPos + char.length, cursorPos + char.length);
+        }
+
+        function deleteChar() {
+            const input = document.getElementById('spellingInput');
+            if (input.disabled) return;
+            
+            const cursorPos = input.selectionStart;
+            if (cursorPos > 0) {
+                const textBefore = input.value.substring(0, cursorPos - 1);
+                const textAfter = input.value.substring(input.selectionEnd);
+                input.value = textBefore + textAfter;
+                input.focus();
+                input.setSelectionRange(cursorPos - 1, cursorPos - 1);
+            }
+        }
+
+        function clearInput() {
+            const input = document.getElementById('spellingInput');
+            if (input.disabled) return;
+            
+            input.value = '';
+            input.focus();
+        }
+
+        // السماح بالإرسال بالضغط على Enter في حقل الإملاء
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('spellingInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    submitSpelling();
+                }
+            });
+
+            document.getElementById('playerName').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    startGame();
+                }
+            });
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'984777d0d5c94a38',t:'MTc1ODc3MTI5MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
