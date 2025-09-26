@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>🎮 Permainan Bahasa Arab: Pekerjaan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { box-sizing: border-box; }
+        .arabic-text { font-family: 'Arial Unicode MS','Tahoma', sans-serif; font-size: 1.5rem; }
+        .hangman-display { font-size: 2.2rem; letter-spacing: 0.6rem; font-weight: bold; }
+        .letter-btn { transition: all 0.2s ease; }
+        .letter-btn:hover:not(:disabled) { transform: scale(1.05); }
+        .letter-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .score-display { background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; padding:1rem; border-radius:1rem; margin-bottom:1rem; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-purple-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <div id="app" class="max-w-4xl mx-auto bg-white rounded-2xl shadow-2xl p-8 text-center">
+            <!-- Entry Screen -->
+            <div id="entry-screen" class="space-y-6">
+                <h1 class="text-4xl font-bold text-purple-800 mb-8">🎮 Permainan Bahasa Arab: Pekerjaan</h1>
+                <div class="space-y-4">
+                    <input type="text" id="player-name" placeholder="Masukkan nama anda" class="border-2 border-purple-300 p-3 rounded-lg text-lg w-64 focus:border-purple-500 focus:outline-none"/>
+                    <br>
+                    <button id="start-btn" class="px-8 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-lg font-semibold transition-colors">Mula Permainan</button>
+                </div>
+            </div>
+
+            <!-- Hangman Game -->
+            <div id="hangman-screen" class="hidden space-y-6">
+                <div class="score-display">
+                    <div class="flex justify-between items-center">
+                        <div>👤 <span id="current-player"></span></div>
+                        <div>⭐ Skor: <span id="current-score">0</span></div>
+                        <div>⏱️ Masa: <span id="timer">0</span>s</div>
+                    </div>
+                </div>
+
+                <h2 class="text-3xl font-bold text-purple-800">🔠 Hangman: Teka Pekerjaan</h2>
+
+                <div class="hangman-display arabic-text text-purple-900 bg-purple-50 p-6 rounded-lg">
+                    <div id="word-display"></div>
+                </div>
+
+                <div class="text-lg text-red-600">
+                    Salah: <span id="wrong-count">0</span>/6 &nbsp;|&nbsp; Soalan <span id="hangman-number">1</span> / 5
+                </div>
+
+                <div class="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-4 mb-4">
+                    <div id="hint-box" class="text-lg text-gray-600 mb-2 min-h-[1.5rem]">Tekan butang "Hint" untuk mendapat petunjuk (percuma)</div>
+                    <button id="hint-btn" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">💡 Hint</button>
+                </div>
+
+                <div id="letters-container" class="grid grid-cols-6 sm:grid-cols-8 gap-2 max-w-2xl mx-auto"></div>
+
+                <div id="hangman-result" class="hidden text-2xl font-bold"></div>
+            </div>
+
+            <!-- MCQ Game -->
+            <div id="mcq-screen" class="hidden space-y-6">
+                <div class="score-display">
+                    <div class="flex justify-between items-center">
+                        <div>👤 <span id="mcq-player"></span></div>
+                        <div>⭐ Skor: <span id="mcq-score">0</span></div>
+                        <div>⏱️ Masa: <span id="mcq-timer">0</span>s</div>
+                    </div>
+                </div>
+
+                <h2 class="text-3xl font-bold text-purple-800">📝 Soalan Objektif: Isim → Fi'il</h2>
+
+                <div class="bg-purple-50 p-6 rounded-lg">
+                    <div id="question-text" class="text-2xl arabic-text mb-6"></div>
+                    <div id="mcq-options" class="space-y-3"></div>
+                </div>
+
+                <div class="text-lg">Soalan <span id="question-number">1</span> daripada 5</div>
+            </div>
+
+            <!-- Leaderboard -->
+            <div id="leaderboard-screen" class="hidden space-y-6">
+                <h2 class="text-4xl font-bold text-purple-800">🏆 Papan Pendahulu</h2>
+
+                <div id="final-score" class="text-2xl bg-green-100 p-4 rounded-lg"></div>
+
+                <div class="bg-purple-50 p-6 rounded-lg">
+                    <div id="leaderboard-list" class="space-y-2"></div>
+                </div>
+
+                <button id="play-again-btn" class="px-8 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg text-lg font-semibold transition-colors">Main Lagi</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // ---------------------------
+    // DATA BANK
+    // ---------------------------
+    const fullHangmanBank = [
+        { word: "طبيب", hint: "Orang yang merawat pesakit (doktor)" },
+        { word: "فلاح", hint: "Orang yang bekerja di sawah atau ladang (petani)" },
+        { word: "تاجر", hint: "Orang yang menjual dan membeli barang (peniaga)" },
+        { word: "معلم", hint: "Orang yang mengajar murid (guru)" },
+        { word: "مهندس", hint: "Orang yang bina bangunan (jurutera)" },
+        { word: "شرطي", hint: "Orang menjaga keselamatan (polis)" },
+        { word: "طيار", hint: "Orang yang membawa kapal terbang (juruterbang)" },
+        { word: "ممرض", hint: "Pembantu perubatan (jururawat)" }
+    ];
+
+    const fullMCQBank = [
+        { q: "المعلم (guru)", options: ["يعلم", "يبني", "يعالج", "يبيع"], answer: "يعلم" },
+        { q: "التاجر (peniaga)", options: ["يزرع", "يعلم", "يبيع", "يبني"], answer: "يبيع" },
+        { q: "الطبيب (doktor)", options: ["يبني", "يعالج", "يعلم", "يبيع"], answer: "يعالج" },
+        { q: "الفلاح (petani)", options: ["يزرع", "يعالج", "يبني", "يبيع"], answer: "يزرع" },
+        { q: "المهندس (jurutera)", options: ["يبني", "يزرع", "يعلم", "يعالج"], answer: "يبني" },
+        { q: "الشرطي (polis)", options: ["يبني", "يزرع", "يحمي", "يعلم"], answer: "يحمي" },
+        { q: "الطيار (juruterbang)", options: ["يطير", "يزرع", "يبيع", "يعلم"], answer: "يطير" },
+        { q: "الممرض (jururawat)", options: ["يعالج", "يحمي", "يطير", "يزرع"], answer: "يعالج" }
+    ];
+
+    const arabicLetters = "ابتثجحخدذرزسشصضطظعغفقكلمنهوي".split("");
+
+    // ---------------------------
+    // GAME STATE
+    // ---------------------------
+    let gameState = {
+        step: 'entry',
+        playerName: '',
+        timer: 0,
+        score: 0,
+        hangmanList: [],   // 5 words selected
+        hangmanIndex: 0,
+        hangmanWord: '',
+        hangmanHint: '',
+        guessedLetters: [],
+        wrongGuesses: 0,
+        hangmanQuestionCount: 5,
+        mcqList: [],       // 5 questions selected
+        mcqIndex: 0,
+        hintUsedThisWord: false,
+        leaderboard: JSON.parse(localStorage.getItem('arabicGameLeaderboard') || '[]'),
+        timerInterval: null
+    };
+
+    // ---------------------------
+    // UTILS
+    // ---------------------------
+    function shuffleArray(arr) {
+        const a = arr.slice();
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+    }
+
+    // simple beep sounds via WebAudio
+    function playSound(type) {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const o = ctx.createOscillator();
+            const g = ctx.createGain();
+            o.connect(g); g.connect(ctx.destination);
+            if (type === 'correct') {
+                o.type = 'sine';
+                o.frequency.setValueAtTime(880, ctx.currentTime);
+                g.gain.setValueAtTime(0.12, ctx.currentTime);
+            } else {
+                o.type = 'sawtooth';
+                o.frequency.setValueAtTime(220, ctx.currentTime);
+                g.gain.setValueAtTime(0.12, ctx.currentTime);
+            }
+            o.start();
+            o.stop(ctx.currentTime + 0.18);
+        } catch (e) {
+            // ignore audio errors on some browsers
+            console.warn('Audio not supported', e);
+        }
+    }
+
+    // ---------------------------
+    // TIMER
+    // ---------------------------
+    function startTimer() {
+        stopTimer();
+        gameState.timerInterval = setInterval(() => {
+            gameState.timer++;
+            updateTimerDisplays();
+        }, 1000);
+    }
+    function stopTimer() {
+        if (gameState.timerInterval) {
+            clearInterval(gameState.timerInterval);
+            gameState.timerInterval = null;
+        }
+    }
+    function updateTimerDisplays() {
+        document.querySelectorAll('#timer, #mcq-timer').forEach(el => el.textContent = gameState.timer);
+    }
+
+    // ---------------------------
+    // SCREEN MANAGEMENT
+    // ---------------------------
+    function showScreen(screenId) {
+        ['entry-screen','hangman-screen','mcq-screen','leaderboard-screen'].forEach(id => {
+            document.getElementById(id).classList.add('hidden');
+        });
+        document.getElementById(screenId).classList.remove('hidden');
+    }
+
+    // ---------------------------
+    // START GAME
+    // ---------------------------
+    document.getElementById('start-btn').addEventListener('click', () => {
+        const nameInput = document.getElementById('player-name').value.trim();
+        if (!nameInput) { alert('Sila masukkan nama anda!'); return; }
+        gameState.playerName = nameInput;
+        gameState.step = 'hangman';
+        gameState.score = 0;
+        gameState.timer = 0;
+        // pick 5 random hangman words and 5 random mcq questions
+        gameState.hangmanList = shuffleArray(fullHangmanBank).slice(0, gameState.hangmanQuestionCount);
+        gameState.mcqList = shuffleArray(fullMCQBank).slice(0, gameState.hangmanQuestionCount);
+        gameState.hangmanIndex = 0;
+        gameState.mcqIndex = 0;
+        startTimer();
+        startHangmanRound();
+    });
+
+    // ---------------------------
+    // HANGMAN LOGIC
+    // ---------------------------
+    function startHangmanRound() {
+        const entry = gameState.hangmanList[gameState.hangmanIndex];
+        gameState.hangmanWord = entry.word;
+        gameState.hangmanHint = entry.hint;
+        gameState.guessedLetters = [];
+        gameState.wrongGuesses = 0;
+        gameState.hintUsedThisWord = false;
+        document.getElementById('current-player').textContent = gameState.playerName;
+        document.getElementById('current-score').textContent = gameState.score;
+        document.getElementById('wrong-count').textContent = gameState.wrongGuesses;
+        document.getElementById('hangman-number').textContent = gameState.hangmanIndex + 1;
+        document.getElementById('hangman-result').classList.add('hidden');
+        document.getElementById('hint-box').textContent = 'Tekan butang "Hint" untuk mendapat petunjuk (percuma)';
+        const hintBtn = document.getElementById('hint-btn');
+        hintBtn.disabled = false;
+        hintBtn.textContent = '💡 Hint';
+        hintBtn.className = 'bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg transition-colors';
+        updateHangmanDisplay();
+        renderLetterButtons();
+        showScreen('hangman-screen');
+    }
+
+    function updateHangmanDisplay() {
+        const display = gameState.hangmanWord.split('').map(ch => {
+            return (gameState.guessedLetters.includes(ch) ? ch : '_');
+        }).join(' ');
+        document.getElementById('word-display').textContent = display;
+        document.getElementById('wrong-count').textContent = gameState.wrongGuesses;
+    }
+
+    function renderLetterButtons() {
+        const container = document.getElementById('letters-container');
+        container.innerHTML = '';
+        arabicLetters.forEach(letter => {
+            const btn = document.createElement('button');
+            btn.textContent = letter;
+            btn.className = 'letter-btn bg-purple-200 hover:bg-purple-300 text-purple-800 font-bold py-2 px-3 rounded-lg text-lg';
+            btn.addEventListener('click', () => guessLetter(letter, btn));
+            container.appendChild(btn);
+        });
+    }
+
+    function guessLetter(letter, button) {
+        // disable button immediately
+        button.disabled = true;
+        button.classList.add('bg-gray-300','text-gray-500');
+        if (gameState.guessedLetters.includes(letter)) return;
+        gameState.guessedLetters.push(letter);
+
+        if (gameState.hangmanWord.includes(letter)) {
+            playSound('correct');
+            gameState.score += 10;
+            document.getElementById('current-score').textContent = gameState.score;
+            button.classList.add('bg-green-300','text-green-800');
+            button.classList.remove('bg-gray-300','text-gray-500');
+        } else {
+            playSound('wrong');
+            gameState.wrongGuesses++;
+            button.classList.add('bg-red-300','text-red-800');
+            button.classList.remove('bg-gray-300','text-gray-500');
+        }
+
+        updateHangmanDisplay();
+
+        // check win
+        const allRevealed = gameState.hangmanWord.split('').every(ch => gameState.guessedLetters.includes(ch));
+        if (allRevealed) {
+            showTemporaryResult(true);
+        } else if (gameState.wrongGuesses >= 6) {
+            showTemporaryResult(false);
+        }
+    }
+
+    function showTemporaryResult(won) {
+        const res = document.getElementById('hangman-result');
+        if (won) {
+            res.textContent = '🎉 Tahniah! Jawapan betul: ' + gameState.hangmanWord;
+            res.classList.remove('hidden'); res.classList.add('text-green-600');
+        } else {
+            res.textContent = '😞 Permainan tamat! Jawapan: ' + gameState.hangmanWord;
+            res.classList.remove('hidden'); res.classList.add('text-red-600');
+        }
+        // short delay then next round or move to MCQ
+        setTimeout(() => {
+            gameState.hangmanIndex++;
+            if (gameState.hangmanIndex < gameState.hangmanQuestionCount) {
+                startHangmanRound();
+            } else {
+                // proceed to MCQ
+                startMCQGame();
+            }
+        }, 1400);
+    }
+
+    // Hint
+    document.getElementById('hint-btn').addEventListener('click', () => {
+        if (!gameState.hintUsedThisWord) {
+            document.getElementById('hint-box').innerHTML = `<strong>تلميح / Hint:</strong><br>${gameState.hangmanHint}`;
+            gameState.hintUsedThisWord = true;
+            // free hint (no penalty) — if you want penalty, reduce score here
+            const hintBtn = document.getElementById('hint-btn');
+            hintBtn.disabled = true;
+            hintBtn.textContent = '✓ Hint Digunakan';
+            hintBtn.className = 'bg-gray-400 text-gray-600 font-bold py-2 px-4 rounded-lg cursor-not-allowed';
+            playSound('correct');
+        } else {
+            document.getElementById('hint-box').textContent = 'Hint sudah digunakan untuk perkataan ini!';
+        }
+    });
+
+    // ---------------------------
+    // MCQ LOGIC
+    // ---------------------------
+    function startMCQGame() {
+        gameState.step = 'mcq';
+        gameState.mcqIndex = 0;
+        document.getElementById('mcq-player').textContent = gameState.playerName;
+        document.getElementById('mcq-score').textContent = gameState.score;
+        showScreen('mcq-screen');
+        showMCQQuestion();
+    }
+
+    function showMCQQuestion() {
+        const q = gameState.mcqList[gameState.mcqIndex];
+        document.getElementById('question-text').textContent = q.q;
+        document.getElementById('question-number').textContent = gameState.mcqIndex + 1;
+        const opts = shuffleArray(q.options);
+        const container = document.getElementById('mcq-options');
+        container.innerHTML = '';
+        opts.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.textContent = opt;
+            btn.className = 'w-full bg-blue-200 hover:bg-blue-300 text-blue-800 font-bold py-3 px-6 rounded-lg text-xl arabic-text transition-colors';
+            btn.addEventListener('click', () => handleMCQAnswer(opt, btn));
+            container.appendChild(btn);
+        });
+    }
+
+    function handleMCQAnswer(selectedOption, button) {
+        const q = gameState.mcqList[gameState.mcqIndex];
+        const correct = q.answer;
+        const buttons = Array.from(document.querySelectorAll('#mcq-options button'));
+        // disable all
+        buttons.forEach(b => b.disabled = true);
+        if (selectedOption === correct) {
+            playSound('correct');
+            gameState.score += 10;
+            document.getElementById('mcq-score').textContent = gameState.score;
+            // highlight selected as green
+            button.className = 'w-full bg-green-500 text-white font-bold py-3 px-6 rounded-lg text-xl arabic-text';
+        } else {
+            playSound('wrong');
+            // highlight selected red and correct green
+            button.className = 'w-full bg-red-500 text-white font-bold py-3 px-6 rounded-lg text-xl arabic-text';
+            buttons.forEach(b => {
+                if (b.textContent === correct) {
+                    b.className = 'w-full bg-green-500 text-white font-bold py-3 px-6 rounded-lg text-xl arabic-text';
+                } else if (b !== button) {
+                    b.className = 'w-full bg-gray-300 text-gray-600 font-bold py-3 px-6 rounded-lg text-xl arabic-text';
+                }
+            });
+        }
+
+        setTimeout(() => {
+            if (gameState.mcqIndex < gameState.mcqList.length - 1) {
+                gameState.mcqIndex++;
+                showMCQQuestion();
+            } else {
+                endGame();
+            }
+        }, 1200);
+    }
+
+    // ---------------------------
+    // END GAME & LEADERBOARD
+    // ---------------------------
+    function endGame() {
+        stopTimer();
+        // add to leaderboard
+        const newEntry = { name: gameState.playerName, score: gameState.score, timer: gameState.timer };
+        gameState.leaderboard.push(newEntry);
+        gameState.leaderboard.sort((a,b) => b.score - a.score || a.timer - b.timer);
+        gameState.leaderboard = gameState.leaderboard.slice(0,10);
+        localStorage.setItem('arabicGameLeaderboard', JSON.stringify(gameState.leaderboard));
+        showLeaderboard();
+    }
+
+    function showLeaderboard() {
+        showScreen('leaderboard-screen');
+        document.getElementById('final-score').innerHTML = `🎉 <strong>${gameState.playerName}</strong><br>Skor Akhir: <strong>${gameState.score}</strong> mata<br>Masa: <strong>${gameState.timer}</strong> saat`;
+        const list = document.getElementById('leaderboard-list');
+        list.innerHTML = '';
+        if (gameState.leaderboard.length === 0) {
+            list.innerHTML = '<p class="text-gray-500">Tiada rekod lagi</p>';
+            return;
+        }
+        gameState.leaderboard.forEach((entry, idx) => {
+            const div = document.createElement('div');
+            div.className = `flex justify-between items-center p-3 rounded-lg ${ entry.name===gameState.playerName && entry.score===gameState.score && entry.timer===gameState.timer ? 'bg-yellow-200 border-2 border-yellow-400' : 'bg-white' }`;
+            const medal = idx===0 ? '🥇' : idx===1 ? '🥈' : idx===2 ? '🥉' : `${idx+1}.`;
+            div.innerHTML = `<span class="font-bold">${medal} ${entry.name}</span><span>${entry.score} mata (${entry.timer}s)</span>`;
+            list.appendChild(div);
+        });
+    }
+
+    // Play again
+    document.getElementById('play-again-btn').addEventListener('click', () => {
+        stopTimer();
+        // reset minimal, keep leaderboard in storage
+        gameState = {
+            step: 'entry',
+            playerName: '',
+            timer: 0,
+            score: 0,
+            hangmanList: [],
+            hangmanIndex: 0,
+            hangmanWord: '',
+            hangmanHint: '',
+            guessedLetters: [],
+            wrongGuesses: 0,
+            hangmanQuestionCount: 5,
+            mcqList: [],
+            mcqIndex: 0,
+            hintUsedThisWord: false,
+            leaderboard: JSON.parse(localStorage.getItem('arabicGameLeaderboard') || '[]'),
+            timerInterval: null
+        };
+        document.getElementById('player-name').value = '';
+        updateTimerDisplays();
+        showScreen('entry-screen');
+    });
+
+    // Initialize
+    showScreen('entry-screen');
+    </script>
+</body>
+</html>
