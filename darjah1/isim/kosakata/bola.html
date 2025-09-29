@@ -1,0 +1,281 @@
+// Game variables
+let playerName = "";
+let score = 0;
+let timer = 0;
+let gameInterval;
+let leaderboard = JSON.parse(localStorage.getItem('arabicGameLeaderboard')) || [];
+
+// Game data
+const hangmanWords = [
+    { bm: "bola sepak", ar: "كُرَةُ القَدَم" },
+    { bm: "bulu tangkis", ar: "كُرَةُ الرِّيشَة" },
+    { bm: "bola baling", ar: "كُرَةُ اليَد" },
+    { bm: "bola keranjang", ar: "كُرَةُ السَّلَّة" },
+    { bm: "pingpong", ar: "كُرَةُ الطَّاوِلَة" },
+    { bm: "jalan", ar: "شارِع" },
+    { bm: "alamat", ar: "عُنوان" },
+    { bm: "nombor", ar: "رَقم" },
+    { bm: "rumah", ar: "بَيت" },
+    { bm: "apartmen", ar: "شَقّة" },
+    { bm: "tingkat", ar: "دَورٌ" }
+];
+
+const mcqBank = [
+    { q: "Apakah maksud 'jalan' dalam Bahasa Arab?", options: ["شارِع", "بَيت", "شَقّة", "رَقم"], answer: "شارِع" },
+    { q: "Apakah maksud 'apartmen' dalam Bahasa Arab?", options: ["شَقّة", "كُرَةُ اليَد", "دَورٌ", "عُنوان"], answer: "شَقّة" },
+    { q: "Apakah maksud 'tingkat' dalam Bahasa Arab?", options: ["دَورٌ", "شارِع", "كُرَةُ الطَّاوِلَة", "رَقم"], answer: "دَورٌ" },
+    { q: "Apakah maksud 'alamat' dalam Bahasa Arab?", options: ["عُنوان", "بَيت", "شارِع", "شَقّة"], answer: "عُنوان" },
+    { q: "Apakah maksud 'rumah' dalam Bahasa Arab?", options: ["بَيت", "كُرَةُ القَدَم", "رَقم", "شَقّة"], answer: "بَيت" },
+    { q: "Apakah maksud 'nombor' dalam Bahasa Arab?", options: ["رَقم", "عُنوان", "كُرَةُ السَّلَّة", "شارِع"], answer: "رَقم" }
+];
+
+// Hangman variables
+let hangmanQuestions = [];
+let currentHangmanIndex = 0;
+let currentWordObj = {};
+let guessedLetters = [];
+let mistakes = 0;
+let maxMistakes = 6;
+
+// MCQ variables
+let currentQuestions = [];
+let currentQuestionIndex = 0;
+let selectedAnswer = "";
+
+// ------------------- Start Game -------------------
+function startGame() {
+    const nameInput = document.getElementById('playerNameInput');
+    playerName = nameInput.value.trim();
+    if (!playerName) {
+        alert('Sila masukkan nama anda!');
+        return;
+    }
+
+    score = 0;
+    timer = 0;
+
+    // Start timer
+    gameInterval = setInterval(() => {
+        timer++;
+        document.getElementById('timerDisplay').textContent = timer;
+    }, 1000);
+
+    // Update display
+    document.getElementById('playerNameDisplay').textContent = playerName;
+    document.getElementById('scoreDisplay').textContent = score;
+
+    // Show stats and hide start screen
+    document.getElementById('stats').classList.remove('hidden');
+    document.getElementById('startScreen').classList.add('hidden');
+
+    // Select 5 random hangman words
+    hangmanQuestions = [...hangmanWords].sort(() => 0.5 - Math.random()).slice(0, 5);
+    currentHangmanIndex = 0;
+
+    startHangman();
+}
+
+// ------------------- Hangman -------------------
+function startHangman() {
+    if (currentHangmanIndex >= hangmanQuestions.length) {
+        startMCQ();
+        return;
+    }
+
+    currentWordObj = hangmanQuestions[currentHangmanIndex];
+    guessedLetters = [];
+    mistakes = 0;
+
+    document.getElementById('hangmanQuestion').textContent =
+        `Soalan ${currentHangmanIndex + 1}/5: Apakah Bahasa Arab bagi '${currentWordObj.bm}' ?`;
+
+    renderWord();
+    generateKeyboard();
+    document.getElementById('attemptsDisplay').textContent = `Percubaan: ${maxMistakes}`;
+    document.getElementById('hangmanFeedback').classList.add('hidden');
+
+    document.getElementById('hangmanScreen').classList.remove('hidden');
+    document.getElementById('mcqScreen').classList.add('hidden');
+    document.getElementById('resultsScreen').classList.add('hidden');
+}
+
+function renderWord() {
+    const display = currentWordObj.ar.split("").map(ch => {
+        if (" ًٌٍَُِّ".includes(ch)) return ch;
+        return guessedLetters.includes(ch) ? ch : "_";
+    }).join(" ");
+
+    document.getElementById('wordDisplay').textContent = display;
+
+    if (!display.includes("_")) {
+        score += 10;
+        document.getElementById('scoreDisplay').textContent = score;
+        showFeedback('hangmanFeedback', '✅ Betul! +10 markah', 'correct');
+        setTimeout(() => {
+            currentHangmanIndex++;
+            startHangman();
+        }, 1500);
+    }
+}
+
+function generateKeyboard() {
+    const letters = "ابتثجحخدذرزسشصضطظعغفقكلمنهويةة".split("");
+    document.getElementById("keyboard").innerHTML = letters.map(letter =>
+        `<button class="letter-btn" id="${letter}" onclick="handleGuess('${letter}')">${letter}</button>`
+    ).join("");
+}
+
+function handleGuess(chosenLetter) {
+    if (guessedLetters.includes(chosenLetter)) return;
+
+    guessedLetters.push(chosenLetter);
+    document.getElementById(chosenLetter).disabled = true;
+
+    if (currentWordObj.ar.includes(chosenLetter)) {
+        renderWord();
+    } else {
+        mistakes++;
+        showFeedback('hangmanFeedback', '❌ Salah!', 'incorrect');
+        document.getElementById('attemptsDisplay').textContent = `Percubaan: ${maxMistakes - mistakes}`;
+        if (mistakes >= maxMistakes) {
+            showFeedback('hangmanFeedback', `❌ Habis nyawa! Jawapan: ${currentWordObj.ar}`, 'incorrect');
+            setTimeout(() => {
+                currentHangmanIndex++;
+                startHangman();
+            }, 2000);
+        }
+    }
+}
+
+// ------------------- MCQ -------------------
+function startMCQ() {
+    currentQuestions = [...mcqBank].sort(() => 0.5 - Math.random()).slice(0, 5);
+    currentQuestionIndex = 0;
+
+    document.getElementById('hangmanScreen').classList.add('hidden');
+    document.getElementById('mcqScreen').classList.remove('hidden');
+
+    showQuestion();
+}
+
+function showQuestion() {
+    if (currentQuestionIndex >= currentQuestions.length) {
+        endGame();
+        return;
+    }
+
+    const question = currentQuestions[currentQuestionIndex];
+    selectedAnswer = "";
+
+    const progress = ((currentQuestionIndex + 1) / currentQuestions.length) * 100;
+    document.getElementById('progressFill').style.width = progress + '%';
+    document.getElementById('questionText').textContent = `Soalan ${currentQuestionIndex + 1}/5: ${question.q}`;
+
+    const optionsContainer = document.getElementById('optionsContainer');
+    optionsContainer.innerHTML = '';
+
+    question.options.forEach((option, index) => {
+        const optionDiv = document.createElement('div');
+        optionDiv.className = 'option';
+        optionDiv.textContent = `${String.fromCharCode(65 + index)}: ${option}`;
+        optionDiv.onclick = () => selectOption(option, optionDiv);
+        optionsContainer.appendChild(optionDiv);
+    });
+
+    document.getElementById('mcqFeedback').classList.add('hidden');
+    document.getElementById('nextBtn').classList.add('hidden');
+}
+
+function selectOption(option, element) {
+    document.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+    element.classList.add('selected');
+    selectedAnswer = option;
+    setTimeout(() => checkAnswer(), 500);
+}
+
+function checkAnswer() {
+    if (!selectedAnswer) return;
+
+    const question = currentQuestions[currentQuestionIndex];
+    const isCorrect = selectedAnswer === question.answer;
+
+    if (isCorrect) {
+        showFeedback('mcqFeedback', '✅ Betul! Hebat!', 'correct');
+        score += 10;
+    } else {
+        const correctIndex = question.options.indexOf(question.answer);
+        const correctLetter = String.fromCharCode(65 + correctIndex);
+        showFeedback('mcqFeedback', `❌ Salah! Jawapan betul: ${correctLetter} = ${question.answer}`, 'incorrect');
+    }
+
+    document.getElementById('scoreDisplay').textContent = score;
+    document.getElementById('nextBtn').classList.remove('hidden');
+}
+
+function nextQuestion() {
+    currentQuestionIndex++;
+    showQuestion();
+}
+
+// ------------------- Utility -------------------
+function showFeedback(elementId, message, type) {
+    const feedback = document.getElementById(elementId);
+    feedback.textContent = message;
+    feedback.className = `feedback ${type}`;
+    feedback.classList.remove('hidden');
+}
+
+function endGame() {
+    clearInterval(gameInterval);
+    leaderboard.push({ name: playerName, score, time: timer });
+    leaderboard.sort((a, b) => b.score - a.score || a.time - b.time);
+    leaderboard = leaderboard.slice(0, 10);
+    localStorage.setItem('arabicGameLeaderboard', JSON.stringify(leaderboard));
+
+    document.getElementById('mcqScreen').classList.add('hidden');
+    document.getElementById('resultsScreen').classList.remove('hidden');
+    document.getElementById('finalScore').innerHTML = `
+        <h3>📊 Keputusan Anda:</h3>
+        <p><strong>Markah:</strong> ${score}</p>
+        <p><strong>Masa:</strong> ${timer} saat</p>
+        <p><strong>Prestasi:</strong> ${getPerformanceMessage()}</p>
+    `;
+}
+
+function getPerformanceMessage() {
+    if (score >= 80) return "🌟 Cemerlang!";
+    if (score >= 60) return "👍 Bagus!";
+    if (score >= 40) return "😊 Boleh tahan!";
+    return "💪 Teruskan usaha!";
+}
+
+function showLeaderboard() {
+    const leaderboardList = document.getElementById('leaderboardList');
+    leaderboardList.innerHTML = '';
+    if (leaderboard.length === 0) {
+        leaderboardList.innerHTML = '<p>Tiada rekod lagi. Jadilah yang pertama!</p>';
+    } else {
+        leaderboard.forEach((player, index) => {
+            const item = document.createElement('div');
+            item.className = 'leaderboard-item';
+            item.innerHTML = `<span>${index + 1}. ${player.name}</span>
+                              <span>${player.score} markah (${player.time}s)</span>`;
+            leaderboardList.appendChild(item);
+        });
+    }
+    document.getElementById('leaderboardSection').classList.remove('hidden');
+}
+
+function restartGame() {
+    document.getElementById('stats').classList.add('hidden');
+    document.getElementById('resultsScreen').classList.add('hidden');
+    document.getElementById('leaderboardSection').classList.add('hidden');
+    document.getElementById('startScreen').classList.remove('hidden');
+    document.getElementById('playerNameInput').value = '';
+    if (gameInterval) clearInterval(gameInterval);
+}
+
+// Allow Enter key
+document.getElementById('playerNameInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') startGame();
+});
