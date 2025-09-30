@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>كويز النحو العربي - الضمير المتصل والفعل المضارع</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            font-family: 'Amiri', 'Times New Roman', serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+
+        .game-area {
+            padding: 40px;
+        }
+
+        .welcome-screen {
+            text-align: center;
+        }
+
+        .welcome-screen h2 {
+            color: #4CAF50;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        .name-input {
+            width: 300px;
+            padding: 15px;
+            font-size: 1.2em;
+            border: 3px solid #4CAF50;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+            font-family: inherit;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            margin: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: space-between;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .question-container {
+            background: #fff;
+            border: 3px solid #4CAF50;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .question-text {
+            font-size: 2em;
+            color: #333;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .option-btn {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+            color: white;
+            border: none;
+            padding: 20px;
+            font-size: 1.3em;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .option-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+        }
+
+        .option-btn.correct {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            animation: correctPulse 0.6s ease;
+        }
+
+        .option-btn.incorrect {
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+            animation: incorrectShake 0.6s ease;
+        }
+
+        @keyframes correctPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes incorrectShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .feedback {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #4CAF50;
+        }
+
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f44336;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            transition: width 0.3s ease;
+        }
+
+        .final-score {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .final-score h2 {
+            color: #4CAF50;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .score-display {
+            font-size: 3em;
+            color: #2196F3;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .leaderboard {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .leaderboard h3 {
+            color: #4CAF50;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .timer {
+            font-size: 1.2em;
+            color: #ff9800;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            .options {
+                grid-template-columns: 1fr;
+            }
+            
+            .game-stats {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .question-text {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 كويز النحو العربي</h1>
+            <div class="subtitle">الضمير المتصل والفعل المضارع - السنة الثانية</div>
+        </div>
+
+        <div class="game-area">
+            <!-- Welcome Screen -->
+            <div id="welcomeScreen" class="welcome-screen">
+                <h2>🌟 أهلاً وسهلاً بك في كويز النحو!</h2>
+                <p style="font-size: 1.2em; margin: 20px 0;">سوف تجيب على 10 أسئلة عن الضمير المتصل والفعل المضارع</p>
+                <input type="text" id="playerNameInput" class="name-input" placeholder="اكتب اسمك هنا..." maxlength="20">
+                <br>
+                <button class="btn" onclick="startGame()">🚀 ابدأ اللعب</button>
+            </div>
+
+            <!-- Game Screen -->
+            <div id="gameScreen" class="hidden">
+                <div class="game-stats">
+                    <div>👤 اللاعب: <span id="playerName"></span></div>
+                    <div>📊 النقاط: <span id="currentScore">0</span></div>
+                    <div>❓ السؤال: <span id="questionNumber">1</span>/10</div>
+                    <div class="timer">⏱️ الوقت: <span id="timer">0</span>s</div>
+                </div>
+
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+
+                <div class="question-container">
+                    <div class="question-text" id="questionText"></div>
+                    <div class="options" id="optionsContainer"></div>
+                </div>
+
+                <div id="feedback" class="feedback hidden"></div>
+            </div>
+
+            <!-- Final Score Screen -->
+            <div id="finalScreen" class="final-score hidden">
+                <h2>🎉 انتهت اللعبة!</h2>
+                <div class="score-display" id="finalScore"></div>
+                <div id="performanceMessage"></div>
+                
+                <div class="leaderboard">
+                    <h3>🏆 لوحة الشرف</h3>
+                    <div id="leaderboardList"></div>
+                </div>
+
+                <button class="btn" onclick="resetGame()">🔄 العب مرة أخرى</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let playerName = "";
+        let score = 0;
+        let currentQuestion = 0;
+        let timer = 0;
+        let timerInterval;
+        let leaderboard = JSON.parse(localStorage.getItem('arabicQuizLeaderboard')) || [];
+        let isAnswered = false;
+
+        // Bank soalan (30 soalan, rawak 10 setiap game)
+        let questionsBank = [
+            // Dhomir Muttasil (Isim + Dhomir)
+            { q: "كِتَاب + هو", a: "كِتَابُهُ", b: "كِتَابُهَا", c: "كِتَابُكَ", d: "كِتَابِي", correct: "a" },
+            { q: "كِتَاب + هي", a: "كِتَابُهُ", b: "كِتَابُهَا", c: "كِتَابُكِ", d: "كِتَابُنَا", correct: "b" },
+            { q: "كِتَاب + أنتَ", a: "كِتَابُكَ", b: "كِتَابُهَا", c: "كِتَابِي", d: "كِتَابُنَا", correct: "a" },
+            { q: "كِتَاب + أنتِ", a: "كِتَابُكَ", b: "كِتَابُكِ", c: "كِتَابُهُ", d: "كِتَابِي", correct: "b" },
+            { q: "كِتَاب + أنا", a: "كِتَابُهُ", b: "كِتَابُكَ", c: "كِتَابِي", d: "كِتَابُنَا", correct: "c" },
+            { q: "كِتَاب + نحن", a: "كِتَابُكَ", b: "كِتَابُهَا", c: "كِتَابِي", d: "كِتَابُنَا", correct: "d" },
+            { q: "قَلَم + هو", a: "قَلَمُهُ", b: "قَلَمُهَا", c: "قَلَمُكَ", d: "قَلَمِي", correct: "a" },
+            { q: "قَلَم + هي", a: "قَلَمُهُ", b: "قَلَمُهَا", c: "قَلَمُكَ", d: "قَلَمِي", correct: "b" },
+            { q: "قَلَم + أنتَ", a: "قَلَمُكَ", b: "قَلَمُهُ", c: "قَلَمُهَا", d: "قَلَمُنَا", correct: "a" },
+            { q: "قَلَم + أنا", a: "قَلَمُكَ", b: "قَلَمُهُ", c: "قَلَمِي", d: "قَلَمُنَا", correct: "c" },
+
+            // Fi'il Mudhari'
+            { q: "يكتب + هو", a: "يكتبُ", b: "تكتبُ", c: "أكتبُ", d: "نكتبُ", correct: "a" },
+            { q: "يكتب + هي", a: "يكتبُ", b: "تكتبُ", c: "أكتبُ", d: "نكتبُ", correct: "b" },
+            { q: "يكتب + أنتَ", a: "تلعبُ", b: "تكتبُ", c: "أكتبُ", d: "نكتبُ", correct: "b" },
+            { q: "يكتب + أنتِ", a: "تكتبينَ", b: "تكتبُ", c: "أكتبُ", d: "نكتبُ", correct: "a" },
+            { q: "يكتب + أنا", a: "يكتبُ", b: "تكتبُ", c: "أكتبُ", d: "نكتبُ", correct: "c" },
+            { q: "يكتب + نحن", a: "يكتبُ", b: "تكتبُ", c: "أكتبُ", d: "نكتبُ", correct: "d" },
+            { q: "يقرأ + هو", a: "يقرأُ", b: "تقرأُ", c: "أقرأُ", d: "نقرأُ", correct: "a" },
+            { q: "يقرأ + هي", a: "يقرأُ", b: "تقرأُ", c: "أقرأُ", d: "نقرأُ", correct: "b" },
+            { q: "يقرأ + أنا", a: "يقرأُ", b: "تقرأُ", c: "أقرأُ", d: "نقرأُ", correct: "c" },
+            { q: "يقرأ + نحن", a: "يقرأُ", b: "تقرأُ", c: "أقرأُ", d: "نقرأُ", correct: "d" },
+            { q: "يلعب + هو", a: "يلعبُ", b: "تلعبُ", c: "ألعبُ", d: "نلعبُ", correct: "a" },
+            { q: "يلعب + أنتَ", a: "يلعبُ", b: "تلعبُ", c: "ألعبُ", d: "نلعبُ", correct: "b" },
+            { q: "يلعب + أنتِ", a: "يلعبُ", b: "تلعبينَ", c: "ألعبُ", d: "نلعبُ", correct: "b" },
+            { q: "يلعب + أنا", a: "يلعبُ", b: "تلعبُ", c: "ألعبُ", d: "نلعبُ", correct: "c" },
+            { q: "يلعب + نحن", a: "يلعبُ", b: "تلعبُ", c: "ألعبُ", d: "نلعبُ", correct: "d" },
+            { q: "يجلس + هو", a: "يجلسُ", b: "تجلسُ", c: "أجلسُ", d: "نجلسُ", correct: "a" },
+            { q: "يجلس + هي", a: "يجلسُ", b: "تجلسُ", c: "أجلسُ", d: "نجلسُ", correct: "b" },
+            { q: "يجلس + أنا", a: "يجلسُ", b: "تجلسُ", c: "أجلسُ", d: "نجلسُ", correct: "c" },
+            { q: "يجلس + نحن", a: "يجلسُ", b: "تجلسُ", c: "أجلسُ", d: "نجلسُ", correct: "d" },
+            { q: "يشرب + أنتِ", a: "يشربُ", b: "تشربينَ", c: "أشربُ", d: "نشربُ", correct: "b" }
+        ];
+
+        let selectedQuestions = [];
+
+        // Shuffle soalan
+        function shuffle(array) {
+            return array.sort(() => Math.random() - 0.5);
+        }
+
+        // Fungsi mula
+        function startGame() {
+            const nameInput = document.getElementById('playerNameInput').value.trim();
+            if (!nameInput) {
+                alert('من فضلك اكتب اسمك أولاً!');
+                return;
+            }
+            
+            playerName = nameInput;
+            score = 0;
+            currentQuestion = 0;
+            timer = 0;
+            isAnswered = false;
+            selectedQuestions = shuffle([...questionsBank]).slice(0, 10);
+            
+            document.getElementById('welcomeScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('hidden');
+            document.getElementById('playerName').textContent = playerName;
+            
+            timerInterval = setInterval(() => {
+                timer++;
+                document.getElementById('timer').textContent = timer;
+            }, 1000);
+            
+            loadQuestion();
+        }
+
+        // Papar soalan
+        function loadQuestion() {
+            if (currentQuestion < selectedQuestions.length) {
+                isAnswered = false;
+                const q = selectedQuestions[currentQuestion];
+                
+                document.getElementById('questionText').textContent = q.q;
+                document.getElementById('questionNumber').textContent = currentQuestion + 1;
+                document.getElementById('currentScore').textContent = score;
+                
+                const progress = ((currentQuestion) / selectedQuestions.length) * 100;
+                document.getElementById('progressFill').style.width = progress + '%';
+                
+                const optionsContainer = document.getElementById('optionsContainer');
+                optionsContainer.innerHTML = '';
+                
+                const options = [
+                    { key: 'a', text: q.a },
+                    { key: 'b', text: q.b },
+                    { key: 'c', text: q.c },
+                    { key: 'd', text: q.d }
+                ];
+                
+                options.forEach(option => {
+                    const btn = document.createElement('button');
+                    btn.className = 'option-btn';
+                    btn.textContent = option.text;
+                    btn.onclick = () => checkAnswer(option.key, btn);
+                    optionsContainer.appendChild(btn);
+                });
+                
+                document.getElementById('feedback').classList.add('hidden');
+            } else {
+                endGame();
+            }
+        }
+
+        // Semak jawapan
+        function checkAnswer(selectedAnswer, buttonElement) {
+            if (isAnswered) return;
+            isAnswered = true;
+            
+            const q = selectedQuestions[currentQuestion];
+            const feedbackElement = document.getElementById('feedback');
+            const allButtons = document.querySelectorAll('.option-btn');
+            
+            // Disable all buttons
+            allButtons.forEach(btn => btn.style.pointerEvents = 'none');
+            
+            if (selectedAnswer === q.correct) {
+                score += 10;
+                buttonElement.classList.add('correct');
+                feedbackElement.textContent = '🎉 أحسنت! إجابة صحيحة!';
+                feedbackElement.className = 'feedback correct';
+            } else {
+                buttonElement.classList.add('incorrect');
+                // Show correct answer
+                allButtons.forEach(btn => {
+                    if (btn.textContent === q[q.correct]) {
+                        btn.classList.add('correct');
+                    }
+                });
+                feedbackElement.textContent = '❌ إجابة خاطئة! الإجابة الصحيحة: ' + q[q.correct];
+                feedbackElement.className = 'feedback incorrect';
+            }
+            
+            feedbackElement.classList.remove('hidden');
+            document.getElementById('currentScore').textContent = score;
+            
+            // Move to next question after delay
+            setTimeout(() => {
+                currentQuestion++;
+                loadQuestion();
+            }, 2000);
+        }
+
+        // Tamat game
+        function endGame() {
+            clearInterval(timerInterval);
+            
+            document.getElementById('gameScreen').classList.add('hidden');
+            document.getElementById('finalScreen').classList.remove('hidden');
+            
+            const finalScore = document.getElementById('finalScore');
+            finalScore.textContent = score + '/100';
+            
+            const performanceMessage = document.getElementById('performanceMessage');
+            let message = '';
+            if (score >= 90) {
+                message = '🌟 ممتاز جداً! أنت بطل النحو!';
+            } else if (score >= 70) {
+                message = '👏 أحسنت! أداء جيد جداً!';
+            } else if (score >= 50) {
+                message = '👍 جيد! يمكنك التحسن أكثر!';
+            } else {
+                message = '💪 لا بأس! تدرب أكثر وستتحسن!';
+            }
+            performanceMessage.innerHTML = `<p style="font-size: 1.3em; margin: 20px 0;">${message}</p>
+                                          <p>وقت الإنجاز: ${timer} ثانية</p>`;
+            
+            // Update leaderboard
+            updateLeaderboard();
+        }
+
+        function updateLeaderboard() {
+            const playerData = {
+                name: playerName,
+                score: score,
+                time: timer,
+                date: new Date().toLocaleDateString('ar')
+            };
+            
+            leaderboard.push(playerData);
+            leaderboard.sort((a, b) => {
+                if (b.score !== a.score) return b.score - a.score;
+                return a.time - b.time;
+            });
+            leaderboard = leaderboard.slice(0, 5); // Keep top 5
+            
+            localStorage.setItem('arabicQuizLeaderboard', JSON.stringify(leaderboard));
+            displayLeaderboard();
+        }
+
+        function displayLeaderboard() {
+            const leaderboardList = document.getElementById('leaderboardList');
+            leaderboardList.innerHTML = '';
+            
+            if (leaderboard.length === 0) {
+                leaderboardList.innerHTML = '<p style="text-align: center; color: #666;">لا توجد نتائج بعد</p>';
+                return;
+            }
+            
+            leaderboard.forEach((player, index) => {
+                const item = document.createElement('div');
+                item.className = 'leaderboard-item';
+                const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '🏅';
+                item.innerHTML = `
+                    <span>${medal} ${player.name}</span>
+                    <span>${player.score}/100 (${player.time}s)</span>
+                `;
+                leaderboardList.appendChild(item);
+            });
+        }
+
+        function resetGame() {
+            document.getElementById('finalScreen').classList.add('hidden');
+            document.getElementById('welcomeScreen').classList.remove('hidden');
+            document.getElementById('playerNameInput').value = '';
+        }
+
+        // Initialize leaderboard display
+        displayLeaderboard();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9870e5266054d4a9',t:'MTc1OTIwNTY4NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
