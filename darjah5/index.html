@@ -1,150 +1,159 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="ms">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menu Esei</title>
+    <title>Karangan Bahasa Arab</title>
     <style>
-        body { 
-            margin: 0; 
-            background-color: #f9f7f3; 
-            color: #3a3a3a; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            text-align: center;
-            line-height: 1.6;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px 20px;
-        }
-        h1 { 
-            padding-top: 30px; 
-            color: #4a6d7c;
-            font-weight: 300;
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
-        .subtitle {
-            color: #6a8d9d;
-            font-weight: 300;
-            margin-bottom: 40px;
-        }
-        .menu { 
-            display: flex; 
-            justify-content: center; 
-            gap: 25px; 
-            flex-wrap: wrap; 
-            margin-top: 30px; 
-        }
-        .menu-item {
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Century Gothic', 'Futura', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #fff8e1 0%, #f3e5ab 100%);
+            min-height: 100vh;
             display: flex;
-            flex-direction: column;
             align-items: center;
-            text-decoration: none;
-            width: 200px;
-            background-color: white;
-            border-radius: 12px;
-            padding: 25px 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
-        }
-        .menu-item:hover { 
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        }
-        .icon {
-            font-size: 2.5rem;
-            margin-bottom: 15px;
-            color: #4a6d7c;
-        }
-        .menu-title {
-            color: #3a3a3a;
-            font-size: 1.2rem;
-            font-weight: 500;
-        }
-        .decoration {
-            position: absolute;
-            z-index: -1;
-            opacity: 0.4;
-        }
-        .decoration-1 {
-            top: 10%;
-            left: 5%;
-            color: #a7c5d5;
-            font-size: 3rem;
-        }
-        .decoration-2 {
-            bottom: 15%;
-            right: 8%;
-            color: #d5c7a7;
-            font-size: 2.5rem;
-        }
-        .decoration-3 {
-            top: 40%;
-            right: 15%;
-            color: #a7d5b2;
-            font-size: 2rem;
-        }
-        footer {
-            margin-top: 60px;
-            color: #888;
-            font-size: 0.9rem;
+            justify-content: center;
         }
 
-        /* Essay page styles */
-        .essay-container {
+        .container {
             max-width: 800px;
-            margin: 0 auto;
-            padding: 40px 20px;
-            background-color: white;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            width: 90%;
+            background: #fffef7;
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            padding: 40px;
+            text-align: center;
+            border: 3px solid #f0e68c;
         }
-        .essay-title {
-            color: #4a6d7c;
-            font-weight: 300;
-            font-size: 2.2rem;
-            margin-bottom: 30px;
+
+        h1 {
+            color: #8b4513;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.2);
+            font-weight: 900;
+            letter-spacing: 2px;
         }
-        .content {
-            text-align: left;
-            padding: 20px;
-            line-height: 1.8;
+
+        .subtitle {
+            color: #cd853f;
+            font-size: 1.3rem;
+            margin-bottom: 40px;
+            font-style: italic;
+            font-weight: 700;
         }
-        .content p {
-            font-size: 1.2rem;
-            margin-bottom: 20px;
+
+        .menu {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
         }
-        .arabic-text {
-            font-size: 1.6rem;
-            line-height: 2;
-            margin: 30px 0;
-            color: #4a6d7c;
-            text-align: right;
-            direction: rtl;
-        }
-        .essay-image {
-            max-width: 100%;
-            border-radius: 10px;
-            margin: 30px 0;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        .back-link {
-            display: inline-block;
-            margin-top: 40px;
-            color: #4a6d7c;
+
+        .menu-item {
+            background: linear-gradient(145deg, #fff9e6, #f5f0d8);
+            border-radius: 20px;
+            padding: 30px 20px;
             text-decoration: none;
-            font-weight: 500;
+            color: #8b4513;
             transition: all 0.3s ease;
+            border: 2px solid #f0e68c;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            position: relative;
+            overflow: hidden;
         }
-        .back-link:hover {
-            color: #2c414b;
+
+        .menu-item:hover {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+            background: linear-gradient(145deg, #fff, #f8f3e6);
         }
-        .back-icon {
-            margin-right: 8px;
+
+        .menu-item::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(240,230,140,0.1) 0%, transparent 70%);
+            transform: rotate(45deg);
+            transition: all 0.3s ease;
+            opacity: 0;
+        }
+
+        .menu-item:hover::before {
+            opacity: 1;
+        }
+
+        .icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .menu-title {
+            font-size: 1.2rem;
+            font-weight: 900;
+            position: relative;
+            z-index: 1;
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        /* Specific colors for each topic */
+        .menu-item:nth-child(1) .icon { color: #ff6b6b; } /* Family - warm red */
+        .menu-item:nth-child(2) .icon { color: #4ecdc4; } /* School - teal */
+        .menu-item:nth-child(3) .icon { color: #45b7d1; } /* Market - blue */
+        .menu-item:nth-child(4) .icon { color: #96ceb4; } /* Zoo - green */
+
+        footer {
+            color: #cd853f;
+            font-size: 1rem;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px dashed #f0e68c;
+            font-weight: 700;
+        }
+
+        /* Responsive design */
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .menu {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .menu-item {
+                padding: 25px 15px;
+            }
+            
+            .icon {
+                font-size: 2.5rem;
+            }
+        }
+
+        /* Add some playful animations */
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .container {
+            animation: bounce 2s ease-in-out;
         }
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <div class="container">
@@ -153,38 +162,24 @@
         
         <div class="menu">
             <a href="esei1/index.html" class="menu-item">
-                <div class="icon"><i class="fas fa-home"></i></div>
+                <div class="icon">🏠</div>
                 <div class="menu-title">Keluargaku</div>
             </a>
             <a href="esei3/index.html" class="menu-item">
-                <div class="icon"><i class="fas fa-school"></i></div>
+                <div class="icon">🏫</div>
                 <div class="menu-title">Sekolahku</div>
             </a>
             <a href="esei31/index.html" class="menu-item">
-                <div class="icon"><i class="fas fa-shopping-cart"></i></div>
+                <div class="icon">🛒</div>
                 <div class="menu-title">Pasar</div>
             </a>
             <a href="esei4.html" class="menu-item">
-                <div class="icon"><i class="fas fa-star"></i></div>
-                <div class="menu-title">Esei 4</div>
+                <div class="icon">🦁</div>
+                <div class="menu-title">Lawatan ke zoo</div>
             </a>
         </div>
         
         <footer>© 2023 Karangan Bahasa Arab</footer>
     </div>
-    
-    <div class="decoration decoration-1"><i class="fas fa-leaf"></i></div>
-    <div class="decoration decoration-2"><i class="fas fa-cloud"></i></div>
-    <div class="decoration decoration-3"><i class="fas fa-sun"></i></div>
-
-    <!-- Essay 1 Page (Hidden by default, would be in separate file) -->
-    <div class="essay-container" style="display: none;">
-        <h1 class="essay-title">Keluargaku</h1>
-        <div class="content">
-            <div class="arabic-text">مَن جَدَّ وَجَدَ، وَمَنْ زَرَعَ حَصَدَ</div>
-            <img src="gambar-esei1.jpg" alt="Gambar Esei 1" class="essay-image">
-        </div>
-        <a href="index.html" class="back-link"><i class="fas fa-arrow-left back-icon"></i>Kembali ke Menu Utama</a>
-    </div>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'960878011097e581',t:'MTc1Mjc0MTk4NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'987a1b2e506fe0b4',t:'MTc1OTMwMjI2OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
