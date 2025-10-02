@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mari Makan dan Minum - Kuis Bahasa Arab</title>
+  <style>
+    body {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      padding: 40px;
+      max-width: 600px;
+      width: 100%;
+      text-align: center;
+    }
+
+    h2 {
+      color: #333;
+      margin-bottom: 30px;
+      font-size: 2.2em;
+      font-weight: 700;
+    }
+
+    .game-stats {
+      display: flex;
+      justify-content: space-between;
+      background: #f8f9fa;
+      padding: 15px 20px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      font-weight: 600;
+      color: #495057;
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .stat-label {
+      font-size: 0.9em;
+      opacity: 0.8;
+    }
+
+    .stat-value {
+      font-size: 1.2em;
+      color: #667eea;
+    }
+
+    #game, #leaderboard {
+      display: none;
+    }
+
+    .input-group {
+      margin-bottom: 30px;
+    }
+
+    #playerName {
+      padding: 15px 20px;
+      border: 2px solid #e9ecef;
+      border-radius: 12px;
+      font-size: 1.1em;
+      width: 100%;
+      max-width: 300px;
+      margin-bottom: 20px;
+      transition: border-color 0.3s ease;
+    }
+
+    #playerName:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .btn {
+      padding: 15px 30px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 1.1em;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      margin: 8px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .option {
+      display: block;
+      width: 100%;
+      max-width: 400px;
+      margin: 12px auto;
+      background: #f8f9fa;
+      color: #333;
+      text-align: center;
+      font-size: 1.2em;
+      padding: 18px 25px;
+      border: 2px solid transparent;
+    }
+
+    .option:hover {
+      background: #e9ecef;
+      border-color: #667eea;
+      transform: translateY(-1px);
+    }
+
+    .correct {
+      background: linear-gradient(135deg, #28a745, #20c997) !important;
+      color: white !important;
+      border-color: #28a745 !important;
+    }
+
+    .wrong {
+      background: linear-gradient(135deg, #dc3545, #fd7e14) !important;
+      color: white !important;
+      border-color: #dc3545 !important;
+    }
+
+    #question {
+      font-size: 1.4em;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 30px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      border-left: 5px solid #667eea;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #e9ecef;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+      width: 0%;
+    }
+
+    .leaderboard-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+      margin: 10px 0;
+      background: #f8f9fa;
+      border-radius: 12px;
+      border-left: 4px solid #667eea;
+    }
+
+    .leaderboard-item:first-child {
+      background: linear-gradient(135deg, #ffd700, #ffed4e);
+      border-left-color: #ffd700;
+    }
+
+    .leaderboard-item:nth-child(2) {
+      background: linear-gradient(135deg, #c0c0c0, #e5e5e5);
+      border-left-color: #c0c0c0;
+    }
+
+    .leaderboard-item:nth-child(3) {
+      background: linear-gradient(135deg, #cd7f32, #daa520);
+      border-left-color: #cd7f32;
+    }
+
+    .player-info {
+      font-weight: 600;
+      color: #333;
+    }
+
+    .player-stats {
+      font-size: 0.9em;
+      color: #666;
+    }
+
+    .restart-btn {
+      margin-top: 20px;
+      background: linear-gradient(135deg, #28a745, #20c997);
+      color: white;
+    }
+
+    .restart-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(40, 167, 69, 0.3);
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 20px;
+        margin: 10px;
+      }
+      
+      .game-stats {
+        flex-direction: column;
+        gap: 10px;
+      }
+      
+      h2 {
+        font-size: 1.8em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🍽️ Mari Makan dan Minum</h2>
+    <p style="color: #666; margin-bottom: 30px;">Belajar kosakata makanan dan minuman dalam Bahasa Arab</p>
+
+    <div id="start">
+      <div class="input-group">
+        <input id="playerName" placeholder="Masukkan nama anda" maxlength="20">
+        <br>
+        <button class="btn btn-primary" onclick="startGame()">🚀 Mula Permainan</button>
+      </div>
+    </div>
+
+    <div id="game">
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      
+      <div class="game-stats">
+        <div class="stat-item">
+          <span class="stat-label">Pemain</span>
+          <span class="stat-value" id="showName"></span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Masa</span>
+          <span class="stat-value"><span id="timer">0</span>s</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Skor</span>
+          <span class="stat-value" id="score">0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Soalan</span>
+          <span class="stat-value"><span id="questionNum">1</span>/10</span>
+        </div>
+      </div>
+      
+      <div id="question"></div>
+      <div id="options"></div>
+    </div>
+
+    <div id="leaderboard">
+      <h3>🏆 Papan Pendahulu</h3>
+      <div id="board"></div>
+      <button class="btn restart-btn" onclick="restartGame()">🔄 Main Lagi</button>
+    </div>
+  </div>
+
+<script>
+let questions = [
+  {q:"Apakah maksud 'roti'?", a:"خُبْزٌ", opts:["بَيْضٌ","خُبْزٌ","دَجَاجٌ","لَحْمٌ"]},
+  {q:"Apakah maksud 'telur'?", a:"بَيْضٌ", opts:["سَمَكٌ","بَيْضٌ","حَلِيبٌ","شَاي"]},
+  {q:"Apakah maksud 'nasi'?", a:"أَرُزُّ", opts:["مَطْعَم","أَرُزُّ","قَهْوَة","مَاء"]},
+  {q:"Apakah maksud 'ayam'?", a:"دَجَاجٌ", opts:["دَجَاجٌ","كَعْكَو","عَصِيرٌ","أَشْرَبُ"]},
+  {q:"Apakah maksud 'ikan'?", a:"سَمَكٌ", opts:["سَمَكٌ","مَطْعَم","أَكُلُ","خُبْزٌ"]},
+  {q:"Apakah maksud 'daging'?", a:"لَحْمٌ", opts:["لَحْمٌ","قَهْوَة","شَاي","مَاء"]},
+  {q:"Apakah maksud 'air'?", a:"مَاء", opts:["مَاء","بَيْضٌ","أَرُزُّ","حَلِيبٌ"]},
+  {q:"Apakah maksud 'jus'?", a:"عَصِيرٌ", opts:["عَصِيرٌ","كَعْكَو","شَاي","مَطْعَم"]},
+  {q:"Apakah maksud 'susu'?", a:"حَلِيبٌ", opts:["قَهْوَة","خُبْزٌ","حَلِيبٌ","أَكُلُ"]},
+  {q:"Apakah maksud 'koko'?", a:"كَاكَاو", opts:["كَاكَاو","مَاء","شَاي","دَجَاجٌ"]},
+  {q:"Apakah maksud 'kopi'?", a:"قَهْوَة", opts:["سَمَكٌ","قَهْوَة","حَلِيبٌ","عَصِيرٌ"]},
+  {q:"Apakah maksud 'teh'?", a:"شَاي", opts:["شَاي","بَيْضٌ","كَعْكَو","مَطْعَم"]},
+  {q:"Apakah maksud 'saya makan'?", a:"أَكُلُ", opts:["أَكُلُ","أَشْرَبُ","خُبْزٌ","شَاي"]},
+  {q:"Apakah maksud 'saya minum'?", a:"أَشْرَبُ", opts:["مَطْعَم","أَشْرَبُ","لَحْمٌ","عَصِيرٌ"]},
+  {q:"Apakah maksud 'restoran'?", a:"مَطْعَم", opts:["مَطْعَم","شَاي","بَيْضٌ","قَهْوَة"]}
+];
+
+let player, score = 0, time = 0, timer, used = [], qIndex = 0;
+
+function startGame() {
+  player = document.getElementById("playerName").value.trim() || "Pelajar";
+  document.getElementById("showName").innerText = player;
+  document.getElementById("start").style.display = "none";
+  document.getElementById("game").style.display = "block";
+  
+  score = 0; 
+  time = 0; 
+  used = []; 
+  qIndex = 0;
+  
+  document.getElementById("score").innerText = score;
+  document.getElementById("timer").innerText = time;
+  document.getElementById("questionNum").innerText = "1";
+  
+  timer = setInterval(() => {
+    time++;
+    document.getElementById("timer").innerText = time;
+  }, 1000);
+  
+  nextQ();
+}
+
+function nextQ() {
+  if (qIndex >= 10) { 
+    endGame(); 
+    return; 
+  }
+  
+  let q;
+  do { 
+    q = questions[Math.floor(Math.random() * questions.length)]; 
+  } while (used.includes(q));
+  
+  used.push(q); 
+  qIndex++;
+  
+  // Update progress bar
+  const progress = (qIndex / 10) * 100;
+  document.getElementById("progressFill").style.width = progress + "%";
+  document.getElementById("questionNum").innerText = qIndex;
+  
+  document.getElementById("question").innerText = q.q;
+  let optDiv = document.getElementById("options"); 
+  optDiv.innerHTML = "";
+  
+  // Shuffle options
+  const shuffledOpts = [...q.opts].sort(() => Math.random() - 0.5);
+  
+  shuffledOpts.forEach(o => {
+    let b = document.createElement("button");
+    b.className = "btn option"; 
+    b.innerText = o;
+    b.onclick = () => checkAns(b, o, q.a);
+    optDiv.appendChild(b);
+  });
+}
+
+function checkAns(btn, sel, correct) {
+  // Disable all buttons
+  const allBtns = document.querySelectorAll('.option');
+  allBtns.forEach(b => b.disabled = true);
+  
+  if (sel == correct) { 
+    btn.classList.add("correct"); 
+    score += 10;
+    // Visual feedback for correct answer
+    btn.innerHTML = "✅ " + btn.innerText;
+  } else { 
+    btn.classList.add("wrong"); 
+    score -= 5;
+    // Visual feedback for wrong answer and show correct answer
+    btn.innerHTML = "❌ " + btn.innerText;
+    allBtns.forEach(b => {
+      if (b.innerText === correct) {
+        b.classList.add("correct");
+        b.innerHTML = "✅ " + b.innerText;
+      }
+    });
+  }
+  
+  document.getElementById("score").innerText = score;
+  setTimeout(() => {
+    allBtns.forEach(b => b.disabled = false);
+    nextQ();
+  }, 1500);
+}
+
+function endGame() {
+  clearInterval(timer);
+  document.getElementById("game").style.display = "none";
+  document.getElementById("leaderboard").style.display = "block";
+  
+  let board = JSON.parse(localStorage.getItem("arabicQuizBoard") || "[]");
+  board.push({n: player, s: score, t: time, date: new Date().toLocaleDateString()});
+  board.sort((a, b) => b.s - a.s || a.t - b.t);
+  
+  // Keep only top 10
+  board = board.slice(0, 10);
+  localStorage.setItem("arabicQuizBoard", JSON.stringify(board));
+  
+  displayLeaderboard(board);
+}
+
+function displayLeaderboard(board) {
+  const boardDiv = document.getElementById("board");
+  boardDiv.innerHTML = "";
+  
+  if (board.length === 0) {
+    boardDiv.innerHTML = "<p style='color: #666;'>Tiada rekod lagi. Jadilah yang pertama!</p>";
+    return;
+  }
+  
+  board.forEach((entry, index) => {
+    const item = document.createElement("div");
+    item.className = "leaderboard-item";
+    
+    const rank = index + 1;
+    const medal = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : `${rank}.`;
+    
+    item.innerHTML = `
+      <div>
+        <span style="font-size: 1.2em; margin-right: 10px;">${medal}</span>
+        <span class="player-info">${entry.n}</span>
+      </div>
+      <div style="text-align: right;">
+        <div class="player-info">${entry.s} mata</div>
+        <div class="player-stats">${entry.t}s • ${entry.date}</div>
+      </div>
+    `;
+    
+    boardDiv.appendChild(item);
+  });
+}
+
+function restartGame() {
+  document.getElementById("leaderboard").style.display = "none";
+  document.getElementById("start").style.display = "block";
+  document.getElementById("playerName").value = player;
+  document.getElementById("progressFill").style.width = "0%";
+}
+
+// Load leaderboard on page load
+window.onload = function() {
+  const board = JSON.parse(localStorage.getItem("arabicQuizBoard") || "[]");
+  if (board.length > 0) {
+    displayLeaderboard(board);
+  }
+};
+</script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9880b738a593e708',t:'MTc1OTM3MTU3NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
