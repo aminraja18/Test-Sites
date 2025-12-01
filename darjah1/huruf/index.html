@@ -1,0 +1,780 @@
+<!doctype html>
+<html lang="ms">
+ <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Avatar World — Lukis &amp; Hias</title>
+  <script src="/_sdk/data_sdk.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+body {
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #f3f6fb;
+  --card: #fff;
+  --accent: #4f46e5;
+  --muted: #6b7280;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: Inter, system-ui, 'Segoe UI', Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: #0f172a;
+}
+
+header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 24px;
+  background: linear-gradient(90deg, #eef2ff, white);
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04);
+  box-sizing: border-box;
+}
+
+h1 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.subtitle {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.wrap {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 340px 1fr 320px;
+  gap: 18px;
+  padding: 18px;
+  box-sizing: border-box;
+}
+
+.panel {
+  background: var(--card);
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(2, 6, 23, 0.06);
+}
+
+h3 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+}
+
+h4 {
+  margin: 14px 0 8px 0;
+  font-size: 14px;
+}
+
+.canvas-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+canvas {
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #e6eef8;
+  cursor: crosshair;
+}
+
+.tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+button, select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 0;
+  background: #eef2ff;
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+button:hover {
+  background: #e0e7ff;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.small {
+  padding: 6px 8px;
+  font-size: 13px;
+}
+
+input[type="range"] {
+  width: 80px;
+}
+
+input[type="text"] {
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid #e6eef8;
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.palette {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.sw {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.sw:hover {
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+.sw.active {
+  border-color: #0f172a;
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px #0f172a;
+}
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.slot {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.thumb {
+  width: 100%;
+  height: 120px;
+  border-radius: 6px;
+  background: #fff;
+  border: 1px solid #e6eef8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.thumb img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.meta {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.meta strong {
+  color: #0f172a;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.controls-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.stickers {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sticker {
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  background: #fff;
+  border: 2px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 32px;
+  transition: all 0.2s;
+}
+
+.sticker:hover {
+  border-color: var(--accent);
+  transform: scale(1.1);
+}
+
+.slot-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.slot-actions button {
+  flex: 1;
+  padding: 4px 8px;
+  font-size: 11px;
+}
+
+.tip {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.limit-warning {
+  background: #fef3c7;
+  color: #92400e;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  text-align: center;
+}
+
+@media (max-width: 1200px) {
+  .wrap {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <header>
+   <h1 id="appTitle">Avatar World — Lukis &amp; Hias</h1>
+   <div class="subtitle" id="subtitle">
+    Boleh lukis, hias, simpan sehingga 100 karakter
+   </div>
+  </header>
+  <div class="wrap">
+   <div class="panel">
+    <h3 id="toolsTitle">Alat Lukisan</h3>
+    <div class="canvas-wrap">
+     <div class="tools"><label class="small">Saiz: <input id="size" type="range" min="1" max="40" value="6"></label> <button id="eraser" class="small">Eraser</button> <button id="clear" class="small">Clear</button> <button id="undo" class="small">Undo</button> <button id="redo" class="small">Redo</button>
+     </div>
+     <div class="palette" id="palette"></div>
+     <div class="controls-row"><button id="saveBtn">Simpan Karakter</button> <button id="exportPNG">Eksport PNG</button>
+     </div>
+     <div class="controls-row"><label class="small">Latar: <select id="bgSelect"> <option value="#ffffff">Putih</option> <option value="#fef3c7">Kuning</option> <option value="#dbeafe">Biru</option> <option value="#e6fffa">Tosca</option> <option value="#fce7f3">Pink</option> </select> </label>
+     </div>
+     <p class="tip">Petua: Guna tetikus atau sentuh untuk melukis. Klik sticker untuk tambah hiasan!</p>
+    </div>
+   </div>
+   <div class="panel" style="display: flex; flex-direction: column; align-items: center;">
+    <h3 id="canvasTitle">Canvas Karakter</h3>
+    <canvas id="draw" width="400" height="500"></canvas>
+    <div class="controls-row" style="margin-top: 12px;"><label class="small">Nama: <input id="charName" type="text" placeholder="Contoh: Ali"></label> <label class="small">Kategori: <select id="cat"> <option>Hero</option> <option>Comel</option> <option>Goth</option> <option>Custom</option> </select> </label>
+    </div>
+    <h4>Stickers (klik untuk letak)</h4>
+    <div class="stickers" id="stickers">
+     <div class="sticker" data-emoji="😀">
+      😀
+     </div>
+     <div class="sticker" data-emoji="😎">
+      😎
+     </div>
+     <div class="sticker" data-emoji="🥰">
+      🥰
+     </div>
+     <div class="sticker" data-emoji="😈">
+      😈
+     </div>
+     <div class="sticker" data-emoji="🤖">
+      🤖
+     </div>
+     <div class="sticker" data-emoji="👑">
+      👑
+     </div>
+     <div class="sticker" data-emoji="⭐">
+      ⭐
+     </div>
+     <div class="sticker" data-emoji="❤️">
+      ❤️
+     </div>
+     <div class="sticker" data-emoji="🔥">
+      🔥
+     </div>
+     <div class="sticker" data-emoji="✨">
+      ✨
+     </div>
+    </div>
+   </div>
+   <div class="panel">
+    <div id="limitWarning" class="limit-warning" style="display: none;">
+     Had maksimum 999 karakter telah dicapai. Sila padam beberapa karakter terlebih dahulu.
+    </div>
+    <h3 id="galleryTitle">Galeri Karakter</h3>
+    <div class="gallery" id="gallery"></div>
+   </div>
+  </div>
+  <script>
+const defaultConfig = {
+  app_title: "Avatar World — Lukis & Hias",
+  subtitle: "Boleh lukis, hias, simpan sehingga 100 karakter",
+  tools_title: "Alat Lukisan",
+  canvas_title: "Canvas Karakter",
+  gallery_title: "Galeri Karakter",
+  save_button: "Simpan Karakter",
+  export_button: "Eksport PNG",
+  primary_color: "#4f46e5",
+  background_color: "#f3f6fb",
+  card_color: "#ffffff",
+  text_color: "#0f172a",
+  accent_bg: "#eef2ff",
+  font_family: "Inter",
+  font_size: 14
+};
+
+let characters = [];
+let canvas, ctx;
+let drawing = false;
+let currentColor = '#000000';
+let brushSize = 6;
+let isErasing = false;
+let history = [];
+let historyStep = -1;
+let canvasBg = '#ffffff';
+
+const colors = ['#000000', '#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#ffffff'];
+
+function init() {
+  canvas = document.getElementById('draw');
+  ctx = canvas.getContext('2d');
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  
+  const palette = document.getElementById('palette');
+  colors.forEach(color => {
+    const sw = document.createElement('div');
+    sw.className = 'sw';
+    sw.style.background = color;
+    if (color === '#ffffff') sw.style.border = '2px solid #e5e7eb';
+    if (color === currentColor) sw.classList.add('active');
+    sw.addEventListener('click', () => {
+      currentColor = color;
+      isErasing = false;
+      document.querySelectorAll('.sw').forEach(s => s.classList.remove('active'));
+      sw.classList.add('active');
+    });
+    palette.appendChild(sw);
+  });
+  
+  document.getElementById('size').addEventListener('input', (e) => {
+    brushSize = parseInt(e.target.value);
+  });
+  
+  document.getElementById('eraser').addEventListener('click', () => {
+    isErasing = true;
+  });
+  
+  document.getElementById('clear').addEventListener('click', () => {
+    ctx.fillStyle = canvasBg;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    saveHistory();
+  });
+  
+  document.getElementById('undo').addEventListener('click', undo);
+  document.getElementById('redo').addEventListener('click', redo);
+  
+  document.getElementById('bgSelect').addEventListener('change', (e) => {
+    canvasBg = e.target.value;
+    ctx.fillStyle = canvasBg;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    saveHistory();
+  });
+  
+  document.getElementById('saveBtn').addEventListener('click', saveCharacter);
+  document.getElementById('exportPNG').addEventListener('click', exportPNG);
+  
+  canvas.addEventListener('mousedown', startDraw);
+  canvas.addEventListener('mousemove', draw);
+  canvas.addEventListener('mouseup', stopDraw);
+  canvas.addEventListener('mouseout', stopDraw);
+  
+  canvas.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const rect = canvas.getBoundingClientRect();
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+    startDraw({ offsetX: x, offsetY: y });
+  });
+  
+  canvas.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const rect = canvas.getBoundingClientRect();
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+    draw({ offsetX: x, offsetY: y });
+  });
+  
+  canvas.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    stopDraw();
+  });
+  
+  document.getElementById('stickers').addEventListener('click', (e) => {
+    const sticker = e.target.closest('.sticker');
+    if (sticker) {
+      const emoji = sticker.dataset.emoji;
+      addSticker(emoji);
+    }
+  });
+  
+  ctx.fillStyle = canvasBg;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  saveHistory();
+}
+
+function startDraw(e) {
+  drawing = true;
+  ctx.beginPath();
+  ctx.moveTo(e.offsetX, e.offsetY);
+}
+
+function draw(e) {
+  if (!drawing) return;
+  ctx.strokeStyle = isErasing ? canvasBg : currentColor;
+  ctx.lineWidth = brushSize;
+  ctx.lineTo(e.offsetX, e.offsetY);
+  ctx.stroke();
+}
+
+function stopDraw() {
+  if (drawing) {
+    drawing = false;
+    saveHistory();
+  }
+}
+
+function saveHistory() {
+  historyStep++;
+  if (historyStep < history.length) {
+    history.length = historyStep;
+  }
+  history.push(canvas.toDataURL());
+}
+
+function undo() {
+  if (historyStep > 0) {
+    historyStep--;
+    const img = new Image();
+    img.onload = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+    };
+    img.src = history[historyStep];
+  }
+}
+
+function redo() {
+  if (historyStep < history.length - 1) {
+    historyStep++;
+    const img = new Image();
+    img.onload = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+    };
+    img.src = history[historyStep];
+  }
+}
+
+function addSticker(emoji) {
+  ctx.font = '48px Arial';
+  ctx.fillText(emoji, canvas.width / 2 - 24, canvas.height / 2);
+  saveHistory();
+}
+
+async function saveCharacter() {
+  if (characters.length >= 999) {
+    document.getElementById('limitWarning').style.display = 'block';
+    return;
+  }
+  
+  const name = document.getElementById('charName').value.trim() || 'Tanpa Nama';
+  const category = document.getElementById('cat').value;
+  const imageData = canvas.toDataURL();
+  
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = true;
+  btn.textContent = 'Menyimpan...';
+  
+  const result = await window.dataSdk.create({
+    id: Date.now().toString(),
+    name: name,
+    category: category,
+    imageData: imageData,
+    timestamp: Date.now()
+  });
+  
+  btn.disabled = false;
+  btn.textContent = window.elementSdk?.config?.save_button || defaultConfig.save_button;
+  
+  if (result.isError) {
+    alert('Ralat menyimpan karakter. Sila cuba lagi.');
+  }
+}
+
+function exportPNG() {
+  const link = document.createElement('a');
+  link.download = `karakter-${Date.now()}.png`;
+  link.href = canvas.toDataURL();
+  link.click();
+}
+
+async function deleteCharacter(record) {
+  const btn = event.target;
+  const originalText = btn.textContent;
+  
+  if (btn.dataset.confirming === 'true') {
+    btn.disabled = true;
+    btn.textContent = 'Memadam...';
+    
+    const result = await window.dataSdk.delete(record);
+    
+    if (result.isError) {
+      alert('Ralat memadam karakter. Sila cuba lagi.');
+      btn.disabled = false;
+      btn.textContent = originalText;
+      btn.dataset.confirming = 'false';
+    }
+  } else {
+    btn.dataset.confirming = 'true';
+    btn.textContent = 'Klik lagi';
+    btn.style.background = '#ef4444';
+    btn.style.color = '#fff';
+    
+    setTimeout(() => {
+      btn.dataset.confirming = 'false';
+      btn.textContent = originalText;
+      btn.style.background = '';
+      btn.style.color = '';
+    }, 3000);
+  }
+}
+
+function loadToCanvas(record) {
+  const img = new Image();
+  img.onload = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = canvasBg;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0);
+    saveHistory();
+  };
+  img.src = record.imageData;
+  
+  document.getElementById('charName').value = record.name;
+}
+
+function renderGallery() {
+  const gallery = document.getElementById('gallery');
+  const limitWarning = document.getElementById('limitWarning');
+  
+  if (characters.length >= 999) {
+    limitWarning.style.display = 'block';
+  } else {
+    limitWarning.style.display = 'none';
+  }
+  
+  if (characters.length === 0) {
+    gallery.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: var(--muted); padding: 20px;">Tiada karakter lagi. Lukis dan simpan karakter pertama anda!</div>';
+    return;
+  }
+  
+  const sorted = [...characters].sort((a, b) => b.timestamp - a.timestamp);
+  
+  gallery.innerHTML = '';
+  sorted.forEach(char => {
+    const slot = document.createElement('div');
+    slot.className = 'slot';
+    
+    const thumb = document.createElement('div');
+    thumb.className = 'thumb';
+    const img = document.createElement('img');
+    img.src = char.imageData;
+    img.alt = char.name;
+    thumb.appendChild(img);
+    
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+    meta.innerHTML = `<strong>${char.name}</strong>${char.category}`;
+    
+    const actions = document.createElement('div');
+    actions.className = 'slot-actions';
+    
+    const loadBtn = document.createElement('button');
+    loadBtn.textContent = 'Muat';
+    loadBtn.className = 'small';
+    loadBtn.onclick = () => loadToCanvas(char);
+    
+    const deleteBtn = document.createElement('button');
+    deleteBtn.textContent = 'Padam';
+    deleteBtn.className = 'small';
+    deleteBtn.onclick = () => deleteCharacter(char);
+    
+    actions.appendChild(loadBtn);
+    actions.appendChild(deleteBtn);
+    
+    slot.appendChild(thumb);
+    slot.appendChild(meta);
+    slot.appendChild(actions);
+    gallery.appendChild(slot);
+  });
+}
+
+const dataHandler = {
+  onDataChanged(data) {
+    characters = data;
+    renderGallery();
+  }
+};
+
+async function onConfigChange(config) {
+  const customFont = config.font_family || defaultConfig.font_family;
+  const baseSize = config.font_size || defaultConfig.font_size;
+  const baseFontStack = 'system-ui, -apple-system, sans-serif';
+  
+  document.body.style.fontFamily = `${customFont}, ${baseFontStack}`;
+  document.body.style.fontSize = `${baseSize}px`;
+  
+  document.documentElement.style.setProperty('--bg', config.background_color || defaultConfig.background_color);
+  document.documentElement.style.setProperty('--card', config.card_color || defaultConfig.card_color);
+  document.documentElement.style.setProperty('--accent', config.primary_color || defaultConfig.primary_color);
+  
+  const header = document.querySelector('header');
+  header.style.background = `linear-gradient(90deg, ${config.accent_bg || defaultConfig.accent_bg}, ${config.card_color || defaultConfig.card_color})`;
+  
+  const buttons = document.querySelectorAll('button, select');
+  buttons.forEach(btn => {
+    btn.style.background = config.accent_bg || defaultConfig.accent_bg;
+    btn.style.color = config.primary_color || defaultConfig.primary_color;
+  });
+  
+  document.getElementById('appTitle').textContent = config.app_title || defaultConfig.app_title;
+  document.getElementById('appTitle').style.fontSize = `${baseSize * 1.3}px`;
+  
+  document.getElementById('subtitle').textContent = config.subtitle || defaultConfig.subtitle;
+  document.getElementById('subtitle').style.fontSize = `${baseSize}px`;
+  
+  document.getElementById('toolsTitle').textContent = config.tools_title || defaultConfig.tools_title;
+  document.getElementById('toolsTitle').style.fontSize = `${baseSize * 1.15}px`;
+  
+  document.getElementById('canvasTitle').textContent = config.canvas_title || defaultConfig.canvas_title;
+  document.getElementById('canvasTitle').style.fontSize = `${baseSize * 1.15}px`;
+  
+  document.getElementById('galleryTitle').textContent = config.gallery_title || defaultConfig.gallery_title;
+  document.getElementById('galleryTitle').style.fontSize = `${baseSize * 1.15}px`;
+  
+  document.getElementById('saveBtn').textContent = config.save_button || defaultConfig.save_button;
+  document.getElementById('exportPNG').textContent = config.export_button || defaultConfig.export_button;
+}
+
+if (window.dataSdk) {
+  window.dataSdk.init(dataHandler).then(result => {
+    if (result.isOk) {
+      init();
+    }
+  });
+}
+
+if (window.elementSdk) {
+  window.elementSdk.init({
+    defaultConfig,
+    onConfigChange,
+    mapToCapabilities: (config) => ({
+      recolorables: [
+        {
+          get: () => config.background_color || defaultConfig.background_color,
+          set: (value) => {
+            window.elementSdk.config.background_color = value;
+            window.elementSdk.setConfig({ background_color: value });
+          }
+        },
+        {
+          get: () => config.card_color || defaultConfig.card_color,
+          set: (value) => {
+            window.elementSdk.config.card_color = value;
+            window.elementSdk.setConfig({ card_color: value });
+          }
+        },
+        {
+          get: () => config.primary_color || defaultConfig.primary_color,
+          set: (value) => {
+            window.elementSdk.config.primary_color = value;
+            window.elementSdk.setConfig({ primary_color: value });
+          }
+        },
+        {
+          get: () => config.accent_bg || defaultConfig.accent_bg,
+          set: (value) => {
+            window.elementSdk.config.accent_bg = value;
+            window.elementSdk.setConfig({ accent_bg: value });
+          }
+        }
+      ],
+      borderables: [],
+      fontEditable: {
+        get: () => config.font_family || defaultConfig.font_family,
+        set: (value) => {
+          window.elementSdk.config.font_family = value;
+          window.elementSdk.setConfig({ font_family: value });
+        }
+      },
+      fontSizeable: {
+        get: () => config.font_size || defaultConfig.font_size,
+        set: (value) => {
+          window.elementSdk.config.font_size = value;
+          window.elementSdk.setConfig({ font_size: value });
+        }
+      }
+    }),
+    mapToEditPanelValues: (config) => new Map([
+      ['app_title', config.app_title || defaultConfig.app_title],
+      ['subtitle', config.subtitle || defaultConfig.subtitle],
+      ['tools_title', config.tools_title || defaultConfig.tools_title],
+      ['canvas_title', config.canvas_title || defaultConfig.canvas_title],
+      ['gallery_title', config.gallery_title || defaultConfig.gallery_title],
+      ['save_button', config.save_button || defaultConfig.save_button],
+      ['export_button', config.export_button || defaultConfig.export_button]
+    ])
+  });
+} else {
+  init();
+}
+</script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a6fa63522f1f509',t:'MTc2NDU2MTMyOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
